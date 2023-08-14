@@ -3,12 +3,10 @@
 #------------------------------------------------------------------------------#
 
 # Executable name
-NAME		=	Office
+NAME		=	ircserv
 
 # Source file names (prefix their subdir if needed)
 FILES		=	main \
-				Bureaucrat \
-				Form \
 
 # Directory names
 SRCDIR		=
