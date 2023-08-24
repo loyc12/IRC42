@@ -38,13 +38,13 @@ void irc(int port, int pass)
 	listen(sock_fd, 8); // max 8 pending conections at a time
 
 	//accepting request
-	socklen_t	clilen = sizeof(cli_addr);
-	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &clilen);
-     if (new_sock_fd < 0)
-          throw "Accept failure";
+	socklen_t	cli_len = sizeof(cli_addr);
+	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &cli_len);
+    if (new_sock_fd < 0)
+        throw "Accept failure";
 
     //anwser from server if got here:
-    std::cout << "Got a connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << std::endl;
+    std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
 
     // This send() function sends the 14 bytes of the string to the new socket
     send(new_sock_fd, "Hello, client!\n", 14, 0);
@@ -57,10 +57,10 @@ void irc(int port, int pass)
     if (n < 0)
 		throw "Socket reading failure";
 
-    std::cout << "here is the message:" << buffer << std::endl;
+    std::cout << "here is the message: " << buffer << std::endl;
 
 	n = fcntl(new_sock_fd, F_SETFL, "I got your message\n", O_NONBLOCK); //?
-    //n = write(new_sock_fd,"I got your message", 18); // use fcntl() instead of write()
+    // n = write(new_sock_fd,"I got your message", 18); // use fcntl() instead of write()
     if (n < 0)
 		throw "Socket writing failure";
 
