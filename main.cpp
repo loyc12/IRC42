@@ -13,7 +13,7 @@ void irc(int port, int pass)
 	(void) pass;
 
     //create a socket
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);//AF_INET as we use IPV4(domain), SOCK_STREAM ->communication type (TCP), 0-> Protocol value for Internet Protocol(IP) is zero. Could be IPPROTO_TCP
 	int new_sock_fd;
 
 	if (sock_fd < 0)
@@ -27,7 +27,7 @@ void irc(int port, int pass)
 
     //setup structure
     serv_addr.sin_family = AF_INET;//bind call
-    serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress
+    serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress **INADDR_ANY go get localhost
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
 
     //bind the socket to the current IP address on port
@@ -35,11 +35,12 @@ void irc(int port, int pass)
     	throw "Binding failure";
 
 	//waiting for request
+	//8 = int backlog. If queue is full= ECONNREFUSED
 	listen(sock_fd, 8); // max 8 pending conections at a time
 
 	//accepting request
 	socklen_t	cli_len = sizeof(cli_addr);
-	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &cli_len);
+	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &cli_len); //when accepted, now they can transfer data. The last 2 parameters should they be NULL?
     if (new_sock_fd < 0)
         throw "Accept failure";
 
@@ -47,13 +48,13 @@ void irc(int port, int pass)
     std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
 
     // This send() function sends the 14 bytes of the string to the new socket
-    send(new_sock_fd, "Hello, client!\n", 14, 0);
+    send(new_sock_fd, "Hello, client!\n", 14, 0); //14 can be replace by strlen
 
 	//setting up message buffer
 	char buffer[256];
 	bzero(buffer, 256);
 
-    int n = read(new_sock_fd, buffer, 255);
+    int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
     if (n < 0)
 		throw "Socket reading failure";
 
