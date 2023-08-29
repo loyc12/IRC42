@@ -13,8 +13,8 @@ class User
 {
 	private:
 		// Data
-		std::string	content;
-		User		sender;
+		std::string	name;
+		std::string	nick;
 
 		// Private Constructor
 		User();
