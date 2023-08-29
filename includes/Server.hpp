@@ -3,13 +3,21 @@
 
 
 # include <iostream>
-# include <stdlib.h>		//for which functions ??
-# include <fcntl.h>			//for file descriptors (?)
-# include <arpa/inet.h>		//inet_ntoa
-# include <netinet/in.h>	//socket
-# include <sys/socket.h>	//socket (what's the difference between the two?)
+# include <stdlib.h>		// for which functions ??
+# include <fcntl.h>			// for file descriptors (?)
+# include "User.hpp"
+# include "Message.hpp"
 
-Class Server
+/*
+# include <arpa/inet.h>		// inet_ntoa
+# include <netinet/in.h>	// socket
+# include <sys/socket.h>	// socket (what's the difference between the two?)
+*/
+
+class User;
+class Message;
+
+class Server
 {
 	private:
 		// Private Constructor

@@ -17,6 +17,7 @@ void irc(int port, int pass)
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 
+
     //create a socket : Doc -> man ip (7)
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd < 0)
@@ -34,7 +35,7 @@ void irc(int port, int pass)
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
 	if (bind(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 	{
-		std::cerr << " Error at bind();" << std::strerror(errno) << std::endl;
+		std::cerr << " Error at bind(); " << std::strerror(errno) << std::endl;
 		exit(1);
 	}
 	else
@@ -43,54 +44,40 @@ void irc(int port, int pass)
 	//Listen with a backlog queue of 8.
 	listen(socket_fd, 8);
 
-
-	/*-------trying out to do the loop to connect multiple clients------*/
-/*from tuto*/
-	// fd_set origin;
-	// FD_ZERO(&origin); //to put it as empty
-	// FD_SET(socket_fd, &origin);
-	// fd_set cpyOri = origin; //copy fd_set struct; select() will destroy it
-	// int	socketNb = select(0, &cpyOri, nullptr, nullptr, nullptr); //first param: no of sockets to be checked... really not sure...
-	// for (int i = 0; i < socketNb; i++)
-	// {
-	// 	//first prob as I'm focusing too much on the tuto and I have to adapt it for macOS
-	// }
-/*from tuto*/
-	//might need to add poll() somewhere... before loop??
-	while (true)
+	//Accept
+	socklen_t	cli_len = sizeof(cli_addr);
+	new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
+    if (new_sock_fd < 0)
 	{
-		//Accept
-		socklen_t	cli_len = sizeof(cli_addr);
-		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
-		if (new_sock_fd < 0)
-		{
-			std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
-			exit(1);
-		}
-		else
-			std::cout << "Accept() is OK!" << std::endl;
-
-		//anwser from server if got here:
-		std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
-
-		// This send() function sends the 14 bytes of the string to the new socket
-		send(new_sock_fd, "Hello, client!\n", 14, 0); //14 can be replace by strlen
-
-		//setting up message buffer
-		char buffer[256];
-		bzero(buffer, 256);
-
-		int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
-		if (n < 0)
-			throw "Socket reading failure";
-
-		std::cout << "here is the message: " << buffer << std::endl;
-
-		n = fcntl(new_sock_fd, F_SETFL, "I got your message\n", O_NONBLOCK); //?
-		// n = write(new_sock_fd,"I got your message", 18); // use fcntl() instead of write()
-		if (n < 0)
-			throw "Socket writing failure";
+		std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
+		exit(1);
 	}
+	else
+		std::cout << "Accept() is OK!" << std::endl;
+
+	//Print Connection
+    std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(cli_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(cli_addr.sin_port) << std::endl;
+	std::cout << "\nSERVER IP (local): \t" << inet_ntoa(serv_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(serv_addr.sin_port) << std::endl;
+
+	std::cout << "\nSENDING ..." << std::endl;
+    // This send() function sends the 14 bytes of the string to the new socket
+    if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < 0)
+	{
+		std::cerr << " Error at send();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "send() is OK!" << std::endl;
+
+	//setting up message buffer
+	char buffer[256];
+	bzero(buffer, 256);
+
+    int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
+    if (n < 0)
+		throw "Socket reading failure";
+
+    std::cout << "here is the message: " << buffer << std::endl;
 
 
 	close (socket_fd);
