@@ -17,6 +17,7 @@ void irc(int port, int pass)
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 
+
     //create a socket : Doc -> man ip (7)
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socket_fd < 0)
@@ -54,12 +55,19 @@ void irc(int port, int pass)
 	else
 		std::cout << "Accept() is OK!" << std::endl;
 
+	//Print Connection
     std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(cli_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(cli_addr.sin_port) << std::endl;
 	std::cout << "\nSERVER IP (local): \t" << inet_ntoa(serv_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(serv_addr.sin_port) << std::endl;
-	/*  inet_ntoa() returns the dots-and-numbers string in a static buffer that is overwritten with each call to the function. */
 
+	std::cout << "\nSENDING ..." << std::endl;
     // This send() function sends the 14 bytes of the string to the new socket
-    send(new_sock_fd, "Hello, client!\n", 14, 0);
+    if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < 0)
+	{
+		std::cerr << " Error at send();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "send() is OK!" << std::endl;
 
 	//setting up message buffer
 	char buffer[256];
