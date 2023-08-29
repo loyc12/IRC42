@@ -20,8 +20,8 @@ void	handler_in_loop(int sig)
 	(void)sig;
 	//kill() process here??
 	std::cout << "kill process here" << std::endl;
-
 }
+
 
 void irc(int port, int pass)
 {
