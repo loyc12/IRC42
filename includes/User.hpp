@@ -12,6 +12,10 @@ class Message;
 class User
 {
 	private:
+		// Data
+		std::string	content;
+		User		sender;
+
 		// Private Constructor
 		User();
 
