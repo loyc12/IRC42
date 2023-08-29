@@ -12,42 +12,40 @@ void irc(int port, int pass)
 {
 	(void) pass;
 	int new_sock_fd;
-	SOCKET serverSocket = INVALID_SOCKET;
-
-    //create a socket : Documentation for socket() : man ip (7)
-	// int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-	//! AV : Bound the result in the class SOCKET instead of a int
-	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (serverSocket == INVALID_SOCKET)
-	{
-		std::cerr << " Error at socket();" << std::strerror(errno) << std::endl;
-		exit(1);
-		//^ Need to talk to setting up error management.
-	}
-	else
-		std::cout << "Socket() is OK!" << std::endl;
-
+	int socket_fd;
     //structure for sockets
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 
-	bzero((char *) &serv_addr, sizeof(serv_addr));
+    //create a socket : Doc -> man ip (7)
+	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_fd < 0)
+	{
+		std::cerr << " Error at socket();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Socket() is OK!" << std::endl;
 
-    //setup structure
+	//Bind procedure (clear & setup)
+	bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;//bind call
     serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
-
-    //bind the socket to the current IP address on port
-	if (bind(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)//recast //PROTECT
-    	throw "Binding failure";
+	if (bind(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+	{
+		std::cerr << " Error at bind();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Bind() is OK!" << std::endl;
 
 	//waiting for request
-	listen(sock_fd, 8); // max 8 pending conections at a time
+	listen(socket_fd, 8); // max 8 pending conections at a time
 
 	//accepting request
 	socklen_t	cli_len = sizeof(cli_addr);
-	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &cli_len);
+	new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
     if (new_sock_fd < 0)
         throw "Accept failure";
 
@@ -72,7 +70,7 @@ void irc(int port, int pass)
     if (n < 0)
 		throw "Socket writing failure";
 
-	close (sock_fd);
+	close (socket_fd);
 	close (new_sock_fd);
 }
 
