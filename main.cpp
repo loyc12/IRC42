@@ -34,7 +34,7 @@ void irc(int port, int pass)
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
 	if (bind(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 	{
-		std::cerr << " Error at bind();" << std::strerror(errno) << std::endl;
+		std::cerr << " Error at bind(); " << std::strerror(errno) << std::endl;
 		exit(1);
 	}
 	else
@@ -54,8 +54,9 @@ void irc(int port, int pass)
 	else
 		std::cout << "Accept() is OK!" << std::endl;
 
-    //anwser from server if got here:
-    std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
+    std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(cli_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(cli_addr.sin_port) << std::endl;
+	std::cout << "\nSERVER IP (local): \t" << inet_ntoa(serv_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(serv_addr.sin_port) << std::endl;
+	/*  inet_ntoa() returns the dots-and-numbers string in a static buffer that is overwritten with each call to the function. */
 
     // This send() function sends the 14 bytes of the string to the new socket
     send(new_sock_fd, "Hello, client!\n", 14, 0);
