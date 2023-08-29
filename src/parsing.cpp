@@ -1,4 +1,4 @@
-#include "../includes/Server.hpp"
+#include "Server.hpp"
 
 /*parsing arguments received (<port> <password>)*/
 

@@ -16,11 +16,9 @@ class Message
 		std::string	name;
 		std::string	nick;
 
-		// Private Constructor
-		Message();
-
 	public:
 		// Constructors & Destructor
+		Message();
 		Message(const int port, const int password);
 		Message(const Message &other);
 		Message &operator= (const Message &other);

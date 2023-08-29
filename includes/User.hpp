@@ -16,11 +16,9 @@ class User
 		std::string	content;
 		User		sender;
 
-		// Private Constructor
-		User();
-
 	public:
 		// Constructors & Destructor
+		User();
 		User(const int port, const int password);
 		User(const User &other);
 		User &operator= (const User &other);

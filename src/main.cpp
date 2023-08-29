@@ -1,4 +1,4 @@
-#include "../includes/Server.hpp" //add proper includes
+#include "Server.hpp" //add proper includes
 
 int	main(int ac, char **av)
 {
