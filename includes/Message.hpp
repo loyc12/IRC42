@@ -13,18 +13,20 @@ class Message
 {
 	private:
 		// Data
-		std::string	name;
-		std::string	nick;
+		std::string	content;
+		User		sender;
 
 	public:
 		// Constructors & Destructor
 		Message();
-		Message(const int port, const int password);
+		Message(std::string _content, const User &sender);
 		Message(const Message &other);
 		Message &operator= (const Message &other);
 		~Message();
 
-		// Others
+		// Getters - Setters
+		std::string	getContent(void) const;
+		User		&getSender(void) const;
 };
 
 

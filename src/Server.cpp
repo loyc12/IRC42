@@ -5,6 +5,8 @@
 Server::Server()
 {
 	std::cout << ": Called default constructor (SERVER) ";
+	this->port = 6667;
+	this->port = 1234;
 }
 Server::Server(const int _port, const int _pass)
 {

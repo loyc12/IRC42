@@ -13,18 +13,20 @@ class User
 {
 	private:
 		// Data
-		std::string	content;
-		User		sender;
+		std::string	name;
+		std::string	nick;
 
 	public:
 		// Constructors & Destructor
 		User();
-		User(const int port, const int password);
+		User(const std::string _name, const std::string _nick);
 		User(const User &other);
 		User &operator= (const User &other);
 		~User();
 
-		// Others
+		// Getters - Setters
+		std::string	getName(void) const;
+		std::string	getNick(void) const;
 };
 
 
