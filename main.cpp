@@ -45,41 +45,42 @@ void irc(int port, int pass)
 	listen(socket_fd, 8);
 
 	//Accept
-	socklen_t	cli_len = sizeof(cli_addr);
-	new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
-    if (new_sock_fd < 0)
+	while (true)
 	{
-		std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
-		exit(1);
+		socklen_t	cli_len = sizeof(cli_addr);
+		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
+		if (new_sock_fd < 0)
+		{
+			std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
+			exit(1);
+		}
+		else
+			std::cout << "Accept() is OK!" << std::endl;
+
+		//Print Connection
+		std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(cli_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(cli_addr.sin_port) << std::endl;
+		std::cout << "\nSERVER IP (local): \t" << inet_ntoa(serv_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(serv_addr.sin_port) << std::endl;
+
+		std::cout << "\nSENDING ..." << std::endl;
+		// This send() function sends the 14 bytes of the string to the new socket
+		if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < 0)
+		{
+			std::cerr << " Error at send();" << std::strerror(errno) << std::endl;
+			exit(1);
+		}
+		else
+			std::cout << "send() is OK!" << std::endl;
+
+		//setting up message buffer
+		char buffer[256];
+		bzero(buffer, 256);
+
+		int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
+		if (n < 0)
+			throw "Socket reading failure";
+
+		std::cout << "here is the message: " << buffer << std::endl;
 	}
-	else
-		std::cout << "Accept() is OK!" << std::endl;
-
-	//Print Connection
-    std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(cli_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(cli_addr.sin_port) << std::endl;
-	std::cout << "\nSERVER IP (local): \t" << inet_ntoa(serv_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(serv_addr.sin_port) << std::endl;
-
-	std::cout << "\nSENDING ..." << std::endl;
-    // This send() function sends the 14 bytes of the string to the new socket
-    if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < 0)
-	{
-		std::cerr << " Error at send();" << std::strerror(errno) << std::endl;
-		exit(1);
-	}
-	else
-		std::cout << "send() is OK!" << std::endl;
-
-	//setting up message buffer
-	char buffer[256];
-	bzero(buffer, 256);
-
-    int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
-    if (n < 0)
-		throw "Socket reading failure";
-
-    std::cout << "here is the message: " << buffer << std::endl;
-
-
 	close (socket_fd);
 	close (new_sock_fd);
 }
