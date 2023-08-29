@@ -40,14 +40,19 @@ void irc(int port, int pass)
 	else
 		std::cout << "Bind() is OK!" << std::endl;
 
-	//waiting for request
-	listen(socket_fd, 8); // max 8 pending conections at a time
+	//Listen with a backlog queue of 8.
+	listen(socket_fd, 8);
 
-	//accepting request
+	//Accept
 	socklen_t	cli_len = sizeof(cli_addr);
 	new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
     if (new_sock_fd < 0)
-        throw "Accept failure";
+	{
+		std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Accept() is OK!" << std::endl;
 
     //anwser from server if got here:
     std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
