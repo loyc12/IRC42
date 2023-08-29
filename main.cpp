@@ -11,37 +11,48 @@
 void irc(int port, int pass)
 {
 	(void) pass;
-
-    //create a socket
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int new_sock_fd;
-
-	if (sock_fd < 0)
-		throw "Socket failure";
-
+	int socket_fd;
     //structure for sockets
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 
-	bzero((char *) &serv_addr, sizeof(serv_addr));
+    //create a socket : Doc -> man ip (7)
+	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (socket_fd < 0)
+	{
+		std::cerr << " Error at socket();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Socket() is OK!" << std::endl;
 
-    //setup structure
+	//Bind procedure (clear & setup)
+	bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;//bind call
     serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
+	if (bind(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+	{
+		std::cerr << " Error at bind();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Bind() is OK!" << std::endl;
 
-    //bind the socket to the current IP address on port
-	if (bind(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)//recast
-    	throw "Binding failure";
+	//Listen with a backlog queue of 8.
+	listen(socket_fd, 8);
 
-	//waiting for request
-	listen(sock_fd, 8); // max 8 pending conections at a time
-
-	//accepting request
+	//Accept
 	socklen_t	cli_len = sizeof(cli_addr);
-	new_sock_fd = accept(sock_fd, (struct sockaddr *) &cli_addr, &cli_len);
+	new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
     if (new_sock_fd < 0)
-        throw "Accept failure";
+	{
+		std::cerr << " Error at accept();" << std::strerror(errno) << std::endl;
+		exit(1);
+	}
+	else
+		std::cout << "Accept() is OK!" << std::endl;
 
     //anwser from server if got here:
     std::cout << "Got a connection by address : " << inet_ntoa(cli_addr.sin_addr) << " ( port " << ntohs(cli_addr.sin_port) << " )" << std::endl;
@@ -64,7 +75,7 @@ void irc(int port, int pass)
     if (n < 0)
 		throw "Socket writing failure";
 
-	close (sock_fd);
+	close (socket_fd);
 	close (new_sock_fd);
 }
 
