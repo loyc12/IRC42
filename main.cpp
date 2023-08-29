@@ -16,6 +16,8 @@ void irc(int port, int pass)
     //structure for sockets
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
+	//message message_buffer
+//	char message_buffer[256];
 
 
     //create a socket : Doc -> man ip (7)
@@ -81,6 +83,30 @@ void irc(int port, int pass)
 
 		std::cout << "here is the message: " << buffer << std::endl;
 	}
+	/*
+	else
+		std::cout << "send() is OK!" << std::endl;
+
+	//setting up reception message_buffer
+	std::cout << "\nRECEPTING ..." << std::endl;
+	bzero(message_buffer, 256);
+	int n = recv(new_sock_fd, message_buffer, 255, 0);
+    if (n < 0)
+   	{
+   		std::cerr << " Error at recv(); " << std::strerror(errno) << std::endl;
+   		exit(1);
+   	}
+   	else
+   		std::cout << "recv() is OK!" << std::endl;
+
+    std::cout << "\nMESSAGE:\t" << message_buffer << std::endl;
+
+	n = fcntl(new_sock_fd, F_SETFL, "I got your message\n", O_NONBLOCK); //?
+    // n = write(new_sock_fd,"I got your message", 18); // use fcntl() instead of write()
+    if (n < 0)
+		throw "Socket writing failure";
+	*/
+
 	close (socket_fd);
 	close (new_sock_fd);
 }
