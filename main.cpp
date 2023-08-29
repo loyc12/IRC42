@@ -11,13 +11,21 @@
 void irc(int port, int pass)
 {
 	(void) pass;
-
-    //create a socket
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 	int new_sock_fd;
+	SOCKET serverSocket = INVALID_SOCKET;
 
-	if (sock_fd < 0)
-		throw "Socket failure";
+    //create a socket : Documentation for socket() : man ip (7)
+	// int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	//! AV : Bound the result in the class SOCKET instead of a int
+	serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket == INVALID_SOCKET)
+	{
+		std::cerr << " Error at socket();" << std::strerror(errno) << std::endl;
+		exit(1);
+		//^ Need to talk to setting up error management.
+	}
+	else
+		std::cout << "Socket() is OK!" << std::endl;
 
     //structure for sockets
 	struct sockaddr_in serv_addr;
@@ -31,7 +39,7 @@ void irc(int port, int pass)
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
 
     //bind the socket to the current IP address on port
-	if (bind(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)//recast
+	if (bind(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)//recast //PROTECT
     	throw "Binding failure";
 
 	//waiting for request
