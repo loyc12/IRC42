@@ -31,7 +31,7 @@ void irc(int port, int pass)
 	//Bind procedure (clear & setup)
 	bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;//bind call
-    serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress
+    serv_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress **INADDR_ANY go get localhost
     serv_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
 	if (bind(socket_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 	{
@@ -73,7 +73,7 @@ void irc(int port, int pass)
 	char buffer[256];
 	bzero(buffer, 256);
 
-    int n = read(new_sock_fd, buffer, 255);
+    int n = read(new_sock_fd, buffer, 255);//why 255? not 256? should we use strlen of buffer?
     if (n < 0)
 		throw "Socket reading failure";
 
