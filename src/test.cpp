@@ -22,12 +22,13 @@ static void	stop(int sig)
 	close(new_sock_fd);
 	std::cout << "and clean..." << std::endl;
 }
+*/
 
 
 void irc(int port, int pass)
 {
-	// signal(SIGQUIT, SIG_IGN);//reset signal
-	// signal(SIGINT, stop);
+//	signal(SIGQUIT, SIG_IGN);//reset signal
+//	signal(SIGINT, &handler_init_sig);
 	(void) pass;
     //structure for sockets
 	struct sockaddr_in serv_addr;
@@ -62,8 +63,8 @@ void irc(int port, int pass)
 	//Accept
 	while (!stopFlag) //change to singleton/global
 	{
-		// signal(SIGINT, stop);
-		// signal(SIGQUIT, SIG_IGN); //good place to put or not?
+//		signal(SIGINT, handler_in_loop);
+//		signal(SIGQUIT, handler_in_loop); //good place to put or not?
 		socklen_t	cli_len = sizeof(cli_addr);
 		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
 		if (new_sock_fd < 0)
