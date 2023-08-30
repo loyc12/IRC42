@@ -22,8 +22,6 @@ static void	stop(int sig)
 	close(new_sock_fd);
 	std::cout << "and clean..." << std::endl;
 }
-*/
-
 
 void irc(int port, int pass)
 {
