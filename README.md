@@ -20,15 +20,10 @@ OK
 Click Droit --> Connect ( Va dire que la connection est refusee)
 Dans le terminal (apres le make) : ./ircserv 6667 1234
 
-## Devoir 
+## Devoir
 
-* Classe Client
-* Classe Serveur avec le parsing, avec les throws execptions
-* Enquete chacun va voir le irc d'un groupe avant Mardi
-* Demander a chat gpt pour des explications de base pour irc
 * Envoyer et recevoir message
 
-## Note : 
+## Note :
 
 * Eviter de prendre des rencontres de Jeudi
-* Prochaine rencontre : Mardi
