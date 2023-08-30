@@ -20,18 +20,25 @@ class Message;
 class Server
 {
 	private:
+		// Data
+		int	port;
+		int	pass;
+
 		// Private Constructor
 		Server();
 
 	public:
 		// Constructors & Destructor
-		Server(const int port, const int password);
+		Server(int _port, int _pass);
 		Server(const Server &other);
 		Server &operator= (const Server &other);
 		~Server();
 
-		// Others
+		// Getters - Setters
+		int	getPort(void) const ;
+		int	getPass(void) const;
 };
 
+std::ostream &operator<< (std::ostream &out, const Server &rhs);
 
 #endif // SERVER_HPP

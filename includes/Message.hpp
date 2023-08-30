@@ -14,19 +14,19 @@ class Message
 	private:
 		// Data
 		std::string	content;
-		User		sender;
-
-		// Private Constructor
-		Message();
+		User		*sender;
 
 	public:
 		// Constructors & Destructor
-		Message(const int port, const int password);
+		Message();
+		Message(std::string _content, User *sender);
 		Message(const Message &other);
 		Message &operator= (const Message &other);
 		~Message();
 
-		// Others
+		// Getters - Setters
+		std::string	getContent(void) const;
+		User		*getSender(void) const;
 };
 
 

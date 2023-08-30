@@ -8,17 +8,31 @@
 #include <netinet/in.h>//socket
 #include <sys/socket.h>//socket
 
+void	handler_init_sig(int sig)
+{
+	(void)sig;
+	//kill() process here???
+	std::cout << "kill process here" << std::endl;
+}
+
+void	handler_in_loop(int sig)
+{
+	(void)sig;
+	//kill() process here??
+	std::cout << "kill process here" << std::endl;
+}
+
+
 void irc(int port, int pass)
 {
+	signal(SIGQUIT, SIG_IGN);//reset signal
+	signal(SIGINT, &handler_init_sig);
 	(void) pass;
 	int new_sock_fd;
 	int socket_fd;
     //structure for sockets
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
-	//message message_buffer
-//	char message_buffer[256];
-
 
     //create a socket : Doc -> man ip (7)
 	socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -49,6 +63,8 @@ void irc(int port, int pass)
 	//Accept
 	while (true)
 	{
+		signal(SIGINT, handler_in_loop);
+		signal(SIGQUIT, handler_in_loop); //good place to put or not?
 		socklen_t	cli_len = sizeof(cli_addr);
 		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
 		if (new_sock_fd < 0)
@@ -83,30 +99,6 @@ void irc(int port, int pass)
 
 		std::cout << "here is the message: " << buffer << std::endl;
 	}
-	/*
-	else
-		std::cout << "send() is OK!" << std::endl;
-
-	//setting up reception message_buffer
-	std::cout << "\nRECEPTING ..." << std::endl;
-	bzero(message_buffer, 256);
-	int n = recv(new_sock_fd, message_buffer, 255, 0);
-    if (n < 0)
-   	{
-   		std::cerr << " Error at recv(); " << std::strerror(errno) << std::endl;
-   		exit(1);
-   	}
-   	else
-   		std::cout << "recv() is OK!" << std::endl;
-
-    std::cout << "\nMESSAGE:\t" << message_buffer << std::endl;
-
-	n = fcntl(new_sock_fd, F_SETFL, "I got your message\n", O_NONBLOCK); //?
-    // n = write(new_sock_fd,"I got your message", 18); // use fcntl() instead of write()
-    if (n < 0)
-		throw "Socket writing failure";
-	*/
-
 	close (socket_fd);
 	close (new_sock_fd);
 }

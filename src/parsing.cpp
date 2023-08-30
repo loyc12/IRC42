@@ -1,4 +1,4 @@
-#include "../includes/Server.hpp"
+#include "IRC.hpp"
 
 /*parsing arguments received (<port> <password>)*/
 

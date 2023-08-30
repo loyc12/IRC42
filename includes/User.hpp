@@ -16,17 +16,17 @@ class User
 		std::string	name;
 		std::string	nick;
 
-		// Private Constructor
-		User();
-
 	public:
 		// Constructors & Destructor
-		User(const int port, const int password);
+		User();
+		User(const std::string _name, const std::string _nick);
 		User(const User &other);
 		User &operator= (const User &other);
 		~User();
 
-		// Others
+		// Getters - Setters
+		std::string	getName(void) const;
+		std::string	getNick(void) const;
 };
 
 

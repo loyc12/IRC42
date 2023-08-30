@@ -81,7 +81,9 @@ CC		=	c++
 RM		=	rm -rf
 CPY		=	cp -f
 MKDR	=	mkdir -p
-INCLUDE =	-I include
+INCLUDE =	-I INCDIR
+#VPATH	=	SRCDIR \
+#			INCDIR \
 
 # Creates file paths
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .cpp, $(FILES)))
@@ -98,7 +100,10 @@ CMD			=	./$(NAME) $(ARGS)
 long: cmake glfw $(NAME)
 
 # For standard compilation
-all: $(NAME)
+all: mkobj $(NAME)
+
+mkobj:
+	$(HIDE) mkdir -p obj
 
 # Compiles all files into an executable
 $(NAME): $(OBJS)
