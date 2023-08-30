@@ -81,9 +81,12 @@ CC		=	c++
 RM		=	rm -rf
 CPY		=	cp -f
 MKDR	=	mkdir -p
-INCLUDE =	-I INCDIR
-#VPATH	=	SRCDIR \
-#			INCDIR \
+INCLUDE =	-I $(INCDIR)
+
+# Adds subdirs to the "folder lookup" list for make
+VPATH	=	$(INCDIR) \
+			$(SRCDIR) \
+			$(addprefix $(SRCDIR), $(SUBDIRS)) \
 
 # Creates file paths
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .cpp, $(FILES)))
@@ -100,23 +103,24 @@ CMD			=	./$(NAME) $(ARGS)
 long: cmake glfw $(NAME)
 
 # For standard compilation
-all: mkobj $(NAME)
+all: mkodr $(NAME)
 
-mkobj:
-	$(HIDE) mkdir -p obj
+# To create the .obj directory
+mkodr:
+	$(HIDE) $(MKDR) $(OBJDIR)
 
 # Compiles all files into an executable
 $(NAME): $(OBJS)
 	@echo "$(GREEN)Files compiled with flags : $(CFLAGS)$(DEFCOL)"
 	@echo "$(DEFCOL)"
-	$(HIDE) $(CC) $(MODE) $(CFLAGS) -o $@ $^ $(INCLUDE) $(LIBS) $(LIBX)
+	$(HIDE) $(CC) $(CFLAGS) -o $@ $^ $(INCLUDE) $(LIBS) $(LIBX)
 	@echo "$(CYAN)Executable created! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
 # Compiles each source file into a .o file
 $(OBJS): $(OBJDIR)%.o : $(SRCDIR)%.cpp
 	@echo "$(YELLOW)Compiling file : $< $(DEFCOL)"
-	$(HIDE) $(CC) $(MODE) $(CFLAGS) -c $< -o $@
+	$(HIDE) $(CC) $(CFLAGS) -c $< -o $@ $(INCLUDE)
 
 #------------------------------------------------------------------------------#
 #                               CLEANING TARGETS                               #

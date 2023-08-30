@@ -15,8 +15,7 @@ FILES		=	test \
 SRCDIR		=	src/
 OBJDIR		=	obj/
 INCDIR		=	includes/
-#TSTDIR		=	tests/ \
-#SUBDIRS	=	example/ \
+SUBDIRS		=
 
 # Libraries (.a files) to include for compilation
 LIBS		=
