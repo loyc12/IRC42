@@ -7,29 +7,28 @@
 #include <arpa/inet.h>//inet_ntoa
 #include <netinet/in.h>//socket
 #include <sys/socket.h>//socket
+#include "IRC.hpp"
 
-void	handler_init_sig(int sig)
-{
-	(void)sig;
-	//kill() process here???
-	std::cout << "kill process here" << std::endl;
-}
+	int new_sock_fd;//deplacer à l'exterieur juste pour voir si stop fonctionne
+	int socket_fd;
 
-void	handler_in_loop(int sig)
+
+static void	stop(int sig)
 {
+	//switch our global to stop the infinite loop
 	(void)sig;
-	//kill() process here??
-	std::cout << "kill process here" << std::endl;
+	stopFlag = true;
+	close(socket_fd);
+	close(new_sock_fd);
+	std::cout << "and clean..." << std::endl;
 }
 
 
 void irc(int port, int pass)
 {
-	signal(SIGQUIT, SIG_IGN);//reset signal
-	signal(SIGINT, &handler_init_sig);
+	// signal(SIGQUIT, SIG_IGN);//reset signal
+	// signal(SIGINT, stop);
 	(void) pass;
-	int new_sock_fd;
-	int socket_fd;
     //structure for sockets
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
@@ -61,10 +60,10 @@ void irc(int port, int pass)
 	listen(socket_fd, 8);
 
 	//Accept
-	while (true)
+	while (!stopFlag) //change to singleton/global
 	{
-		signal(SIGINT, handler_in_loop);
-		signal(SIGQUIT, handler_in_loop); //good place to put or not?
+		// signal(SIGINT, stop);
+		// signal(SIGQUIT, SIG_IGN); //good place to put or not?
 		socklen_t	cli_len = sizeof(cli_addr);
 		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
 		if (new_sock_fd < 0)
@@ -99,6 +98,7 @@ void irc(int port, int pass)
 
 		std::cout << "here is the message: " << buffer << std::endl;
 	}
+	// std::cout << "and clean..." << std::endl;
 	close (socket_fd);
 	close (new_sock_fd);
 }
@@ -106,6 +106,8 @@ void irc(int port, int pass)
 
 int	main(int ac, char **av)
 {
+	signal(SIGQUIT, SIG_IGN);//reset signal
+	signal(SIGINT, stop);
 	try
 	{
 		if (ac != 3)
