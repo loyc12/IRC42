@@ -29,14 +29,14 @@ class Server
 
 	public:
 		// Constructors & Destructor
-		Server(const int _port, const int _pass);
+		Server(int _port, int _pass);
 		Server(const Server &other);
 		Server &operator= (const Server &other);
 		~Server();
 
 		// Getters - Setters
-		const int	getPort(void) const ;
-		const int	getPass(void) const;
+		int	getPort(void) const ;
+		int	getPass(void) const;
 };
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs);

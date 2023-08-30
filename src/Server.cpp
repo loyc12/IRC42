@@ -8,7 +8,7 @@ Server::Server()
 	this->port = 6667;
 	this->port = 1234;
 }
-Server::Server(const int _port, const int _pass)
+Server::Server(int _port, int _pass)
 {
 	std::cout << ": Called parameterized constructor (SERVER) ";
 
@@ -48,13 +48,13 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 
 // 0================ OTHER FUNCTIONS ================0
 
-const int	Server::getPort(void) const
+int	Server::getPort(void) const
 {
-	return ((const int)this->port);
+	return (this->port);
 }
-const int	Server::getPass(void) const
+int	Server::getPass(void) const
 {
-	return ((const int)this->pass);
+	return (this->pass);
 }
 
 // 0================ OTHER FUNCTIONS ================0
