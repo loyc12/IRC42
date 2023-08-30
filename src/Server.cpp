@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "IRC.hpp"
 
 // 0================ BASE FUNCTIONS ================0
 

@@ -5,9 +5,9 @@
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
 # include <fcntl.h>			// for file descriptors (?)
-# include "Server.hpp"
-# include "User.hpp"
-# include "Message.hpp"
+# include "../includes/Server.hpp"
+# include "../includes/User.hpp"
+# include "../includes/Message.hpp"
 
 //	put defines here
 

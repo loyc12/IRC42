@@ -1,4 +1,4 @@
-#include "Server.hpp" //add proper includes
+#include "IRC.hpp"
 
 int	main(int ac, char **av)
 {

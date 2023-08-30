@@ -82,8 +82,8 @@ RM		=	rm -rf
 CPY		=	cp -f
 MKDR	=	mkdir -p
 INCLUDE =	-I INCDIR
-VPATH	=	SRCDIR \
-			INCDIR \
+#VPATH	=	SRCDIR \
+#			INCDIR \
 
 # Creates file paths
 SRCS	=	$(addprefix $(SRCDIR), $(addsuffix .cpp, $(FILES)))
