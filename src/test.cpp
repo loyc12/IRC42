@@ -8,6 +8,7 @@
 #include <netinet/in.h>//socket
 #include <sys/socket.h>//socket
 
+/*
 void	handler_init_sig(int sig)
 {
 	(void)sig;
@@ -21,12 +22,13 @@ void	handler_in_loop(int sig)
 	//kill() process here??
 	std::cout << "kill process here" << std::endl;
 }
+*/
 
 
 void irc(int port, int pass)
 {
-	signal(SIGQUIT, SIG_IGN);//reset signal
-	signal(SIGINT, &handler_init_sig);
+//	signal(SIGQUIT, SIG_IGN);//reset signal
+//	signal(SIGINT, &handler_init_sig);
 	(void) pass;
 	int new_sock_fd;
 	int socket_fd;
@@ -63,8 +65,8 @@ void irc(int port, int pass)
 	//Accept
 	while (true)
 	{
-		signal(SIGINT, handler_in_loop);
-		signal(SIGQUIT, handler_in_loop); //good place to put or not?
+//		signal(SIGINT, handler_in_loop);
+//		signal(SIGQUIT, handler_in_loop); //good place to put or not?
 		socklen_t	cli_len = sizeof(cli_addr);
 		new_sock_fd = accept(socket_fd, (struct sockaddr *) &cli_addr, &cli_len);
 		if (new_sock_fd < 0)
