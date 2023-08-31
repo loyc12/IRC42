@@ -14,7 +14,6 @@
 # include "Message.hpp"
 
 //	put defines here
-
 static bool	stopFlag = false;
 
 //test.cpp
