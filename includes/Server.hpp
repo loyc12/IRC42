@@ -5,6 +5,7 @@
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
 # include <fcntl.h>			// for file descriptors (?)
+# include <list>
 # include "User.hpp"
 # include "Message.hpp"
 
@@ -24,12 +25,14 @@ class Server
 		// Data
 		int	port;
 		int	pass;
+		std::list<int>				userLst; //will need to change it to a list of pointers to instance of class User
+		std::list<int>::iterator	it; //just in case
 
 		// Private Constructor
-		Server();
 
 	public:
 		// Constructors & Destructor
+		Server();
 		Server(int _port, int _pass);
 		Server(const Server &other);
 		Server &operator= (const Server &other);
@@ -38,6 +41,7 @@ class Server
 		// Getters - Setters
 		int	getPort(void) const ;
 		int	getPass(void) const;
+		void	irc(int port, int pass);
 };
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs);
