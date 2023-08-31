@@ -9,8 +9,8 @@
 #include <sys/socket.h> //	socket
 #include "IRC.hpp"
 
-int new_socket_fd; //	placer ceci dans serv
-int base_socket_fd; //	placer ceci dans serv
+int new_socket_fd = 0; //	placer ceci dans serv
+int base_socket_fd = 0; //	placer ceci dans serv
 
 static void	stop(int sig)
 {
