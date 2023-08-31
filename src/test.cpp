@@ -94,7 +94,7 @@ void irc(int port, int pass)
 		}
 
 		// This send() function sends the 14 bytes of the string to the new socket
-		if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < -1)
+		if ((send(new_sock_fd, "Hello, client!\n", 14, 0)) < -1) //Msg do no display
 		{
 			std::cerr << " > Error at send(): " << std::strerror(errno) << std::endl;
 			break;
