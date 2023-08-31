@@ -108,21 +108,16 @@ void irc(int port, int pass)
 
 int	main(int ac, char **av)
 {
-	signal(SIGQUIT, SIG_IGN);//reset signal
+	signal(SIGQUIT, SIG_IGN); // reset signal
 	signal(SIGINT, stop);
 	try
 	{
 		if (ac != 3)
 			throw "Invalid argument count";
 
-		//arg parsing
+		// arg parsing
 		irc(atoi(av[1]), atoi(av[2]));
 	}
-	/*catch (std::string &msg)	//exceptions are char const * for now
-	{
-		std::cerr << "ERROR : " << msg << std::endl;
-		exit(EXIT_FAILURE);
-	}*/
 	catch (char const *msg)
 	{
 		std::cerr << "ERROR : " << msg << std::endl;
