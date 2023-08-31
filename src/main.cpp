@@ -14,27 +14,27 @@
 // 	write(2, "a", 1);
 // }
 
-int	main(int ac, char **av)
-{
-	// signal(SIGQUIT, SIG_IGN);//reset signal
-	// signal(SIGINT, stop);
-	try
-	{
-		if (ac != 3)
-			throw "Invalid argument count";
+// int	main(int ac, char **av)
+// {
+// 	// signal(SIGQUIT, SIG_IGN);//reset signal
+// 	// signal(SIGINT, stop);
+// 	try
+// 	{
+// 		if (ac != 3)
+// 			throw "Invalid argument count";
 
-		//arg parsing
-		irc(atoi(av[1]), atoi(av[2]));
-	}
-	/*catch (std::string &msg)	//exceptions are char const * for now
-	{
-		std::cerr << "ERROR : " << msg << std::endl;
-		exit(EXIT_FAILURE);
-	}*/
-	catch (char const *msg)
-	{
-		std::cerr << "ERROR : " << msg << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	exit(EXIT_SUCCESS);
-}
+// 		//arg parsing
+// 		irc(atoi(av[1]), atoi(av[2]));
+// 	}
+// 	/*catch (std::string &msg)	//exceptions are char const * for now
+// 	{
+// 		std::cerr << "ERROR : " << msg << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}*/
+// 	catch (char const *msg)
+// 	{
+// 		std::cerr << "ERROR : " << msg << std::endl;
+// 		exit(EXIT_FAILURE);
+// 	}
+// 	exit(EXIT_SUCCESS);
+// }
