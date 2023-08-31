@@ -122,7 +122,6 @@ void irc(int port, int pass)
 	close (new_socket_fd);
 }
 
-
 int	main(int ac, char **av)
 {
 	signal(SIGQUIT, SIG_IGN); // reset signal
