@@ -10,7 +10,7 @@
 #include "IRC.hpp"
 
 int new_socket_fd; //	placer ceci dans serv
-int base_socket_fd;
+int base_socket_fd; //	placer ceci dans serv
 
 static void	stop(int sig)
 {
@@ -39,7 +39,7 @@ void irc(int port, int pass)
 
 //	Makes it so that read/write call to sockets return -1 if blocking
 	if (fcntl(base_socket_fd, F_SETFL, O_NONBLOCK))
-		throw std::invalid_argument(" > Error at fcntl() (socket_fd): ");
+		throw std::invalid_argument(" > Error at fcntl() : ");
 	else
 		std::cout << "fcntl() is OK!" << std::endl;
 
@@ -127,11 +127,8 @@ int	main(int ac, char **av)
 		std::cerr << e.what() << std::endl;
 		if (errno)
 			std::cout << std::strerror(errno) << std::endl;
-		// if (fdFlag)
-		// {
-		// 	close (socket_fd);
-		// 	close (new_sock_fd);
-		// }
+		close (base_socket_fd);
+		close (new_socket_fd);
 		exit(EXIT_FAILURE);
 	}
 	exit(EXIT_SUCCESS);
