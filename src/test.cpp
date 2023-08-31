@@ -18,7 +18,7 @@ static void	stop(int sig)
 	//switch our global to stop the infinite loop
 	(void)sig;
 	stopFlag = true;
-	std::cout << "\nCLosing and cleaning..." << std::endl;
+	std::cout << "\n > Closing and cleaning ..." << std::endl;
 }
 
 void irc(int port, int pass)
