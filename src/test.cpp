@@ -15,6 +15,7 @@ int base_socket_fd = 0; //	placer ceci dans serv
 static void	stop(int sig)
 {
 //	Switchs our global bool to stop the infinite loop
+//if signal = new_socket_fd = 0;
 	(void)sig;
 	stopFlag = true;
 	std::cout << "\n > Closing and cleaning ..." << std::endl;
@@ -23,7 +24,6 @@ static void	stop(int sig)
 void irc(int port, int pass)
 {
 	(void) pass;
-
 //	Data for sockets and shit
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
@@ -45,7 +45,6 @@ void irc(int port, int pass)
 
 //	Bind procedure (clear & setup)
 	bzero((char *) &server_addr, sizeof(server_addr));
-
     server_addr.sin_family = AF_INET; //			bind call
     server_addr.sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
     server_addr.sin_port = htons(port); //			conversion to network byte order (Ip adress)
@@ -99,8 +98,6 @@ void irc(int port, int pass)
 		{
 			std::cout << std::endl << "Received Message : " << buff << std::endl;
 		}
-
-//		bzero(buff, 256);
 //		Receives an outgoing message (in theory at least)
 		if (new_socket_fd >= 0 && send(new_socket_fd, "Hello, client!\n", 14, 0) >= 0)
 		{
