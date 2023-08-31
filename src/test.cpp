@@ -1,12 +1,4 @@
-#include <iostream>
-#include <stdlib.h>
 
-#include <unistd.h>
-#include <fcntl.h> //		file descriptor
-
-#include <arpa/inet.h> //	inet_ntoa
-#include <netinet/in.h> //	socket
-#include <sys/socket.h> //	socket
 #include "IRC.hpp"
 
 int new_socket_fd = 0; //	placer ceci dans serv
@@ -15,7 +7,6 @@ int base_socket_fd = 0; //	placer ceci dans serv
 static void	stop(int sig)
 {
 //	Switchs our global bool to stop the infinite loop
-//if signal = new_socket_fd = 0;
 	(void)sig;
 	stopFlag = true;
 	std::cout << "\n > Closing and cleaning ..." << std::endl;
@@ -60,7 +51,7 @@ void irc(int port, int pass)
 /*
 //	EXAMPLE CODE FOR MAIN WHILE LOOP GOAL
 
-	while (!stopFlag)
+	while (!stopFlag) --> ok
 	{
 		if (conectionCount <= 0)
 			continue;
@@ -81,7 +72,6 @@ void irc(int port, int pass)
 	// Client interaction loop
 	while (!stopFlag)
 	{
-
 //		Accepts an incoming connection request
 		new_socket_fd = accept(base_socket_fd, (struct sockaddr *) &client_addr, &client_len);
 		if (new_socket_fd < -1)
