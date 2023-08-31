@@ -12,7 +12,6 @@
 	int new_socket_fd;//deplacer à l'exterieur juste pour voir si stop fonctionne
 	int base_socket_fd;
 
-
 static void	stop(int sig)
 {
 	//switch our global to stop the infinite loop
@@ -25,13 +24,13 @@ void irc(int port, int pass)
 {
 	(void) pass;
 
-    //data for sockets and shit
+    // Data for sockets and shit
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
 	socklen_t			client_len = sizeof(client_addr);
 	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
 
-    //create a socket : Doc -> man ip (7)
+    // Create a socket : Doc -> man ip (7)
 	base_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (base_socket_fd < 0)
 	{
@@ -41,7 +40,7 @@ void irc(int port, int pass)
 	else
 		std::cout << "Socket() is OK!" << std::endl;
 
-	//makes it so that read/write call to sockets return -1 if blocking
+	// Makes it so that read/write call to sockets return -1 if blocking
 	if (fcntl(base_socket_fd, F_SETFL, O_NONBLOCK))
 	{
 		std::cerr << " > Error at fcntl() : " << std::strerror(errno) << std::endl;
@@ -53,9 +52,9 @@ void irc(int port, int pass)
 	// Bind procedure (clear & setup)
 	bzero((char *) &server_addr, sizeof(server_addr));
 
-    server_addr.sin_family = AF_INET;//bind call
-    server_addr.sin_addr.s_addr = INADDR_ANY;//host ip adress **INADDR_ANY go get localhost
-    server_addr.sin_port = htons(port);//conversion to network byte order (Ip adress)
+    server_addr.sin_family = AF_INET; //			bind call
+    server_addr.sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
+    server_addr.sin_port = htons(port); //			conversion to network byte order (Ip adress)
 
 	if (bind(base_socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 	{
@@ -66,10 +65,28 @@ void irc(int port, int pass)
 		std::cout << "Bind() is OK!" << std::endl;
 
 	// Listen with a backlog queue of N.
-
 	listen(base_socket_fd, 16);
 
-	// Client interaction loop (???)
+/*
+	while (!stopFlag)
+	{
+		if (conectionCount <= 0)
+			continue;
+		foreach (user)
+		{
+			if (stopFlag)
+				break;
+			info = poll(user);
+			if (!info.stuff_to_do) //
+				continue;
+			process_request(user);
+		}
+	}
+	close (base_socket_fd);
+	close (new_socket_fd);
+*/
+
+	// Client interaction loop
 	while (!stopFlag)
 	{
 
