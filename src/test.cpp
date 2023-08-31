@@ -9,8 +9,8 @@
 #include <sys/socket.h> //	socket
 #include "IRC.hpp"
 
-int new_socket_fd = 0;//	placer ceci dans serv
-int base_socket_fd = 0;
+int new_socket_fd = 0; //	placer ceci dans serv
+int base_socket_fd = 0; //	placer ceci dans serv
 
 static void	stop(int sig)
 {
@@ -39,7 +39,7 @@ void irc(int port, int pass)
 
 //	Makes it so that read/write call to sockets return -1 if blocking
 	if (fcntl(base_socket_fd, F_SETFL, O_NONBLOCK))
-		throw std::invalid_argument(" > Error at fcntl() (socket_fd): ");
+		throw std::invalid_argument(" > Error at fcntl() : ");
 	else
 		std::cout << "fcntl() is OK!" << std::endl;
 
