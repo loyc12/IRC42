@@ -3,6 +3,9 @@
 #include <string>
 #include <string.h>
 
+#include <sys/time.h>//select
+#include <sys/select.h>//select
+
 static void	stop(int sig)
 {
 //	Switchs our global bool to stop the infinite loop
@@ -17,14 +20,14 @@ void irc(Server *server)
 {
 	int baseSocket;
 	int newSocket;
+
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
 
 	baseSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (baseSocket < 0)
 		throw std::invalid_argument(" > Error at socket(): ");
-	else
-		std::cout << "Socket() is OK!" << std::endl;
+	std::cout << "Socket() is OK!" << std::endl;
 
 
 	bzero((char *) &server_addr, sizeof(server_addr));
@@ -36,15 +39,32 @@ void irc(Server *server)
 		throw std::invalid_argument(" > Error at bind(): ");
 	else
 		std::cout << "Bind() is OK!" << std::endl;
-
 	listen(baseSocket, 16);
-	// Client interaction loop
-	std::cout << "Request Waiting from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
+	std::cout << "Awaiting request from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
+while (1)
+{
+	fd_set base;
+	fd_set copy;
+	FD_ZERO(&base);
+	std::cout << "fd zero base OK " << std::endl;
+	FD_SET(baseSocket, &base);
+	std::cout << "fd set OK " << std::endl;
+	copy = base;
+	int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
+	if (socketCount < 0)
+		throw std::invalid_argument(" > Error select() ");
+	else if (socketCount == 0)
+	{
+		std::cerr << "Hmm." << std::endl;
+	}
+	std::cout << "socketCount: " << socketCount << std::endl;
+}
+
 	socklen_t client_len = sizeof(client_addr);
 	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 	close(baseSocket);
 	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
-
+	// Client interaction loop
 	while (stopFlag == false)//flag does not change
 	{
 		bzero(buff, 256);
