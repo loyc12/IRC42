@@ -8,6 +8,7 @@
 #include <arpa/inet.h> //	inet_ntoa
 #include <netinet/in.h> //	socket
 #include <sys/socket.h> //	socket
+#include <string.h> //string
 
 # include "Server.hpp"
 # include "User.hpp"

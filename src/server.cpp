@@ -44,42 +44,46 @@ void Server::setNewSocket(int newSocket) { this->_newSocketFd = newSocket; retur
 
 void Server::initSocket(void) {
 
-	setBaseSocket(socket(AF_INET, SOCK_STREAM, 0));
-	if (getBaseSocket() < 0)
-		throw std::invalid_argument(" > Error at socket(): ");
-	else
-		std::cout << "Socket() is OK!" << std::endl;
+	// setBaseSocket(socket(AF_INET, SOCK_STREAM, 0));
+	// if (getBaseSocket() < 0)
+	// 	throw std::invalid_argument(" > Error at socket(): ");
+	// else
+	// 	std::cout << "Socket() is OK!" << std::endl;
 
-	//	Makes it so that read/write call to sockets return -1 if blocking
-	if (fcntl(getBaseSocket(), F_SETFL, O_NONBLOCK))
-		throw std::invalid_argument(" > Error at fcntl() : ");
-	else
-		std::cout << "fcntl() is OK!" << std::endl;
+	// //	Makes it so that read/write call to sockets return -1 if blocking
+	// if (fcntl(getBaseSocket(), F_SETFL, O_NONBLOCK))
+	// 	throw std::invalid_argument(" > Error at fcntl() : ");
+	// else
+	// 	std::cout << "fcntl() is OK!" << std::endl;
 }
 
-void Server::initBind(struct sockaddr_in *server_addr) {
+// void Server::initBind(struct sockaddr_in *server_addr) {
 
-	bzero((char *) &*server_addr, sizeof(*server_addr));
-	server_addr->sin_family = AF_INET; //			bind call
-    server_addr->sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
-    server_addr->sin_port = htons(getPort()); //			conversion to network byte order (Ip adress)
+// 	bzero((char *) &*server_addr, sizeof(*server_addr));
+// 	server_addr->sin_family = AF_INET; //			bind call
+//     server_addr->sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
+//     server_addr->sin_port = htons(getPort()); //			conversion to network byte order (Ip adress)
 
-	if (bind(getBaseSocket(), (struct sockaddr *) &*server_addr, sizeof(*server_addr)) < 0)
-		throw std::invalid_argument(" > Error at bind(): ");
-	else
-		std::cout << "Bind() is OK!" << std::endl;
+// 	if (bind(getBaseSocket(), (struct sockaddr *) &*server_addr, sizeof(*server_addr)) < 0)
+// 		throw std::invalid_argument(" > Error at bind(): ");
+// 	else
+// 		std::cout << "Bind() is OK!" << std::endl;
 
-}
+// }
 
-void Server::acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *client_addr) {
+//void Server::acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *client_addr) {
 
-		socklen_t client_len = sizeof(*client_addr);
-		setNewSocket(accept(getBaseSocket(), (struct sockaddr *) &*client_addr, &client_len));
-		if (getNewSocket() < -1)
-			throw std::invalid_argument(" > Error at accept(): ");
-		else if (getNewSocket() != -1)
-		{
-			std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(client_addr->sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(client_addr->sin_port) << std::endl;
-			std::cout << "\nSERVER IP (local): \t" << inet_ntoa(server_addr->sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(server_addr->sin_port) << std::endl;
-		}
-}
+		// int newSocket;
+		// socklen_t client_len = sizeof(*client_addr);
+		// newSocket = accept(getBaseSocket(), (struct sockaddr *) &*client_addr, &client_len);
+		// setNewSocket(newSocket);
+		// if (getNewSocket() < 0)
+		// {
+		// 	std::cerr << std::cout << std::strerror(errno) << std::endl;
+		// }
+		// else if (getNewSocket())
+		// {
+		// 	std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(client_addr->sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(client_addr->sin_port) << std::endl;
+		// 	std::cout << "\nSERVER IP (local): \t" << inet_ntoa(server_addr->sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(server_addr->sin_port) << std::endl;
+		// }
+//}

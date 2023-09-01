@@ -33,7 +33,7 @@ class Server
 
 		void initSocket(void);
 		void initBind(struct sockaddr_in *server_addr);
-		void acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *client_addr);
+		//void acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *client_addr);
 		// receiveMessage(void);
 		// sendMessage(void);
 };
