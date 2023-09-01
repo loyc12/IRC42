@@ -82,7 +82,6 @@ void Server::irc(int port, int pass)
 	// Client interaction loop
 	while (!stopFlag)
 	{
-		this->userLst.insert(2);
 //		Accepts an incoming connection request
 		new_socket_fd = accept(base_socket_fd, (struct sockaddr *) &client_addr, &client_len);
 		if (new_socket_fd < -1)
@@ -121,7 +120,7 @@ int	main(int ac, char **av)
 			throw std::invalid_argument(" > Error main(): Invalid argument count.");
 //		Arg parsing
 		Server test;
-		test.irc(atoi(av[1]), atoi(av[2]), test);
+		test.irc(atoi(av[1]), atoi(av[2]));
 	}
 	catch (std::exception &e)
 	{
