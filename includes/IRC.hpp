@@ -1,19 +1,22 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
-
-# include <iostream>
-# include <stdlib.h>		// for which functions ??
-# include <fcntl.h>			// for file descriptors (?)
+//test.cpp
+#include <iostream>
+#include <fcntl.h>//fd
+#include <unistd.h>//close
+#include <arpa/inet.h> //	inet_ntoa
+#include <netinet/in.h> //	socket
+#include <sys/socket.h> //	socket
 
 # include "Server.hpp"
 # include "User.hpp"
 # include "Message.hpp"
 
 //	put defines here
-
 static bool	stopFlag = false;
 
-void irc(int port, int pass);
+//test.cpp
+void irc(Server *server);
 
 #endif // IRC_HPP
