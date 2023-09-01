@@ -8,59 +8,68 @@ static void	stop(int sig)
 //	Switchs our global bool to stop the infinite loop
 	(void)sig;
 	stopFlag = true;
-	//std::cout << stopFlag << std::endl;
 	std::cout << "\n > Closing and cleaning ..." << std::endl;
-	exit(1);//flag change pas , ducktape solution
+//	exit(1); //	here cause commands were blocking, preventing flag checks
 }
 
 void irc(Server *server)
 {
-	int baseSocket;
-	int newSocket;
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
+	int baseSocket;
+	int newSocket;
 
 	baseSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (baseSocket < 0)
 		throw std::invalid_argument(" > Error at socket(): ");
 	else
-		std::cout << "Socket() is OK!" << std::endl;
-
+		std::cout << "socket() is OK!" << std::endl;
 
 	bzero((char *) &server_addr, sizeof(server_addr));
-	server_addr.sin_family = AF_INET; //						bind call
-    server_addr.sin_port = htons(server->getPort()); //						conversion to network byte order (Ip adress)
-    server_addr.sin_addr.s_addr = INADDR_ANY; //				host ip adress **INADDR_ANY go get localhost
+	server_addr.sin_family = AF_INET; //					bind call
+    server_addr.sin_port = htons(server->getPort()); //		conversion to network byte order (Ip adress)
+    server_addr.sin_addr.s_addr = INADDR_ANY; //			host ip adress **INADDR_ANY go get localhost
 
 	if (bind(baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 	else
-		std::cout << "Bind() is OK!" << std::endl;
+		std::cout << "bind() is OK!" << std::endl;
+/*
+	if (fcntl(baseSocket, F_SETFL, O_NONBLOCK))
+		throw std::invalid_argument(" > Error at fntl(): ");
+	else
+		std::cout << "fcntl() is OK!" << std::endl;
+*/
 
 	listen(baseSocket, 16);
-	// Client interaction loop
-	std::cout << "Request Waiting from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
-	socklen_t client_len = sizeof(client_addr);
-	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-	close(baseSocket);
-	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
+	std::cout << "Awaiting request from client : " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
 
-	while (stopFlag == false)//flag does not change
+	char buff[256];
+	socklen_t client_len = sizeof(client_addr);
+	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);	//TEMP, remove when fcntl is implemented
+
+	// Client interaction loop
+	while (stopFlag == false)
 	{
 		bzero(buff, 256);
-		int byteReceived = recv(newSocket, buff, 255, 0);
-		if (byteReceived == -1)
-			throw std::invalid_argument(" > Error at recv :");
-		if (byteReceived == 0)
-		{
-			std::cout << "client disconnected" << std::endl;
-			break ;
-		}
-        std::cout << std::string(buff, 0, byteReceived) << std::endl;
-	}
-	close (baseSocket);
-	close (newSocket);
+//		newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 
+//		if (newSocket > 0)
+//		{
+			int byteReceived = recv(newSocket, buff, 255, 0);
+			if (byteReceived == -1 && errno != EAGAIN)
+				throw std::invalid_argument(" > Error at recv : ");
+			if (byteReceived == 0)
+			{
+				std::cout << "Client disconnected" << std::endl;
+				break ;
+			}
+			if (byteReceived > 0)
+				std::cout << std::string(buff, 0, byteReceived);
+//		}
+	}
+	close(baseSocket);
+	close(newSocket);
 }
 int	main(int ac, char **av)
 {
@@ -86,7 +95,7 @@ int	main(int ac, char **av)
 	}
 	catch (std::exception &e)
 	{
-		std::cerr << e.what() << std::endl;
+		std::cerr << std::endl << e.what();
 		if (errno)
 			std::cout << std::strerror(errno) << std::endl;
 		// close (server.getBaseSocket());
