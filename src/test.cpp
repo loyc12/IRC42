@@ -46,7 +46,33 @@ void irc(Server *server)
 
 	char buff[256];
 	socklen_t client_len = sizeof(client_addr);
-	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);	//TEMP, remove when fcntl is implemented
+/*
+	fd_set	fdsMaster;
+	FD_ZERO(&fdsMaster);
+	FD_SET(baseSocket, &fdsMaster);
+
+	while (stopFlag == false)
+	{
+		bzero(buff, 256);
+
+		fd_set fdsCopy = fdsMaster;
+		int	socketCount = select(0, &fdsCopy, nullptr, nullptr, nullptr);
+
+		if (socketCount <= 0)
+			continue;
+
+		for (int fd = 0; fd < socketCount; fd++)
+		{
+			if (!FD_ISSET(fd, &fdsCopy))
+				continue;
+
+			getsockname(fd, );
+
+		}
+	}
+*/
+
+	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len); //	TEMP, remove when fcntl is implemented
 
 	// Client interaction loop
 	while (stopFlag == false)
@@ -54,8 +80,8 @@ void irc(Server *server)
 		bzero(buff, 256);
 //		newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 
-//		if (newSocket > 0)
-//		{
+		if (newSocket > 0)
+		{
 			int byteReceived = recv(newSocket, buff, 255, 0);
 			if (byteReceived == -1 && errno != EAGAIN)
 				throw std::invalid_argument(" > Error at recv : ");
@@ -65,9 +91,10 @@ void irc(Server *server)
 				break ;
 			}
 			if (byteReceived > 0)
-				std::cout << std::string(buff, 0, byteReceived);
-//		}
+				std::cout << buff;
+		}
 	}
+
 	close(baseSocket);
 	close(newSocket);
 }
