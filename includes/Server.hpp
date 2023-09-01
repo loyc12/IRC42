@@ -12,8 +12,6 @@ class Server
 	private:
 		// Data
 		int	_port;
-		int _newSocketFd;
-		int _baseSocketFd;
 		// Private Constructor
 		Server();
 
@@ -26,16 +24,7 @@ class Server
 
 		// Getters - Setters
 		const int &	getPort(void) const ;
-		const int & getBaseSocket(void) const;
-		const int & getNewSocket(void) const;
-		void		setBaseSocket(int baseSocket);
-		void		setNewSocket(int newSocket);
 
-		void initSocket(void);
-		void initBind(struct sockaddr_in *server_addr);
-		void acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *client_addr);
-		// receiveMessage(void);
-		// sendMessage(void);
 };
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs);
