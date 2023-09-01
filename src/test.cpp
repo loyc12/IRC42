@@ -18,21 +18,31 @@ void irc(Server *server)
 	server->initSocket();
 	server->initBind(&server_addr);
 	listen(server->getBaseSocket(), 16);
+
 /*
 //	EXAMPLE CODE FOR MAIN WHILE LOOP GOAL
 
+	int					socket_count = 0;
+	fd_set				socket_master;
+
 	while (!stopFlag) --> ok
 	{
-		if (conectionCount <= 0)
+		fd_set	socket_set = socket_master;
+
+		socket_count = select(0, &socket_set, nullptr, nullptr, nullptr);
+		if (socket_count <= 0)
 			continue;
-		foreach (user)
+		for (int i = 0; i < socket_count; i++)
 		{
-			if (stopFlag)
+			if (!stopFlag)
 				break;
-			info = poll(user);
-			if (!info.stuff_to_do) //
-				continue;
-			process_request(user);
+
+			new_socket_fd = socket_set.fd_array[i];
+
+			if (new_socket_fd == base_socket_fd)
+				read ?
+			else
+				send ?
 		}
 	}
 	close (server->getBaseSocket());
@@ -45,10 +55,18 @@ void irc(Server *server)
 	while (!stopFlag)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		fd_set read, write and error
 		FD_ZERO for all of them
 		FD_SET(of our server to container list)
 
+=======
+		server->acceptRequest(&server_addr, &client_addr);
+
+//		Receives an incoming message (in theory at least)
+		bzero(buff, 256);
+		if (server->getNewSocket() >= 0 && recv(server->getNewSocket(), buff, 255, 0) >= 0)
+>>>>>>> master
 		{
 			again int clientSocket = iterator
 			//something to read from client
@@ -126,8 +144,8 @@ void irc(Server *server)
 	}
 	close (server->getBaseSocket());
 	close (server->getNewSocket());
-}
 
+}
 int	main(int ac, char **av)
 {
 	signal(SIGQUIT, SIG_IGN); //	resets signal
