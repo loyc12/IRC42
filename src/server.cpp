@@ -31,7 +31,7 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 	return (out);
 }
 
-// 0================ Getters & Setters ================0
+// 0================ GETTERS / SETTERS ================0
 
 const int & Server::getPort(void) const { return (this->_port);}
 const int & Server::getBaseSocket(void) const { return (this->_baseSocketFd);}

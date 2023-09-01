@@ -46,15 +46,9 @@ std::ostream &operator<< (std::ostream &out, const Message &rhs)
 	return (out);
 }
 
-// 0================ OTHER FUNCTIONS ================0
+// 0================ GETTERS / SETTERS ================0
 
-std::string	Message::getContent(void) const
-{
-	return (this->content);
-}
-User	*Message::getSender(void) const
-{
-	return (this->sender);
-}
+std::string	Message::getContent(void) const { return (this->content);}
+User		*Message::getSender(void) const { return (this->sender);}
 
 // 0================ OTHER FUNCTIONS ================0

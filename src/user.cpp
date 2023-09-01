@@ -46,15 +46,9 @@ std::ostream &operator<< (std::ostream &out, const User &rhs)
 	return (out);
 }
 
-// 0================ OTHER FUNCTIONS ================0
+// 0================ GETTERS / SETTERS ================0
 
-std::string	User::getName(void) const
-{
-	return (this->name);
-}
-std::string	User::getNick(void) const
-{
-	return (this->nick);
-}
+std::string	User::getName(void) const { return (this->name);}
+std::string	User::getNick(void) const { return (this->nick);}
 
 // 0================ OTHER FUNCTIONS ================0
