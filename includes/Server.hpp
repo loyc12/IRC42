@@ -26,6 +26,7 @@ class Server
 		int	port;
 		int	pass;
 		std::list<int>				userLst; //will need to change it to a list of pointers to instance of class User
+		std::list<int>				clientSockets; //tmp to tryout something
 		std::list<int>::iterator	it; //iterator so we can go through
 
 		// Private Constructor
