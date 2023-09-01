@@ -15,6 +15,7 @@ class Server
 		int _newSocketFd;
 		int _baseSocketFd;
 		// Private Constructor
+		Server();
 
 	public:
 		// Constructors & Destructor

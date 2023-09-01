@@ -1,4 +1,3 @@
-
 #include "IRC.hpp"
 
 static void	stop(int sig)
@@ -49,26 +48,19 @@ void irc(Server *server)
 	close (server->getNewSocket());
 */
 
-//		Accepts an incoming connection request
-		new_socket_fd = accept(base_socket_fd, (struct sockaddr *) &client_addr, &client_len);
-		if (new_socket_fd < -1)
-			throw std::invalid_argument(" > Error at accept(): ");
-		else if (new_socket_fd != -1)
-		{
-			std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(client_addr.sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(client_addr.sin_port) << std::endl;
-			std::cout << "\nSERVER IP (local): \t" << inet_ntoa(server_addr.sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(server_addr.sin_port) << std::endl;
-		}
+	// Client interaction loop
+	while (!stopFlag)
+	{
+		server->acceptRequest(&server_addr, &client_addr);
 
 //		Receives an incoming message (in theory at least)
 		bzero(buff, 256);
-		if (new_socket_fd >= 0 && recv(new_socket_fd, buff, 255, 0) >= 0)
+		if (server->getNewSocket() >= 0 && recv(server->getNewSocket(), buff, 255, 0) >= 0)
 		{
 			std::cout << std::endl << "Received Message : " << buff << std::endl;
 		}
-
-		bzero(buff, 256);
 //		Receives an outgoing message (in theory at least)
-		if (new_socket_fd >= 0 && send(new_socket_fd, "Hello, client!\n", 14, 0) >= 0)
+		if (server->getNewSocket() >= 0 && send(server->getNewSocket(), "Hello, client!\n", 14, 0) >= 0)
 		{
 			std::cout << std::endl << "Sent Message : " << "Hello, client!\n" << std::endl;
 		}
@@ -91,8 +83,6 @@ int	main(int ac, char **av)
 		if (ac != 3)
 			throw std::invalid_argument(" > Error main(): Invalid argument count.");
 //		Arg parsing
-		Server test;
-		test.irc(atoi(av[1]), atoi(av[2]));
 		irc(&server);
 	}
 	catch (std::exception &e)
