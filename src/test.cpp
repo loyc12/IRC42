@@ -60,6 +60,7 @@ void irc(Server *server)
 		{
 			std::cout << std::endl << "Received Message : " << buff << std::endl;
 		}
+
 //		Receives an outgoing message (in theory at least)
 		if (server->getNewSocket() >= 0 && send(server->getNewSocket(), "Hello, client!\n", 14, 0) >= 0)
 		{
