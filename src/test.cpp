@@ -7,6 +7,7 @@
 #include <arpa/inet.h> //	inet_ntoa
 #include <netinet/in.h> //	socket
 #include <sys/socket.h> //	socket
+#include <sys/select.h>
 #include "IRC.hpp"
 
 int new_socket_fd = 0; //	placer ceci dans serv
@@ -29,6 +30,8 @@ void irc(int port, int pass)
 	struct sockaddr_in	client_addr;
 	socklen_t			client_len = sizeof(client_addr);
 	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
+	int					socket_count = 0;
+	fd_set				socket_master;
 
 //	Create a socket : Doc -> man ip (7)
 	base_socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -47,8 +50,8 @@ void irc(int port, int pass)
 	bzero((char *) &server_addr, sizeof(server_addr));
 
     server_addr.sin_family = AF_INET; //			bind call
-    server_addr.sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
     server_addr.sin_port = htons(port); //			conversion to network byte order (Ip adress)
+    server_addr.sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
 
 	if (bind(base_socket_fd, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
@@ -58,27 +61,40 @@ void irc(int port, int pass)
 //	Listen with a backlog queue of N.
 	listen(base_socket_fd, 16);
 
-/*
+	FD_ZERO(&socket_master);
+	FD_SET(base_socket_fd, &socket_master);
+
 //	EXAMPLE CODE FOR MAIN WHILE LOOP GOAL
 
 	while (!stopFlag)
 	{
-		if (conectionCount <= 0)
+		fd_set	socket_set = socket_master;
+
+		socket_count = select(0, &socket_set, nullptr, nullptr, nullptr);
+		if (socket_count <= 0)
 			continue;
-		foreach (user)
+		for (int i = 0; i < socket_count; i++)
 		{
-			if (stopFlag)
+			if (!stopFlag)
 				break;
-			info = poll(user);
-			if (!info.stuff_to_do) //
-				continue;
-			process_request(user);
+
+			new_socket_fd = socket_set.fd_array[i];
+
+			if (new_socket_fd == base_socket_fd)
+			{
+
+			}
+
+//			if (user_has_shit_to_say_or_hear) //
+//				continue;
+//			process_request(user);
 		}
 	}
 	close (base_socket_fd);
 	close (new_socket_fd);
-*/
+}
 
+/*
 	// Client interaction loop
 	while (!stopFlag)
 	{
@@ -110,7 +126,7 @@ void irc(int port, int pass)
 	close (base_socket_fd);
 	close (new_socket_fd);
 }
-
+*/
 int	main(int ac, char **av)
 {
 	signal(SIGQUIT, SIG_IGN); //	resets signal
