@@ -17,6 +17,6 @@
 static bool	stopFlag = false;
 
 //test.cpp
-void irc(int port, int pass);
+void irc(Server *server);
 
 #endif // IRC_HPP
