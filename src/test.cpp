@@ -28,9 +28,10 @@ void irc(Server *server)
 
 
 	bzero((char *) &server_addr, sizeof(server_addr));
-	server_addr.sin_family = AF_INET; //			bind call
-    server_addr.sin_addr.s_addr = INADDR_ANY; //	host ip adress **INADDR_ANY go get localhost
-    server_addr.sin_port = htons(server->getPort()); //			conversion to network byte order (Ip adress)
+	server_addr.sin_family = AF_INET; //						bind call
+    server_addr.sin_port = htons(server->getPort()); //						conversion to network byte order (Ip adress)
+    server_addr.sin_addr.s_addr = INADDR_ANY; //				host ip adress **INADDR_ANY go get localhost
+
 	if (bind(baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 	else
@@ -38,7 +39,7 @@ void irc(Server *server)
 
 	listen(baseSocket, 16);
 	// Client interaction loop
-	std::cout << "Request Waiting from client " << inet_ntoa(client_addr.sin_addr) << ntohs(client_addr.sin_port) << std::endl;
+	std::cout << "Request Waiting from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
 	socklen_t client_len = sizeof(client_addr);
 	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 	close(baseSocket);
