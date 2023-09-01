@@ -54,19 +54,15 @@ void irc(Server *server)
 
 	while (!stopFlag)
 	{
-<<<<<<< HEAD
-<<<<<<< HEAD
 		fd_set read, write and error
 		FD_ZERO for all of them
 		FD_SET(of our server to container list)
 
-=======
 		server->acceptRequest(&server_addr, &client_addr);
 
 //		Receives an incoming message (in theory at least)
 		bzero(buff, 256);
 		if (server->getNewSocket() >= 0 && recv(server->getNewSocket(), buff, 255, 0) >= 0)
->>>>>>> master
 		{
 			again int clientSocket = iterator
 			//something to read from client
@@ -86,7 +82,6 @@ void irc(Server *server)
 			else
 				++it
 		}
-<<<<<<< HEAD
 	}
 	close (base_socket_fd);
 	close (new_socket_fd);
@@ -160,12 +155,9 @@ int	main(int ac, char **av)
 		if (ac != 3)
 			throw std::invalid_argument(" > Error main(): Invalid argument count.");
 //		Arg parsing
-<<<<<<< HEAD
 		Server test;
 		test.irc(atoi(av[1]), atoi(av[2]));
-=======
 		irc(&server);
->>>>>>> master
 	}
 	catch (std::exception &e)
 	{
