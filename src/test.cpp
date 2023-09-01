@@ -40,24 +40,27 @@ void irc(Server *server)
 		std::cout << "Bind() is OK!" << std::endl;
 	listen(baseSocket, 16);
 	std::cout << "Awaiting request from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
-while (1)
-{
+
 	fd_set base;
 	fd_set copy;
 	FD_ZERO(&base);
 	std::cout << "fd zero base OK " << std::endl;
 	FD_SET(baseSocket, &base);
-	std::cout << "fd set OK " << std::endl;
-	copy = base;
-	int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
-	if (socketCount < 0)
-		throw std::invalid_argument(" > Error select() ");
-	else if (socketCount == 0)
+
+	while (!stopFlag)
 	{
-		std::cerr << "Hmm." << std::endl;
+		std::cout << "fd set OK " << std::endl;
+		copy = base;
+
+		int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
+		if (socketCount < 0)
+			throw std::invalid_argument(" > Error select() ");
+		else if (socketCount == 0)
+		{
+			std::cerr << "Hmm." << std::endl;
+		}
+		std::cout << "socketCount: " << socketCount << std::endl;
 	}
-	std::cout << "socketCount: " << socketCount << std::endl;
-}
 
 	socklen_t client_len = sizeof(client_addr);
 	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
