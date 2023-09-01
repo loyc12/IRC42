@@ -81,5 +81,7 @@ void Server::acceptRequest(struct sockaddr_in *server_addr, struct sockaddr_in *
 		{
 			std::cout << "\nCONNECTED\nCLIENT FROM NETWORK :\t" << inet_ntoa(client_addr->sin_addr) << "\nNET-TO-HOST PORT :\t" << ntohs(client_addr->sin_port) << std::endl;
 			std::cout << "\nSERVER IP (local): \t" << inet_ntoa(server_addr->sin_addr) << "\nHOST-TO-NET PORT :\t" << ntohs(server_addr->sin_port) << std::endl;
+
+			send(getBaseSocket(), "Hello, client!\n", 14, 0);
 		}
 }
