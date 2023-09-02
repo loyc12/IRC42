@@ -9,6 +9,10 @@
 # include <netinet/in.h> //	IP stuff
 # include <sys/socket.h> //	socket stuff
 # include <string.h> //		string (why not <string> instead ??)
+# include <string> //		string (why not <string.h> instead ??)
+
+# include <sys/time.h> //	select
+# include <sys/select.h> //	select
 
 # include "Message.hpp"
 # include "Server.hpp"
