@@ -10,9 +10,8 @@ static void	stop(int sig)
 //	Switchs our global bool to stop the infinite loop
 	(void)sig;
 	stopFlag = true;
-	//std::cout << stopFlag << std::endl;
 	std::cout << "\n > Closing and cleaning ..." << std::endl;
-	exit(1);//flag change pas , ducktape solution
+//	exit(1); //	ducktape solution for blocking functions
 }
 
 void irc(Server *server)
@@ -38,9 +37,11 @@ void irc(Server *server)
 		throw std::invalid_argument(" > Error at bind(): ");
 	else
 		std::cout << "Bind() is OK!" << std::endl;
-	listen(baseSocket, 16);
-	std::cout << "Awaiting request from client " << inet_ntoa(client_addr.sin_addr) << ":" <<ntohs(client_addr.sin_port) << std::endl;
 
+	listen(baseSocket, 16);
+	std::cout << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
+
+/*
 	fd_set base;
 	fd_set copy;
 	FD_ZERO(&base);
@@ -61,24 +62,28 @@ void irc(Server *server)
 		}
 		std::cout << "socketCount: " << socketCount << std::endl;
 	}
+*/
 
 	socklen_t client_len = sizeof(client_addr);
-	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+	char buff[BUFFSIZE];
+	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len); //	is blocking
+//	Test accept result here ?
 	close(baseSocket);
-	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
+
 	// Client interaction loop
-	while (stopFlag == false)//flag does not change
+	while (stopFlag == false)
 	{
-		bzero(buff, 256);
-		int byteReceived = recv(newSocket, buff, 255, 0);
+		bzero(buff, BUFFSIZE);
+		int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0); //	is blocking
 		if (byteReceived == -1)
 			throw std::invalid_argument(" > Error at recv :");
 		if (byteReceived == 0)
 		{
-			std::cout << "client disconnected" << std::endl;
+			std::cout << std::endl << "Client disconnected ..." << std::endl << std::endl;
 			break ;
 		}
-        std::cout << std::string(buff, 0, byteReceived) << std::endl;
+        std::cout << std::string(buff, byteReceived);
+//					 std::string(buff, 0, byteReceived) is useless?
 	}
 	close (baseSocket);
 	close (newSocket);
