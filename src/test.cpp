@@ -9,13 +9,15 @@ static void	stop(int sig)
 	(void)sig;
 	stopFlag = true;
 	std::cout << std::endl << std::endl << " > Closing and cleaning ..." << std::endl << std::endl;
-	exit(1); //	here because commands are blocking, preventing flag checks
+//	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
 void irc(Server *server)
 {
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
+	socklen_t 			client_len = sizeof(client_addr);
+	char 				buff[BUFFSIZE];
 
 //	Inits base socket
 	baseSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -36,50 +38,55 @@ void irc(Server *server)
 	else
 		std::cout << "bind() is OK!" << std::endl;
 
+//	?
+	listen(baseSocket, SOMAXCONN);
+
 //	( )================ LOYC'S VERSION ================( )
 
-/*
 //	Makes read/write type fonctions non-blocking
+/*
 	if (fcntl(baseSocket, F_SETFL, O_NONBLOCK))
 		throw std::invalid_argument(" > Error at fntl(): ");
 	else
 		std::cout << "fcntl() is OK!" << std::endl;
+*/
+	fd_set	fdsMaster;
+	FD_ZERO(&fdsMaster);
+	FD_SET(baseSocket, &fdsMaster);
 
-//	Waits for a client connection (DOES NOT WAIT WTF)
-	listen(baseSocket, SOMAXCONN);
-
-	char buff[BUFFSIZE];
-	socklen_t client_len = sizeof(client_addr);
-
-
-//	Remove us when fcntl is implemented
-	std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
-	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-	std::cout << "Connected ..." << std::endl << std::endl;
+	std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 
 //	Client interaction loop
-	while (stopFlag == false)
+	while (!stopFlag)
 	{
-//		Comment me out until fcntl is implemented
-//		newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+		fd_set fdsCopy = fdsMaster;
+		if (select(baseSocket + 1, &fdsCopy, nullptr, nullptr, nullptr) > 0)
+			newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 		if (newSocket > 0)
 		{
-			bzero(buff, BUFFSIZE);
+			std::cout << std::endl << "newSocket : " << newSocket << std::endl; //		DEBUG
+			std::cout << std::endl << "Client connected !" << std::endl << std::endl;
 
 //			Receives any potential message from client
-			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
+			bzero(buff, BUFFSIZE);
+			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
 			if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
 				throw std::invalid_argument(" > Error at recv : ");
 			else if (byteReceived == 0)
 			{
-				std::cout << "Client disconnected ..." << std::endl << std::endl;
-				break ;
+				std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
+				close(newSocket);
+				newSocket = 0;
+				std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 			}
 			else if (byteReceived > 0)
-				std::cout << std::string(buff, byteReceived);
+				std::cout << std::string(buff, 1, byteReceived) << std::endl;
 		}
+		else
+			usleep(10000);
 	}
 
+/*
 //	( )======== SELECT TEST (LOYC) ========( )
 
 	int		socketCount;
@@ -123,16 +130,11 @@ void irc(Server *server)
 
 //	( )================ ALEX'S VERSION ================( )
 
-//	Waits for a client connection (DOES NOT WAIT WTF)
-	listen(baseSocket, SOMAXCONN);
-
-	socklen_t client_len = sizeof(client_addr);
-
+/*
+//	Waits for a client connection
 	std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
 	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len); //	is blocking
-//	Test accept result here ?
-	std::cout << "Connected ..." << std::endl << std::endl;
-	char buff[BUFFSIZE];
+	std::cout << "Client connected !" << std::endl << std::endl;
 	close(baseSocket);
 
 	// Client interaction loop
@@ -150,7 +152,6 @@ void irc(Server *server)
         std::cout <<  std::string(buff, 0, byteReceived);
 	}
 
-/*
 //	( )======== SELECT TEST (Alex) ========( )
 
 	fd_set base;
@@ -175,7 +176,6 @@ void irc(Server *server)
 	}
 
 */
-
 	close(baseSocket);
 	close(newSocket);
 }
