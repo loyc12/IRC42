@@ -56,21 +56,31 @@ void irc(Server *server)
 				throw std::invalid_argument(" > Error at select(): ");
 			else if (retval)
 			{
-				std::cout << "select() is OK!" << std::endl;
+				std::cout << "\nselect() is OK!" << std::endl;
 				std::cout << "\tListening socket is ready.\n\tWait for FD_ISSET to judge if the fd is ready to be read without blocking." << std::endl;
 				if (FD_ISSET(baseSocket, &fdsCopy))//judge if fd is availlable
 				{
-					std::cout << "FD_ISSET() is OK!" << std::endl;
+					std::cout << "\nFD_ISSET() is OK!" << std::endl;
 					std::cout << "\tThis FD can be read without blocking." << std::endl;
 					newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 					if (newSocket == -1)
 						throw std::invalid_argument(" > Error at accept(): ");
 					else if (newSocket)
 					{
-						std::cout << "accept() is OK!" << std::endl;
+						std::cout << "\naccept() is OK!" << std::endl;
 						std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
-						std::cout << "newSocket : " << newSocket << std::endl;
-						std::cout << std::endl << "Client connected !" << std::endl << std::endl;
+						std::cout << "\tnewSocket : " << newSocket << std::endl;
+						std::cout << std::endl << "CLIENT CONNECTED!" << std::endl << std::endl;
+					}
+				}
+				else
+					throw std::invalid_argument(" > Error at accept(): ");
+			}
+	}
+	close(baseSocket);
+	close(newSocket);
+}
+
 			// //			Receives any potential message from client
 			// 			bzero(buff, BUFFSIZE);
 			// 			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
@@ -85,13 +95,7 @@ void irc(Server *server)
 			// 			}
 			// 			else if (byteReceived > 0)
 			// 				usleep(10000);
-					}
-				}
-			}
-	}
-	close(baseSocket);
-	close(newSocket);
-}
+
 
 int	main(int ac, char **av)
 {
