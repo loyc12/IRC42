@@ -59,76 +59,43 @@ void irc(Server *server)
 //	Client interaction loop
 	while (!stopFlag)
 	{
-		fd_set fdsCopy = fdsMaster;
-		if (select(baseSocket + 1, &fdsCopy, nullptr, nullptr, nullptr) > 0)
+		fd_set fdsRead = fdsMaster;
+//		fd_set fdsWrite = fdsMaster;
+		int socketCount = select(baseSocket + 1, &fdsRead, nullptr, nullptr, nullptr);
+		if (socketCount < 0)
+			throw std::invalid_argument(" > Error at select(): ");
+		else if (socketCount > 0)
+		{
+//			if (FD_ISSET(baseSocket, &fdsRead))
 			newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-		if (newSocket > 0)
-		{
-			std::cout << std::endl << "newSocket : " << newSocket << std::endl; //		DEBUG
-			std::cout << std::endl << "Client connected !" << std::endl << std::endl;
-
-//			Receives any potential message from client
-			bzero(buff, BUFFSIZE);
-			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
-			if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
-				throw std::invalid_argument(" > Error at recv : ");
-			else if (byteReceived == 0)
-			{
-				std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
-				close(newSocket);
-				newSocket = 0;
-				std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
-			}
-			else if (byteReceived > 0)
-				std::cout << std::string(buff, 1, byteReceived) << std::endl;
-		}
-		else
-			usleep(10000);
-	}
-
-/*
-//	( )======== SELECT TEST (LOYC) ========( )
-
-	int		socketCount;
-	fd_set	fdsMaster;
-	FD_ZERO(&fdsMaster);
-	FD_SET(baseSocket, &fdsMaster);
-
-//	Client interaction loop
-	while (!stopFlag)
-	{
-
-		fd_set fdsCopy = fdsMaster;
-		socketCount = select(baseSocket + 1, &fdsCopy, nullptr, nullptr, nullptr);
-
-		if (socketCount <= 0)
-			continue;
-
-		for (int fd = 0; fd < socketCount; fd++)
-		{
-			if (!stopFlag && FD_ISSET(baseSocket, &fdsCopy))
-			{
-				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+			if (newSocket < 0)
+				throw std::invalid_argument(" > Error at accept(): ");
+			else if (newSocket > 0)			{
+				std::cout << std::endl << "Accept is okay !" << std::endl; //			DEBUG
+				std::cout << std::endl << "newSocket == " << newSocket << std::endl; //	DEBUG
+				std::cout << std::endl << "Client connected !" << std::endl << std::endl;
 
 //				Receives any potential message from client
 				bzero(buff, BUFFSIZE);
-				int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
+				int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
 				if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
 					throw std::invalid_argument(" > Error at recv : ");
 				else if (byteReceived == 0)
 				{
-					std::cout << "Client disconnected ..." << std::endl << std::endl;
-					break ;
+					std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
+					close(newSocket);
+					newSocket = 0;
+					std::cout << std::endl << "Awaiting new request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 				}
 				else if (byteReceived > 0)
-					std::cout << std::string(buff, byteReceived);
+					std::cout << std::string(buff, 0, byteReceived) << std::endl;
 			}
+//			else
+//				usleep(10000);
 		}
 	}
-*/
 
-
-//	( )================ ALEX'S VERSION ================( )
+//	( )================ OLD VERSION ================( )
 
 /*
 //	Waits for a client connection
@@ -150,29 +117,6 @@ void irc(Server *server)
 			break ;
 		}
         std::cout <<  std::string(buff, 0, byteReceived);
-	}
-
-//	( )======== SELECT TEST (Alex) ========( )
-
-	fd_set base;
-	fd_set copy;
-	FD_ZERO(&base);
-	std::cout << "fd zero base OK " << std::endl;
-	FD_SET(baseSocket, &base);
-
-	while (!stopFlag)
-	{
-		std::cout << "fd set OK " << std::endl;
-		copy = base;
-
-		int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
-		if (socketCount < 0)
-			throw std::invalid_argument(" > Error select() ");
-		else if (socketCount == 0)
-		{
-			std::cerr << "Hmm." << std::endl;
-		}
-		std::cout << "socketCount: " << socketCount << std::endl;
 	}
 
 */
