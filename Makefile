@@ -158,7 +158,7 @@ run: all
 	@echo "$(YELLOW)Launching command : $(CMD) $(DEFCOL)"
 	@echo "$(GREEN)"
 	$(HIDE) $(CMD) || true
-	@echo "$(GREEN)Exited normally! $(DEFCOL)"
+	@echo "$(GREEN)\n\nExited normally! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
 # Runs the program with leaks
@@ -167,7 +167,7 @@ leaks: all
 	@echo "$(RED)Launching command : leaks $(LFLAGS) -- $(CMD) $(DEFCOL)"
 	@echo "$(YELLOW)"
 	$(HIDE) leaks $(LFLAGS) -- $(CMD) || true
-	@echo "$(GREEN)Exited normally! $(DEFCOL)"
+	@echo "$(GREEN)\n\nExited normally! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
 # Runs the program with valgrind
@@ -176,7 +176,7 @@ vleaks: all
 	@echo "$(RED)Launching command : valgrind $(VFLAGS) $(CMD) $(DEFCOL)"
 	@echo "$(YELLOW)"
 	$(HIDE) valgrind $(VFLAGS) $(CMD) || true
-	@echo "$(GREEN)Exited normally! $(DEFCOL)"
+	@echo "$(GREEN)\n\nExited normally! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
 # Runs the norminette
@@ -205,7 +205,7 @@ brew:
 	$(HIDE) bash include/brew_install.sh
 	@echo "$(BLUE)Brew installed $(DEFCOL)"
 	@echo "$(RED)CLOSE AND REOPEN TERMINAL IF IT DOESN'T WORK$(DEFCOL)"
-	@echo "$(GREEN)Exited normally! $(DEFCOL)"
+	@echo "$(GREEN)\n\nExited normally! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
 # Installs/Updates cmake

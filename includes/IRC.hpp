@@ -2,17 +2,23 @@
 # define IRC_HPP
 
 //test.cpp
-#include <iostream>
-#include <fcntl.h>//fd
-#include <unistd.h>//close
-#include <arpa/inet.h> //	inet_ntoa
-#include <netinet/in.h> //	socket
-#include <sys/socket.h> //	socket
-#include <string.h> //string
+# include <iostream>
+# include <fcntl.h> //		fds
+# include <unistd.h> //		close fds
+# include <arpa/inet.h> //	IP stuff
+# include <netinet/in.h> //	IP stuff
+# include <sys/socket.h> //	socket stuff
+# include <string.h> //		string (why not <string> instead ??)
+# include <string> //		string (why not <string.h> instead ??)
 
+# include <sys/time.h> //	select
+# include <sys/select.h> //	select
+
+# include "Message.hpp"
 # include "Server.hpp"
 # include "User.hpp"
-# include "Message.hpp"
+
+# define BUFFSIZE 256
 
 //	put defines here
 static bool	stopFlag = false;
