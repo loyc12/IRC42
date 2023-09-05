@@ -72,7 +72,7 @@ void irc(Server *server)
 						std::cout << "\tnewSocket : " << newSocket << std::endl;
 						std::cout << std::endl << "CLIENT CONNECTED!" << std::endl << std::endl;
 						//			Receives any potential message from client
-						while (1)
+						while (!stopFlag)
 						{
 							bzero(buff, BUFFSIZE);
 							int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
@@ -81,7 +81,7 @@ void irc(Server *server)
 							else if (byteReceived == 0)
 							{
 								std::cout<< std::endl << "CLIENT DISCONNECTED" << std::endl << std::endl;
-								close(newSocket);
+								//close(newSocket);
 								newSocket = 0;
 								std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 							}
