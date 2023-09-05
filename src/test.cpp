@@ -75,23 +75,27 @@ void irc(Server *server)
 					std::cout << std::endl << "newSocket : " << newSocket << std::endl; //				DEBUG
 					std::cout << std::endl << "Client connected !" << std::endl << std::endl; //		DEBUG
 
-	//				Receives any potential message from client
-					bzero(buff, BUFFSIZE);
-					int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
-
-					std::cout << byteReceived << " ( " << errno << " )" << std::endl << std::endl; //	DEBUG
-
-					if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
-						throw std::invalid_argument(" > Error at recv : ");
-					else if (byteReceived == 0)
+	//				Receives any potential messages from client
+					while (!stopFlag)
 					{
-						std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
-						close(newSocket);
-						newSocket = 0;
-						std::cout << std::endl << "Awaiting new request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
+						bzero(buff, BUFFSIZE);
+						int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
+
+//						std::cout << byteReceived << " ( " << errno << " )" << std::endl << std::endl; //	DEBUG
+
+						if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
+							throw std::invalid_argument(" > Error at recv : ");
+						else if (byteReceived == 0)
+						{
+							std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
+							close(newSocket);
+							newSocket = 0;
+							std::cout << std::endl << "Awaiting new request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
+							break;
+						}
+						else if (byteReceived > 0)
+							std::cout << std::string(buff, 0, byteReceived) << std::endl;
 					}
-					else if (byteReceived > 0)
-						std::cout << std::string(buff, 0, byteReceived) << std::endl;
 
 				}
 			}
