@@ -69,7 +69,7 @@ void irc(Server *server)
 
 //			Receives any potential message from client
 			bzero(buff, BUFFSIZE);
-			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
+			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
 			if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
 				throw std::invalid_argument(" > Error at recv : ");
 			else if (byteReceived == 0)
@@ -80,7 +80,7 @@ void irc(Server *server)
 				std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 			}
 			else if (byteReceived > 0)
-				std::cout << std::string(buff, 1, byteReceived) << std::endl;
+				std::cout << std::string(buff, 0, byteReceived) << std::endl;
 		}
 		else
 			usleep(10000);
