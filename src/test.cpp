@@ -48,63 +48,55 @@ void irc(Server *server)
 //	Client interaction loop
 	while (!stopFlag)
 	{
-		fd_set fdsRead = fdsMaster;
-//		fd_set fdsWrite = fdsMaster;
-
-		socketCount = select(baseSocket + 1, &fdsRead, nullptr, nullptr, nullptr);
-
-		if (socketCount < 0)
+		fd_set fdsCopy = fdsMaster;
+		socketCount = select(baseSocket + 1, &fdsCopy, nullptr, nullptr, nullptr);
+		if (socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
-		else if (socketCount > 0)
+		else if (socketCount)
 		{
-			std::cout << "select() is OK and > 0 !" << std::endl; //									DEBUG
-			std::cout << "\tListening socket is ready." << std::endl; //								DEBUG
-
-			if (FD_ISSET(baseSocket, &fdsRead))
+			std::cout << "\nselect() is OK!" << std::endl;
+			std::cout << "\tListening socket is ready.\n\tWait for FD_ISSET to judge if the fd is ready to be read without blocking." << std::endl;
+			if (FD_ISSET(baseSocket, &fdsCopy))//judge if fd is availlable
 			{
-				std::cout << "FD_ISSET() is OK!" << std::endl; //										DEBUG
-				std::cout << "\tFd " << newSocket << " can be read without blocking" << std::endl; //	DEBUG
-
+				std::cout << "\nFD_ISSET() is OK!" << std::endl;
+				std::cout << "\tThis FD can be read without blocking." << std::endl;
 				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-
-				if (newSocket < 0)
+				if (newSocket == -1)
 					throw std::invalid_argument(" > Error at accept(): ");
-				else if (newSocket > 0)
+				else if (newSocket)
 				{
-					std::cout << std::endl << "Accept is okay !" << std::endl; //						DEBUG
-					std::cout << std::endl << "newSocket : " << newSocket << std::endl; //				DEBUG
-					std::cout << std::endl << "Client connected !" << std::endl << std::endl; //		DEBUG
-
-	//				Receives any potential messages from client
+					std::cout << "\naccept() is OK!" << std::endl;
+					std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
+					std::cout << "\tnewSocket : " << newSocket << std::endl;
+					std::cout << std::endl << "CLIENT CONNECTED!" << std::endl << std::endl;
+					//			Receives any potential message from client
 					while (!stopFlag)
 					{
 						bzero(buff, BUFFSIZE);
 						int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
-
-//						std::cout << byteReceived << " ( " << errno << " )" << std::endl << std::endl; //	DEBUG
-
-						if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
+						if (byteReceived < 0 && errno != EAGAIN)
 							throw std::invalid_argument(" > Error at recv : ");
 						else if (byteReceived == 0)
 						{
-							std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
-							close(newSocket);
+							std::cout<< std::endl << "CLIENT DISCONNECTED" << std::endl << std::endl;
+							//close(newSocket);
 							newSocket = 0;
-							std::cout << std::endl << "Awaiting new request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
-							break;
+							std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
 						}
-						else if (byteReceived > 0)
+						else if (byteReceived)
+						{
 							std::cout << std::string(buff, 0, byteReceived) << std::endl;
+						}
 					}
-
 				}
 			}
-//			else
-//				usleep(10000);
+			else
+				throw std::invalid_argument(" > Error at accept(): ");
 		}
 	}
-
-
+	close(baseSocket);
+	close(newSocket);
+}
 
 //	( )================ OLD VERSION ================( )
 
@@ -131,11 +123,11 @@ void irc(Server *server)
 		}
         std::cout <<  std::string(buff, 0, byteReceived);
 	}
-*/
-
 	close(baseSocket);
 	close(newSocket);
 }
+*/
+
 
 int main(int ac, char **av)
 {
