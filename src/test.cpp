@@ -17,7 +17,7 @@ void irc(Server *server)
 	struct sockaddr_in	server_addr;
 	struct sockaddr_in	client_addr;
 	socklen_t 			client_len = sizeof(client_addr);
-	//char 				buff[BUFFSIZE];
+	char 				buff[BUFFSIZE];
 
 //	Inits base socket
 	baseSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -71,6 +71,25 @@ void irc(Server *server)
 						std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
 						std::cout << "\tnewSocket : " << newSocket << std::endl;
 						std::cout << std::endl << "CLIENT CONNECTED!" << std::endl << std::endl;
+						//			Receives any potential message from client
+						while (1)
+						{
+							bzero(buff, BUFFSIZE);
+							int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
+							if (byteReceived < 0 && errno != EAGAIN)
+								throw std::invalid_argument(" > Error at recv : ");
+							else if (byteReceived == 0)
+							{
+								std::cout<< std::endl << "CLIENT DISCONNECTED" << std::endl << std::endl;
+								close(newSocket);
+								newSocket = 0;
+								std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
+							}
+							else if (byteReceived)
+							{
+								std::cout << std::string(buff, 0, byteReceived) << std::endl;
+							}
+						}
 					}
 				}
 				else
@@ -81,20 +100,6 @@ void irc(Server *server)
 	close(newSocket);
 }
 
-			// //			Receives any potential message from client
-			// 			bzero(buff, BUFFSIZE);
-			// 			int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, MSG_DONTWAIT);
-			// 			if (byteReceived == -1 && errno != EAGAIN) //			is EAGAIN check allowed ??? else must use select()
-			// 				throw std::invalid_argument(" > Error at recv : ");
-			// 			else if (byteReceived == 0)
-			// 			{
-			// 				std::cout<< std::endl << "Client disconnected ..." << std::endl << std::endl;
-			// 				close(newSocket);
-			// 				newSocket = 0;
-			// 				std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
-			// 			}
-			// 			else if (byteReceived > 0)
-			// 				usleep(10000);
 
 
 int	main(int ac, char **av)
