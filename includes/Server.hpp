@@ -12,6 +12,7 @@ class Server
 	private:
 		// Data
 		int	_port;
+		std::string	_password;
 		// Private Constructor
 		Server();
 
@@ -24,6 +25,7 @@ class Server
 
 		// Getters - Setters
 		const int &	getPort(void) const ;
+		const std::string & getPass(void) const;
 
 };
 

@@ -12,6 +12,26 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
+void	checkPassword(char *buff, Server *server)
+{
+	//PASS 5645 <- client send password like this
+	std::string buf = buff;
+	int i = 0;
+	while (i < buf.length())
+	{
+		if (buf.compare("PASS ") == 0)
+			break;
+		i++;
+	}
+	for (int j = i; j < buf.length(); i++)
+	{
+		if (buf.compare(server->getPass()) != 0)
+			throw std::invalid_argument(" > Error: invalid password");
+		else
+			std::
+	}
+}
+
 void irc(Server *server)
 {
 	struct sockaddr_in	server_addr;
@@ -144,9 +164,12 @@ int main(int ac, char **av)
         int port = atoi(av[1]);
         if (port < 1025 || 65535 < port)
             throw std::invalid_argument(" > Error main(): Invalid port");
-        int pass = atoi(av[2]);
-        (void) pass;
+        // int pass = atoi(av[2]);
+        //(void) pass;
+		std::string password = av[2];
         Server server(port);
+		if (password.compare(server.getPass()) != 0)
+			throw std::invalid_argument(" > Error main(): Invalid password");
         std::cout << std::endl; //  DEBUG
         irc(&server);
     }
