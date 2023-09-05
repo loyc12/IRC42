@@ -43,9 +43,22 @@ void irc(Server *server)
 	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 	close(baseSocket);
 	char 				buff[256]; //	FOR MESSAGE RECEIVING/SENDING
+	fd_set readFD, writeFD, errorFD;
+	FD_ZERO(&readFD);
+	FD_ZERO(&writeFD);
+	FD_ZERO(&errorFD);
+	FD_SET(baseSocket, &readFD);
 
-	while (stopFlag == false)//flag does not change
+
+
+	while (stopFlag == false)//flag does not change and when a client disconnect close everything.
 	{
+		fd_set tmpReadFD = readFD;
+		fd_set tmpWriteFD = writeFD;
+		fd_set tmpErrorFD = errorFD;
+		int maxFD = baseSocket;
+		int event = select(maxFD + 1, &tmpReadFD, &tmpWriteFD, &tmpErrorFD, NULL);
+		std::cout << "event= " << event << std::endl;
 		bzero(buff, 256);
 		int byteReceived = recv(newSocket, buff, 255, 0);
 		if (byteReceived == -1)
