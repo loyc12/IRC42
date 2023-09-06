@@ -14,8 +14,7 @@ static void	stop(int sig)
 
 void irc(Server *server)
 {
-	struct sockaddr_in	server_addr;
-	struct sockaddr_in	client_addr;
+	struct sockaddr_in	server_addr, client_addr;
 	socklen_t 			client_len = sizeof(client_addr);
 
 //	Inits base socket
@@ -40,7 +39,7 @@ void irc(Server *server)
 
 	//select
 	char 	buff[BUFFSIZE];
-	fd_set	fdsMaster;
+	fd_set	fdsMaster, fdsRead; //, fdWrite;
 	int 	socketCount;
 	FD_ZERO(&fdsMaster);
 	FD_SET(baseSocket, &fdsMaster);
@@ -48,10 +47,10 @@ void irc(Server *server)
 //	Client interaction loop
 	while (!stopFlag)
 	{
-		fd_set fdsRead = fdsMaster;
+		fdsRead = fdsMaster;
 //		fd_set fdsWrite = fdsMaster; // for eventual reading; third argument of select()
 
-		// still blocking ...
+//		still blocking ...
 		socketCount = select(baseSocket + 1, &fdsRead, nullptr, nullptr, nullptr);
 
 		if (socketCount == -1)
