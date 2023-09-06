@@ -176,8 +176,6 @@ int main(int ac, char **av)
         (void) pass;
         if (port < 1025 || 65535 < port)
             throw std::invalid_argument(" > Error main(): Invalid port");
-        // int pass = atoi(av[2]);
-        //(void) pass;
 		std::string password = av[2];
         Server server(port);
 		if (password.compare(server.getPass()) != 0)
