@@ -98,37 +98,6 @@ void irc(Server *server)
 	close(newSocket);
 }
 
-//	( )================ OLD VERSION ================( )
-
-/*
-//	Waits for a client connection
-	std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl;
-	newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len); //	is blocking
-	std::cout << "Client connected !" << std::endl << std::endl;
-	close(baseSocket);
-
-	char 	buff[BUFFSIZE];
-
-	// Client interaction loop
-	while (stopFlag == false)
-	{
-		bzero(buff, BUFFSIZE);
-		int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0); //	is blocking
-		if (byteReceived == -1)
-			throw std::invalid_argument(" > Error at recv :");
-		if (byteReceived == 0)
-		{
-			std::cout << std::endl << "Client disconnected ..." << std::endl << std::endl;
-			break ;
-		}
-        std::cout <<  std::string(buff, 0, byteReceived);
-	}
-	close(baseSocket);
-	close(newSocket);
-}
-*/
-
-
 int main(int ac, char **av)
 {
     signal(SIGQUIT, SIG_IGN); //ignore ctrl-backslash
@@ -142,8 +111,8 @@ int main(int ac, char **av)
         if (found != std::string::npos)
             throw std::invalid_argument(" > Error main(): Not a port");
         int port = atoi(av[1]);
-        if (port < 1025 || 65535 < port)
-            throw std::invalid_argument(" > Error main(): Invalid port");
+        if (port < 6660|| 6669 < port)
+            throw std::invalid_argument(" > Error main(): Not a TCP port for IRC");
         int pass = atoi(av[2]);
         (void) pass;
         Server server(port);
