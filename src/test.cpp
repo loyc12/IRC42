@@ -46,8 +46,8 @@ void checkPassword(char *buff, Server *server)
 	}
 	std::string pass = buf.substr(5, 4); //isolate the password sent by client ***HARD CODE here
 	if (pass.compare(server->getPass()) != 0)
-		//return (-1);
 		throw std::invalid_argument(" > Error: invalid password");
+		//return (-1);
 	else
 		std::cout << "Welcome to this IRC server!" << std::endl;
 	//return (0);
