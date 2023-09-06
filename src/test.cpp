@@ -136,10 +136,7 @@ void irc(Server *server)
 							std::cout << std::endl << "NEW CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
 							std::string partTwo = "Welcome to this chat server!\r\n";
 							std::string welcomeMsg = "PRIVMSG " + partTwo;
-							if (send(newSocket, partTwo.c_str(), partTwo.length(), 0) == -1) //flag at the end, maybe MSG_DONTROUTE
-							{
-								send(newSocket, welcomeMsg.c_str(), welcomeMsg.length(), 0);
-							}
+							send(newSocket, welcomeMsg.c_str(), welcomeMsg.length(), 0);
 							FD_SET(newSocket, &fdsMaster);
 						}
 					}
