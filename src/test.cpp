@@ -117,21 +117,13 @@ void irc(Server *server)
 	if (bind(baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 	listen(baseSocket, SOMAXCONN);
-<<<<<<< HEAD
 //	prepare fds for select
-=======
-
-	//select
-	fd_set	fdsMaster;
-	int 	socketCount;
->>>>>>> origin/VJ
 	FD_ZERO(&fdsMaster);
 	FD_SET(baseSocket, &fdsMaster);
 
 //	Client interaction loop
 	while (!stopFlag)
 	{
-<<<<<<< HEAD
 		fd_set fdsCopy = fdsMaster;
 		socketCount = select(FD_SETSIZE, &fdsCopy, nullptr, nullptr, nullptr);
 		if (socketCount == -1)
@@ -160,53 +152,6 @@ void irc(Server *server)
 				}
 			}
 		}}}
-=======
-		//! fdsCopy OK
-		fd_set fdsCopy = fdsMaster;
-		//^ Lui, il met zero (0) a la place, de base socket ?
-		socketCount = select(FD_SETSIZE, &fdsCopy, nullptr, nullptr, nullptr);
-		if (socketCount == -1)
-			throw std::invalid_argument(" > Error at select(): ");
-		else if (socketCount)
-		{
-			std::cout << "\nselect() is OK!" << std::endl;
-			for (int i = 0; i < FD_SETSIZE; ++i)
-			{
-				if (FD_ISSET(i, &fdsCopy))//judge if fd is availlable
-				{
-					std::cout << "\nFD_ISSET() is OK!" << std::endl;
-					if (i == baseSocket) /*Connection request on original socket*/
-					{
-						newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-						if (newSocket <= 0)
-							throw std::invalid_argument(" > Error at accept(): ");
-						else
-						{
-							std::cout << "\naccept() is OK!" << std::endl;
-							std::cout << "\tnewSocket : " << newSocket << std::endl;
-							std::cout << std::endl << "NEW CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
-							std::string partTwo = "Welcome to this chat server!\r\n";
-							std::string welcomeMsg = "PRIVMSG " + partTwo;
-							if (send(newSocket, partTwo.c_str(), partTwo.length(), 0) == -1) //flag at the end, maybe MSG_DONTROUTE
-							{
-								send(newSocket, welcomeMsg.c_str(), welcomeMsg.length(), 0);
-							}
-							FD_SET(newSocket, &fdsMaster);
-						}
-					}
-					else
-					{
-						if (read_from_client(i) < 0)
-						{
-							close(i);
-							FD_CLR(i, &fdsMaster);
-						}
-					}
-
-				}
-    		}
-		}
->>>>>>> origin/VJ
 	}
 	close(baseSocket);
 	close(newSocket);
@@ -225,18 +170,15 @@ int main(int ac, char **av)
         if (found != std::string::npos)
             throw std::invalid_argument(" > Error main(): Not a port");
         int port = atoi(av[1]);
-<<<<<<< HEAD
         if (port < 6660|| 6669 < port)
             throw std::invalid_argument(" > Error main(): Not a TCP port for IRC");
         int pass = atoi(av[2]);
         (void) pass;
-=======
         if (port < 1025 || 65535 < port)
             throw std::invalid_argument(" > Error main(): Invalid port");
         // int pass = atoi(av[2]);
         //(void) pass;
 		std::string password = av[2];
->>>>>>> origin/VJ
         Server server(port);
 		if (password.compare(server.getPass()) != 0)
 			throw std::invalid_argument(" > Error main(): Invalid password");
