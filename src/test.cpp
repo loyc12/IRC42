@@ -9,7 +9,7 @@ static void	stop(int sig)
 	(void)sig;
 	stopFlag = true;
 	std::cout << std::endl << std::endl << " > Closing and cleaning ..." << std::endl << std::endl;
-//	exit(1); //	here because commands are blocking, preventing flag checks
+	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
 void irc(Server *server)
@@ -55,20 +55,20 @@ void irc(Server *server)
 		else if (socketCount)
 		{
 			std::cout << "\nselect() is OK!" << std::endl;
-			std::cout << "\tListening socket is ready.\n\tWait for FD_ISSET to judge if the fd is ready to be read without blocking." << std::endl;
+			//std::cout << "\tListening socket is ready.\n\tWait for FD_ISSET to judge if the fd is ready to be read without blocking." << std::endl;
 			if (FD_ISSET(baseSocket, &fdsCopy))//judge if fd is availlable
 			{
 				std::cout << "\nFD_ISSET() is OK!" << std::endl;
-				std::cout << "\tThis FD can be read without blocking." << std::endl;
+				//std::cout << "\tThis FD can be read without blocking." << std::endl;
 				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 				if (newSocket == -1)
 					throw std::invalid_argument(" > Error at accept(): ");
 				else if (newSocket)
 				{
 					std::cout << "\naccept() is OK!" << std::endl;
-					std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
+					//std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
 					std::cout << "\tnewSocket : " << newSocket << std::endl;
-					std::cout << std::endl << "CLIENT CONNECTED!" << std::endl << std::endl;
+					std::cout << std::endl << "CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
 					//			Receives any potential message from client
 					while (!stopFlag)
 					{
