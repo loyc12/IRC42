@@ -2,12 +2,12 @@
 
 // 0================ BASE FUNCTIONS ================0
 //private
-Server::Server() : _port(6667) {
+Server::Server() : _port(6667), _password("1234"){
 	std::cout << ": Called default constructor (SERVER) " << std::endl;
 }
 
 //public
-Server::Server(int port) : _port(port) {
+Server::Server(int port) : _port(port), _password("1234") {
 	std::cout << ": Called parameterized constructor (SERVER) " << std::endl;
 }
 Server::Server(const Server &other)
@@ -35,6 +35,8 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 // 0================ GETTERS / SETTERS ================0
 
 const int & Server::getPort(void) const { return (this->_port);}
+
+const std::string & Server::getPass(void) const { return (this->_password);}
 
 // 0================ OTHER FUNCTIONS ================0
 
