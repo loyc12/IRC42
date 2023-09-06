@@ -27,3 +27,10 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 ## Note :
 
 * Eviter de prendre des rencontres de Jeudi
+
+
+## Netcat:
+* tout se passe dans le terminal pour netcat. Pas d'interface graphique
+* Il faut s'assurer de l'installer sur notre appareil. Dans le terminal: brew install netcat
+* Après la ligne de commande pour se connecter: netcat localhost <port>
+* Il faut que je regarde pour le mot de passe, j'imagine que la logique serait de l'ajouter à la suite de port...
