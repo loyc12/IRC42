@@ -16,20 +16,18 @@ void	checkPassword(char *buff, Server *server)
 {
 	//PASS 5645 <- client send password like this
 	std::string buf = buff;
-	int i = 0;
+	size_t i = 0;
 	while (i < buf.length())
 	{
 		if (buf.compare("PASS ") == 0)
 			break;
 		i++;
 	}
-	for (int j = i; j < buf.length(); i++)
-	{
-		if (buf.compare(server->getPass()) != 0)
-			throw std::invalid_argument(" > Error: invalid password");
-		else
-			std::
-	}
+	std::string pass = buf.substr(5, 4); //isolate the password sent by client ***HARD CODE here
+	if (pass.compare(server->getPass()) != 0)
+		throw std::invalid_argument(" > Error: invalid password");
+	else
+		std::cout << "Welcome to this IRC server!" << std::endl;
 }
 
 void irc(Server *server)
@@ -105,6 +103,8 @@ void irc(Server *server)
 							}
 							else if (byteReceived)
 							{
+								//add check if send PASS or a command (JOIN KICK TOPIC...) else (message)
+								checkPassword(buff, server);
 								std::cout << std::string(buff, 0, byteReceived) << std::endl;
 							}
 						}
