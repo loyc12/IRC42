@@ -12,6 +12,27 @@ static void	stop(int sig)
 	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
+
+int read_from_client(int fd)
+{
+	char 	buff[BUFFSIZE];
+
+	bzero(buff, BUFFSIZE);
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
+	if (byteReceived < 0 && errno != EAGAIN)
+		throw std::invalid_argument(" > Error at recv : ");
+	else if (byteReceived == 0)
+	{
+		std::cout<< std::endl << "CLIENT DISCONNECTED" << std::endl << std::endl;
+		return (-1);
+	}
+	else if (byteReceived)
+	{
+		std::cout << std::string(buff, 0, byteReceived) << std::endl;
+	}
+	return (0);
+}
+
 void irc(Server *server)
 {
 	struct sockaddr_in	server_addr;
@@ -39,59 +60,55 @@ void irc(Server *server)
 	listen(baseSocket, SOMAXCONN);
 
 	//select
-	char 	buff[BUFFSIZE];
+	//! fdsMaster OK
 	fd_set	fdsMaster;
 	int 	socketCount;
+	//! FD_ZERO OK
 	FD_ZERO(&fdsMaster);
+	//! FD_SET OK
 	FD_SET(baseSocket, &fdsMaster);
 
 //	Client interaction loop
 	while (!stopFlag)
 	{
+		//! fdsCopy OK
 		fd_set fdsCopy = fdsMaster;
-		socketCount = select(baseSocket + 1, &fdsCopy, nullptr, nullptr, nullptr);
+		//^ Lui, il met zero (0) a la place, de base socket ?
+		socketCount = select(FD_SETSIZE, &fdsCopy, nullptr, nullptr, nullptr);
 		if (socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
 		else if (socketCount)
 		{
 			std::cout << "\nselect() is OK!" << std::endl;
-			//std::cout << "\tListening socket is ready.\n\tWait for FD_ISSET to judge if the fd is ready to be read without blocking." << std::endl;
-			if (FD_ISSET(baseSocket, &fdsCopy))//judge if fd is availlable
+			for (int i = 0; i < FD_SETSIZE; ++i)
 			{
-				std::cout << "\nFD_ISSET() is OK!" << std::endl;
-				//std::cout << "\tThis FD can be read without blocking." << std::endl;
-				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
-				if (newSocket == -1)
-					throw std::invalid_argument(" > Error at accept(): ");
-				else if (newSocket)
+				if (FD_ISSET(i, &fdsCopy))//judge if fd is availlable
 				{
-					std::cout << "\naccept() is OK!" << std::endl;
-					//std::cout << "\t Listened socket returned a new socket to represent the new connection." << std::endl;
-					std::cout << "\tnewSocket : " << newSocket << std::endl;
-					std::cout << std::endl << "CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
-					//			Receives any potential message from client
-					while (!stopFlag)
+					std::cout << "\nFD_ISSET() is OK!" << std::endl;
+					if (i == baseSocket) /*Connection request on original socket*/
 					{
-						bzero(buff, BUFFSIZE);
-						int byteReceived = recv(newSocket, buff, BUFFSIZE - 1, 0);
-						if (byteReceived < 0 && errno != EAGAIN)
-							throw std::invalid_argument(" > Error at recv : ");
-						else if (byteReceived == 0)
+						newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+						if (newSocket <= 0)
+							throw std::invalid_argument(" > Error at accept(): ");
+						else
 						{
-							std::cout<< std::endl << "CLIENT DISCONNECTED" << std::endl << std::endl;
-							//close(newSocket);
-							newSocket = 0;
-							std::cout << std::endl << "Awaiting request from client at : " << inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port);
-						}
-						else if (byteReceived)
-						{
-							std::cout << std::string(buff, 0, byteReceived) << std::endl;
+							std::cout << "\naccept() is OK!" << std::endl;
+							std::cout << "\tnewSocket : " << newSocket << std::endl;
+							std::cout << std::endl << "NEW CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
+							FD_SET(newSocket, &fdsMaster);
 						}
 					}
+					else
+					{
+						if (read_from_client(i) < 0)
+						{
+							close(i);
+							FD_CLR(i, &fdsMaster);
+						}
+					}
+
 				}
-			}
-			else
-				throw std::invalid_argument(" > Error at accept(): ");
+    		}
 		}
 	}
 	close(baseSocket);
