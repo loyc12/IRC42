@@ -12,7 +12,7 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
-void	checkPassword(char *buff, Server *server)
+void checkPassword(char *buff, Server *server)
 {
 	//PASS 5645 <- client send password like this
 	std::string buf = buff;
@@ -25,10 +25,33 @@ void	checkPassword(char *buff, Server *server)
 	}
 	std::string pass = buf.substr(5, 4); //isolate the password sent by client ***HARD CODE here
 	if (pass.compare(server->getPass()) != 0)
+		//return (-1);
 		throw std::invalid_argument(" > Error: invalid password");
 	else
 		std::cout << "Welcome to this IRC server!" << std::endl;
+	//return (0);
 }
+
+// void	checkBuff(char *buff, Server *server)
+// {
+// 	/*
+// 	if (checkPassword == -1)
+// 		throw error here: invalid password
+// 	if (buff == command) //KICK, INVITE, TOPIC or MODE with flags -> i t k o l
+// 		do the command->need to make sure that the user has the necessary requirements (admin for example)
+// 	else
+// 		send msg to the console of client(s)
+// 		and our terminal??
+
+// 	*/
+// 	std::string buf = buff;
+// 	if (checkPassword(buff, server) == -1)
+// 		throw std::invalid_argument(" > Error: invalid password");
+// 	if (buf.compare("KICK") || buf.compare("INVITE") || buf.compare("TOPIC") || buf.compare("MODE"))
+// 		std::cout << "do the command if you have requirements" << std::endl;
+// 	else
+// 		std::cout << buf << std::endl;
+// }
 
 void irc(Server *server)
 {
@@ -103,9 +126,11 @@ void irc(Server *server)
 							}
 							else if (byteReceived)
 							{
+								//check what was received in a function
 								//add check if send PASS or a command (JOIN KICK TOPIC...) else (message)
-								checkPassword(buff, server);
+								//checkPassword(buff, server);
 								std::cout << std::string(buff, 0, byteReceived) << std::endl;
+								//checkBuff(buff, server);
 							}
 						}
 					}
