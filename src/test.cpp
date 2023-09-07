@@ -87,6 +87,11 @@ void irc(Server *server)
 	if (baseSocket < 0)
 		throw std::invalid_argument(" > Error at socket(): ");
 
+//	Makes it so socket can be reused if available
+	const int reuse = 1;
+	if (setsockopt(baseSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0)
+		throw std::invalid_argument(" > Error at setsocketopt(): ");
+
 //	Prepares args for bind() call
 	bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET; //					bind call
@@ -97,7 +102,7 @@ void irc(Server *server)
 	if (bind(baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 
-//	Sets up baseSocket to recieve connections
+//	Sets up baseSocket to receive all connections
 	listen(baseSocket, SOMAXCONN);
 
 //	Prepares fds for select
@@ -113,6 +118,8 @@ void irc(Server *server)
 //		still blocking ... but that's normal ???
 		socketCount = select(FD_SETSIZE, &fdsRead, nullptr, nullptr, nullptr);
 
+		if (stopFlag)
+			break;
 		if (socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
 		else if (socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &fdsRead))
