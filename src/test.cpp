@@ -9,9 +9,8 @@ static void	stop(int sig)
 	(void)sig;
 	stopFlag = true;
 	std::cout << std::endl << std::endl << " > Closing and cleaning ..." << std::endl << std::endl;
-	exit(1); //	here because commands are blocking, preventing flag checks
+//	exit(1); //	here because commands are blocking, preventing flag checks
 }
-
 
 int read_from_client(int fd, std::string *message)
 {
@@ -29,26 +28,6 @@ int read_from_client(int fd, std::string *message)
 	{
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
-	}
-	return (0);
-}
-int read_from_client(int fd) //		USELESS???
-{
-	char 	buff[BUFFSIZE];
-
-	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	if (byteReceived < 0 && errno != EAGAIN)
-		throw std::invalid_argument(" > Error at recv : ");
-	else if (byteReceived == 0)
-	{
-		std::cout << std::endl << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
-		return (-1);
-	}
-	else if (byteReceived)
-	{
-		//call checkPass here
-		std::cout << std::string(buff, 0, byteReceived) ;
 	}
 	return (0);
 }
@@ -178,7 +157,7 @@ void irc(Server *server)
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}
-			else /*Read message on the known client*/
+			else //	Reads messages from a known client
 			{
 				if (read_from_client(i, &message) < 0) //	do else if () instead (?)
 				{
