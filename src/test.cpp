@@ -140,7 +140,33 @@ void irc(Server *server)
 		{
 			if (i == baseSocket) /*Connection request on base socket*/
 			{
-				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+				if (FD_ISSET(i, &fdsCopy))//judge if fd is availlable
+				{
+					std::cout << "\nFD_ISSET() is OK!" << std::endl;
+					if (i == baseSocket) /*Connection request on original socket*/
+					{
+						newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
+						if (newSocket <= 0)
+							throw std::invalid_argument(" > Error at accept(): ");
+						else
+						{
+							std::cout << "\naccept() is OK!" << std::endl;
+							std::cout << "\tnewSocket : " << newSocket << std::endl;
+							std::cout << std::endl << "NEW CLIENT CONNECTED -> "<< inet_ntoa(client_addr.sin_addr) << ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
+							std::string partTwo = "Welcome to this chat server!\r\n";
+							std::string welcomeMsg = "PRIVMSG " + partTwo;
+							send(newSocket, welcomeMsg.c_str(), welcomeMsg.length(), 0);
+							FD_SET(newSocket, &fdsMaster);
+						}
+					}
+					else
+					{
+						if (read_from_client(i) < 0)
+						{
+							close(i);
+							FD_CLR(i, &fdsMaster);
+						}
+					}
 
 				if (newSocket <= 0)
 					throw std::invalid_argument(" > Error at accept(): ");
