@@ -30,6 +30,7 @@ void checkPassword(char *buff, Server *server, int fd)
 		//return (-1);
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
+		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
 		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
 		std::string welcome = ss.str();
