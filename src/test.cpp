@@ -12,26 +12,6 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
-int read_from_client(int fd, std::string *message)
-{
-	char 		buff[BUFFSIZE];
-	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	if (byteReceived < 0 && errno != EAGAIN)
-		throw std::invalid_argument(" > Error at recv : ");
-	else if (byteReceived == 0)
-	{
-		std::cout << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
-		return (-1);
-	}
-	else if (byteReceived)
-	{
-		message->assign(buff, 0, byteReceived);
-		std::cout << *message;
-	}
-	return (0);
-}
-
 void checkPassword(char *buff, Server *server)
 {
 	//PASS 5645 <- client send password like this
@@ -51,6 +31,30 @@ void checkPassword(char *buff, Server *server)
 		std::cout << "Welcome to this IRC server!" << std::endl;
 	//return (0);
 }
+
+int read_from_client(int fd, std::string *message, Server *server)
+{
+	char 		buff[BUFFSIZE];
+	bzero(buff, BUFFSIZE);
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
+	if (byteReceived < 0 && errno != EAGAIN)
+		throw std::invalid_argument(" > Error at recv : ");
+	else if (byteReceived == 0)
+	{
+		std::cout << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
+		return (-1);
+	}
+	else if (byteReceived)
+	{
+		std::string tmp = buff;
+		if (tmp.find("PASS ") != std::string::npos)
+			checkPassword(buff, server);
+		message->assign(buff, 0, byteReceived);
+		std::cout << *message;
+	}
+	return (0);
+}
+
 
 // void	checkBuff(char *buff, Server *server)
 // {
@@ -140,7 +144,7 @@ void irc(Server *server)
 			}
 			else //	Reads messages from a known client
 			{
-				if (read_from_client(i, &message) < 0) //	do else if () instead (?)
+				if (read_from_client(i, &message, server) < 0) //	do else if () instead (?)
 				{
 					close(i);
 					FD_CLR(i, &fdsMaster);
