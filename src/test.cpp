@@ -12,9 +12,10 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
-void checkPassword(char *buff, Server *server)
+void checkPassword(char *buff, Server *server, int fd)
 {
 	//PASS 5645 <- client send password like this
+	int ret;
 	std::string buf = buff;
 	size_t i = 0;
 	while (i < buf.length())
@@ -27,8 +28,27 @@ void checkPassword(char *buff, Server *server)
 	if (pass.compare(server->getPass()) != 0)
 		throw std::invalid_argument(" > Error: invalid password");
 		//return (-1);
-	else
-		std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl;
+	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
+	{
+		std::ostringstream ss;
+		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
+		std::string welcome = ss.str();
+
+		ret = send(fd, welcome.c_str(), welcome.size(), 0);
+		if (ret == 0)
+		{
+			std::cout << "DISCONNECT ?" << std::endl;
+		}
+		else if (ret < 0)
+		{
+			std::cout << "ERROR" << std::endl;
+		}
+		else if (ret > 0)
+		{
+			std::cout << "YEAH" << std::endl;
+		}
+		//std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl;
+	}
 	//return (0);
 }
 
@@ -45,21 +65,21 @@ int read_from_client(int fd, std::string *message, Server *server)
 	}
 	else if (byteReceived)
 	{
-		int ret;
+		//int ret;
 		std::string tmp = buff;
 		if (tmp.find("PASS ") != std::string::npos)
-			checkPassword(buff, server);
+			checkPassword(buff, server, fd);
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
-		ret = send(fd, message, message->length(), 0);
-		if (ret == 0)
-		{
-			std::cout << "HERE" << std::endl;
-		}
-		else if (ret < 0)
-		{
-			std::cout << "ERROR" << std::endl;
-		}
+		//ret = send(fd, message, message->length(), 0);
+		// if (ret == 0)
+		// {
+		// 	std::cout << "HERE" << std::endl;
+		// }
+		// else if (ret < 0)
+		// {
+		// 	std::cout << "ERROR" << std::endl;
+		// }
 		bzero(buff, BUFFSIZE);
 	}
 	return (0);

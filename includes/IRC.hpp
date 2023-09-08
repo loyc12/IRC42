@@ -3,6 +3,7 @@
 
 //test.cpp
 # include <iostream>
+# include <sstream>
 # include <fcntl.h> //		fds
 # include <unistd.h> //		close fds
 # include <arpa/inet.h> //	IP stuff
