@@ -28,7 +28,9 @@ void checkPassword(char *buff, Server *server)
 		throw std::invalid_argument(" > Error: invalid password");
 		//return (-1);
 	else
+	{
 		std::cout << "Welcome to this IRC server!" << std::endl;
+	}
 	//return (0);
 }
 
@@ -45,11 +47,21 @@ int read_from_client(int fd, std::string *message, Server *server)
 	}
 	else if (byteReceived)
 	{
+		int ret;
 		std::string tmp = buff;
 		if (tmp.find("PASS ") != std::string::npos)
 			checkPassword(buff, server);
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
+		ret = send(fd, message, message->length(), 0);
+		if (ret == 0)
+		{
+			std::cout << "HERE" << std::endl;
+		}
+		else if (ret < 0)
+		{
+			std::cout << "ERROR" << std::endl;
+		}
 		bzero(buff, BUFFSIZE);
 	}
 	return (0);
@@ -149,6 +161,15 @@ void irc(Server *server)
 					close(i);
 					FD_CLR(i, &fdsMaster);
 				}
+				// if (accept_from_client(i, &message, server) < 0)
+				// {
+				// 	//Parsing de commande (mdp)
+				// }
+				// if (send_to_clients(i, &message, server) < 0)
+				// {
+				// 	//Envoyer aux destinataires voulus.
+				// }
+
 			}
 		}}}
 	}
