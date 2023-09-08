@@ -37,10 +37,15 @@ int read_from_client(int fd, std::string *message, Server *server)
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	if (byteReceived < 0 && errno != EAGAIN)
-		throw std::invalid_argument(" > Error at recv : ");
-	else if (byteReceived == 0)
+	std::cout << "this is byte: " << byteReceived << std::endl;
+	if (byteReceived < 0 && errno != EAGAIN && errno != 54)
 	{
+		std::cout << errno << std::endl;
+		throw std::invalid_argument(" > Error at recv : ");
+	}
+	else if (byteReceived == 0 || errno == 54)
+	{
+		bzero(buff, BUFFSIZE);
 		std::cout << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
 		return (-1);
 	}
@@ -51,6 +56,7 @@ int read_from_client(int fd, std::string *message, Server *server)
 			checkPassword(buff, server);
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
+		bzero(buff, BUFFSIZE);
 	}
 	return (0);
 }
