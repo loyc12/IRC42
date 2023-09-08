@@ -3,27 +3,27 @@
 // 0================ BASE FUNCTIONS ================0
 //private
 Server::Server() : _port(6667), _password("1234"){
-	std::cout << ": Called default constructor (SERVER) " << std::endl;
+	std::cout << YELLOW << ": Called default constructor (SERVER) " << DEFCOL;
 }
 
 //public
 Server::Server(int port) : _port(port), _password("1234") {
-	std::cout << ": Called parameterized constructor (SERVER) " << std::endl;
+	std::cout << YELLOW << ": Called parameterized constructor (SERVER) " << DEFCOL;
 }
 Server::Server(const Server &other)
 {
-	std::cout << ": Called copy constructor (SERVER) ";
+	std::cout << YELLOW << ": Called copy constructor (SERVER) " << DEFCOL;
 	this->_port = other.getPort();
 }
 Server &Server::operator= (const Server &other)
 {
-	std::cout << ": Called assignment operator (SERVER) ";
+	std::cout << YELLOW << ": Called assignment operator (SERVER) " << DEFCOL;
 	this->_port = other.getPort();
 	return *this;
 }
 Server::~Server()
 {
-	std::cout << ": Called destructor (SERVER) ";
+	std::cout << YELLOW << ": Called destructor (SERVER) " << DEFCOL;
 	//TODO : FREE
 }
 std::ostream &operator<< (std::ostream &out, const Server &rhs)

@@ -4,27 +4,27 @@
 
 User::User()
 {
-	std::cout << ": Called default constructor (USER) ";
+	std::cout << YELLOW << ": Called default constructor (USER) " << DEFCOL;
 	this->name = "UNINITIALIZED";
 	this->nick = "UNINITIALIZED";
 }
 User::User(const std::string _name, const std::string _nick)
 {
-	std::cout << ": Called parameterized constructor (USER) ";
+	std::cout << YELLOW << ": Called parameterized constructor (USER) " << DEFCOL;
 
 	this->name = _name;
 	this->nick = _nick;
 }
 User::User(const User &other)
 {
-	std::cout << ": Called copy constructor (USER) ";
+	std::cout << YELLOW << ": Called copy constructor (USER) " << DEFCOL;
 
 	this->name = other.getName();
 	this->nick = other.getNick();
 }
 User &User::operator= (const User &other)
 {
-	std::cout << ": Called assignment operator (USER) ";
+	std::cout << YELLOW << ": Called assignment operator (USER) " << DEFCOL;
 
 	this->name = other.getName();
 	this->nick = other.getNick();
@@ -33,7 +33,7 @@ User &User::operator= (const User &other)
 }
 User::~User()
 {
-	std::cout << ": Called destructor (USER) ";
+	std::cout << YELLOW << ": Called destructor (USER) " << DEFCOL;
 
 	// TODO
 }

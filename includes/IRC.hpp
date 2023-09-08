@@ -14,6 +14,7 @@
 # include <sys/time.h> //	select
 # include <sys/select.h> //	select
 
+# include "Colours.hpp"
 # include "Message.hpp"
 # include "Server.hpp"
 # include "User.hpp"

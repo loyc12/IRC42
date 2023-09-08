@@ -8,26 +8,26 @@ static void	stop(int sig)
 //	Switchs our global bool to stop the infinite loop
 	(void)sig;
 	stopFlag = true;
-	std::cout << std::endl << std::endl << " > Closing and cleaning ..." << std::endl << std::endl;
+	std::cout << std::endl << std::endl << MAGENTA << " > Closing and cleaning ..." << DEFCOL << std::endl << std::endl;
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
 int read_from_client(int fd, std::string *message)
 {
-	char 		buff[BUFFSIZE];
+	char buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 	if (byteReceived < 0 && errno != EAGAIN)
 		throw std::invalid_argument(" > Error at recv : ");
 	else if (byteReceived == 0)
 	{
-		std::cout << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
+		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
 		return (-1);
 	}
 	else if (byteReceived)
 	{
 		message->assign(buff, 0, byteReceived);
-		std::cout << *message;
+		std::cout << BLUE << *message << DEFCOL;
 	}
 	return (0);
 }
@@ -48,7 +48,7 @@ void checkPassword(char *buff, Server *server)
 		throw std::invalid_argument(" > Error: invalid password");
 		//return (-1);
 	else
-		std::cout << "Welcome to this IRC server!" << std::endl;
+		std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl;
 	//return (0);
 }
 
@@ -132,9 +132,9 @@ void irc(Server *server)
 					throw std::invalid_argument(" > Error at accept(): ");
 				else
 				{
-					std::cout << std::endl << "0========== CLIENT CONNECTED =========0" << std::endl
+					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << newSocket << " " << inet_ntoa(client_addr.sin_addr)
-					<< ":" << ntohs(client_addr.sin_port) << std::endl << std::endl;
+					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}
@@ -156,6 +156,8 @@ int main(int ac, char **av)
 {
     signal(SIGQUIT, SIG_IGN); //ignore ctrl-backslash
     signal(SIGINT, stop);
+
+	std::cout << DEFCOL;
     try
     {
         if (ac != 3)
@@ -182,10 +184,10 @@ int main(int ac, char **av)
     }
     catch (std::exception &e)
     {
-        std::cerr << std::endl << std::endl << e.what();
+        std::cerr << std::endl << std::endl << RED << e.what() << DEFCOL ;
 
         if (errno)
-            std::cout << std::strerror(errno) << std::endl;
+            std::cout << RED << std::strerror(errno) << DEFCOL << std::endl;
 
         close (baseSocket);
         close (newSocket);
