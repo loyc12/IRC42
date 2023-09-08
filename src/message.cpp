@@ -4,27 +4,27 @@
 
 Message::Message()
 {
-	std::cout << ": Called default constructor (MESSAGE) ";
+	std::cout << YELLOW << ": Called default constructor (MESSAGE) " << DEFCOL;
 	this->content = "UNINITIALIZED";
 	this->sender = NULL;
 }
 Message::Message(std::string _content, User *_sender)
 {
-	std::cout << ": Called parameterized constructor (MESSAGE) ";
+	std::cout << YELLOW << ": Called parameterized constructor (MESSAGE) " << DEFCOL;
 
 	this->content = _content;
 	this->sender = _sender;
 }
 Message::Message(const Message &other)
 {
-	std::cout << ": Called copy constructor (MESSAGE) ";
+	std::cout << YELLOW << ": Called copy constructor (MESSAGE) " << DEFCOL;
 
 	this->content = other.getContent();
 	this->sender = other.getSender();
 }
 Message &Message::operator= (const Message &other)
 {
-	std::cout << ": Called assignment operator (MESSAGE) ";
+	std::cout << YELLOW << ": Called assignment operator (MESSAGE) " << DEFCOL;
 
 	this->content = other.getContent();
 	this->sender = other.getSender();
@@ -33,7 +33,7 @@ Message &Message::operator= (const Message &other)
 }
 Message::~Message()
 {
-	std::cout << ": Called destructor (MESSAGE) ";
+	std::cout << YELLOW << ": Called destructor (MESSAGE) " << DEFCOL;
 
 	// TODO
 }
