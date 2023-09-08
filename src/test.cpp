@@ -37,13 +37,7 @@ int read_from_client(int fd, std::string *message, Server *server)
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	std::cout << "this is byte: " << byteReceived << std::endl;
-	if (byteReceived < 0 && errno != EAGAIN && errno != 54)
-	{
-		std::cout << errno << std::endl;
-		throw std::invalid_argument(" > Error at recv : ");
-	}
-	else if (byteReceived == 0 || errno == 54)
+	if (byteReceived <= 0)
 	{
 		bzero(buff, BUFFSIZE);
 		std::cout << "0======== CLIENT DISCONNECTED ========0" << std::endl << std::endl;
