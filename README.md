@@ -34,3 +34,11 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 * Il faut s'assurer de l'installer sur notre appareil. Dans le terminal: brew install netcat
 * Après la ligne de commande pour se connecter: netcat localhost <port>
 * Il faut que je regarde pour le mot de passe, j'imagine que la logique serait de l'ajouter à la suite de port...
+
+##to send welcome msg:
+/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
+		std::ostringstream ss;
+		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
+		std::string welcome = ss.str();
+
+		ret = send(fd, welcome.c_str(), welcome.size(), 0);

@@ -20,7 +20,7 @@ void checkPassword(char *buff, Server *server, int fd)
 	size_t i = 0;
 	while (i < buf.length())
 	{
-		if (buf.compare("PASS ") == 0)
+		if (buf.compare("PASS ") == 0) //loop to make sure that you get PASS
 			break;
 		i++;
 	}
@@ -71,6 +71,7 @@ int read_from_client(int fd, std::string *message, Server *server)
 		if (tmp.find("PASS ") != std::string::npos)
 			checkPassword(buff, server, fd);
 		message->assign(buff, 0, byteReceived);
+		//**will need to add what was send from client to the container map: nickname according to the fd **
 		std::cout << *message;
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
@@ -170,6 +171,7 @@ void irc(Server *server)
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
+					//**will need to add the newSocket/fd into the container map**
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}

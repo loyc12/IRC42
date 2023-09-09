@@ -3,6 +3,7 @@
 
 # include "User.hpp"
 # include "Message.hpp"
+# include <map>
 
 class User;
 class Message;
@@ -13,6 +14,7 @@ class Server
 		// Data
 		int	_port;
 		std::string	_password;
+		std::map<int, std::string> users;
 		// Private Constructor
 		Server();
 
