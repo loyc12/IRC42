@@ -14,7 +14,7 @@ class Server
 		// Data
 		int	_port;
 		std::string	_password;
-		std::map<int, std::string> users;
+		std::map<int, User*> _clients; //container to store all our clients info
 		// Private Constructor
 		Server();
 
