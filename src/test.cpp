@@ -3,6 +3,11 @@
 static int newSocket = 0;
 static int baseSocket = 0;
 
+/**
+ * Function to switch our global bool (flag) to stop the infinite loop
+ * The infinite loop to keep our IRC server running
+ * @param sig 
+ */
 static void	stop(int sig)
 {
 //	Switchs our global bool to stop the infinite loop
@@ -12,6 +17,12 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
+/**
+ * Function to parse and validate the password sent from client
+ * example of the password format received PASS 3432
+ * @param buff 
+ * @param server 
+ */
 void checkPassword(char *buff, Server *server, int fd)
 {
 	//PASS 5645 <- client send password like this
@@ -53,6 +64,14 @@ void checkPassword(char *buff, Server *server, int fd)
 	//return (0);
 }
 
+/**
+ * Function to receive and read what we got from clients
+ * Starting some parsing on what we received
+ * @param fd 
+ * @param message 
+ * @param server 
+ * @return int 
+ */
 int read_from_client(int fd, std::string *message, Server *server)
 {
 	char 		buff[BUFFSIZE];
@@ -109,7 +128,11 @@ int read_from_client(int fd, std::string *message, Server *server)
 // 		std::cout << buf << std::endl;
 // }
 
-
+/**
+ * Main function to have our server running
+ * Takes an instance of class Server. Function will need to be shorten...
+ * @param server 
+ */
 void irc(Server *server)
 {
 	fd_set				fdsMaster, fdsRead; //, fdsWrite;
