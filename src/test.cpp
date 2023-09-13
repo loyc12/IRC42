@@ -12,7 +12,7 @@ static void	stop(int sig)
 //	exit(1); //	here because commands are blocking, preventing flag checks
 }
 
-void checkPassword(char *buff, Server *server, int fd)
+void checkPassword(char *buff, Server *server, int fd /* User *client */)
 {
 	//PASS 5645 <- client send password like this
 	int ret;
@@ -30,6 +30,10 @@ void checkPassword(char *buff, Server *server, int fd)
 		//return (-1);
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
+		//----add the client to our container (as it's a legit client)----//
+		//server->_clients.insert(std::pair<int, User*>(fd, client));
+		
+		/*--NOW, we can use our container to have access to ALL the info of our client to send the msg ---*/
 		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
 		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
@@ -53,7 +57,7 @@ void checkPassword(char *buff, Server *server, int fd)
 	//return (0);
 }
 
-int read_from_client(int fd, std::string *message, Server *server)
+int read_from_client(int fd, std::string *message, Server *server /* User *client */)
 {
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
@@ -62,6 +66,10 @@ int read_from_client(int fd, std::string *message, Server *server)
 	{
 		bzero(buff, BUFFSIZE);
 		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
+		//will need to delete our client from map. Even check if it was already in the container
+		/*
+		server->_clients(fd) //might need an error check here if it was not there, erase will not work...
+		*/
 		return (-1);
 	}
 	else if (byteReceived)
@@ -69,9 +77,8 @@ int read_from_client(int fd, std::string *message, Server *server)
 		//int ret;
 		std::string tmp = buff;
 		if (tmp.find("PASS ") != std::string::npos)
-			checkPassword(buff, server, fd);
+			checkPassword(buff, server, fd /* client (instance of User)*/);
 		message->assign(buff, 0, byteReceived);
-		//**will need to add what was send from client to the container map: nickname according to the fd **
 		std::cout << *message;
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
@@ -110,7 +117,7 @@ int read_from_client(int fd, std::string *message, Server *server)
 // }
 
 
-void irc(Server *server)
+void irc(Server *server) //! If we want server to have access to the container _clients, will need to think about adding this function into server class...
 {
 	fd_set				fdsMaster, fdsRead; //, fdsWrite;
 	int 				socketCount;
@@ -171,13 +178,13 @@ void irc(Server *server)
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-					//**will need to add the newSocket/fd into the container map**
+					//new instance of class User: store the info on client_addr.sin_port
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}
 			else //	Reads messages from a known client
 			{
-				if (read_from_client(i, &message, server) < 0) //	do else if () instead (?)
+				if (read_from_client(i, &message, server /*will need to add the instance of User*/) < 0) //	do else if () instead (?)
 				{
 					close(i);
 					FD_CLR(i, &fdsMaster);
