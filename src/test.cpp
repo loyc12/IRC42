@@ -57,7 +57,7 @@ void checkPassword(char *buff, Server *server, int fd /* User *client */)
 	//return (0);
 }
 
-int read_from_client(int fd, std::string *message, Server *server /* User *client */)
+int read_from_client(int fd, std::string *message, Server *server, User *user)
 {
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
@@ -178,13 +178,14 @@ void irc(Server *server) //! If we want server to have access to the container _
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-					//new instance of class User: store the info on client_addr.sin_port
+					User user(client_addr);//new instance of class User: store the info on client_addr.sin_port
+					server->_clients.insert(std::pair<int, User*>(newSocket, user));
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}
 			else //	Reads messages from a known client
 			{
-				if (read_from_client(i, &message, server /*will need to add the instance of User*/) < 0) //	do else if () instead (?)
+				if (read_from_client(i, &message, server, user) < 0) //	do else if () instead (?)
 				{
 					close(i);
 					FD_CLR(i, &fdsMaster);
@@ -233,7 +234,7 @@ int main(int ac, char **av)
 			throw std::invalid_argument(" > Error main(): Invalid password");
 
         std::cout << std::endl; //  DEBUG
-        irc(&server);
+        irc(server);
     }
     catch (std::exception &e)
     {

@@ -9,13 +9,14 @@ User::User()
 	this->_nick = "UNINITIALIZED";
 }
 
-/*
-User::User(sockaddr_in client_addr) : _client_addr(client_addr)
 
+User::User(sockaddr_in client_addr) : _client_addr(client_addr) {
 	std::cout << YELLOW << ": Called constructor (USER) " << DEFCOL;
 	this->_name = "UNINITIALIZED";
 	this->_nick = "UNINITIALIZED";//will be changed later on
-*/
+
+}
+
 
 User::User(const std::string _name, const std::string _nick)
 {
