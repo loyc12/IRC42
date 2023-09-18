@@ -29,6 +29,7 @@ class User
 		// Getters - Setters
 		std::string	getName(void) const;
 		std::string	getNick(void) const;
+		sockaddr_in	getClientAddr(void) const;
 		void		setName(std::string name);
 		void		setNick(std::string nick);
 };

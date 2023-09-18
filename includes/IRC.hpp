@@ -11,6 +11,7 @@
 # include <sys/socket.h> //	socket stuff
 # include <string.h> //		string (why not <string> instead ??)
 # include <string> //		string (why not <string.h> instead ??)
+# include <map>
 
 # include <sys/time.h> //	select
 # include <sys/select.h> //	select
@@ -27,5 +28,12 @@ static bool	stopFlag = false;
 
 //test.cpp
 void irc(Server *server);
+
+
+
+/*
+class IRC
+Just to have an instance in the main and in private, it has an instance of server
+*/
 
 #endif // IRC_HPP
