@@ -16,6 +16,7 @@ class User
 		// Data
 		std::string	_name;
 		std::string	_nick;
+		std::string _mode;//maybe char better?
 		sockaddr_in _client_addr; //when client is connected
 		User();
 

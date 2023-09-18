@@ -1,12 +1,13 @@
 #include "IRC.hpp"
 
+//added them in Server.hpp
 static int newSocket = 0;
 static int baseSocket = 0;
 
 /**
  * Function to switch our global bool (flag) to stop the infinite loop
  * The infinite loop to keep our IRC server running
- * @param sig 
+ * @param sig
  */
 static void	stop(int sig)
 {

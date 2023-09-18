@@ -56,13 +56,10 @@ void Server::checkPassword(char *buff, int fd, User* user)
 	}
 	std::string pass = buf.substr(5, 4); //isolate the password sent by client ***HARD CODE here
 	if (pass.compare(this->getPass()) != 0)
-		throw std::invalid_argument(" > Error: invalid password");
-		//return (-1);
+		throw std::invalid_argument(" > Error: invalid password"); //wondering if I should delete the client here or not...
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
-		//----add the client to our container (as it's a legit client)----//
-		//server->_clients.insert(std::pair<int, User*>(fd, client));
-		/*--NOW, we can use our container to have access to ALL the info of our client to send the msg ---*/
+		//syntax below on how to send msg to Limechat
 		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
 		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
@@ -81,12 +78,18 @@ void Server::checkPassword(char *buff, int fd, User* user)
 		{
 			std::cout << "YEAH" << std::endl;
 		}
-		//std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl;
 	}
-	//return (0);
 }
 
-int	Server::read_from_client(int fd, std::string *message, User *user)
+/**
+ * @brief to read what the client sent and int for success or fail.
+ *
+ * @param fd
+ * @param message
+ * @param user
+ * @return int
+ */
+int	Server::readFromClient(int fd, std::string *message, User *user)
 {
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
@@ -106,6 +109,7 @@ int	Server::read_from_client(int fd, std::string *message, User *user)
 	{
 		//int ret;
 		std::string tmp = buff;
+		//need to implement a switch case to look for PASS, NICK, JOIN, KICK, INVITE, TOPIC, MODE, etc...
 		if (tmp.find("PASS ") != std::string::npos)
 			this->checkPassword(buff, fd, user);
 		message->assign(buff, 0, byteReceived);
@@ -116,9 +120,12 @@ int	Server::read_from_client(int fd, std::string *message, User *user)
 			user->setNick(tmp2);
 			std::cout << "nickname: " << user->getNick() << std::endl;
 		}
+		/*------------------------------------------------------------------------------------------------*/
+		//Check what's in the container (temporary)
 		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
 			std::cout << it->first << " => " << it->second->getNick() << std::endl;
-		/*USER login name 0(no idea what's that) *(no idea) realname */
+		/*------------------------------------------------------------------------------------------------*/
+
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
 		// {
@@ -207,7 +214,7 @@ void	Server::irc(void){
 				//need to send the correct pointer
 				if (it != this->_clients.end()){
 					User* userPtr = it->second;
-					if (read_from_client(i, &message, userPtr) < 0) //	do else if () instead (?)
+					if (readFromClient(i, &message, userPtr) < 0) //	do else if () instead (?)
 					{
 						close(i);
 						FD_CLR(i, &fdsMaster);
