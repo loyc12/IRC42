@@ -37,7 +37,6 @@ void checkPassword(char *buff, Server *server, int fd /* User *client */)
 	{
 		//----add the client to our container (as it's a legit client)----//
 		//server->_clients.insert(std::pair<int, User*>(fd, client));
-		
 		/*--NOW, we can use our container to have access to ALL the info of our client to send the msg ---*/
 		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
@@ -62,8 +61,9 @@ void checkPassword(char *buff, Server *server, int fd /* User *client */)
 	//return (0);
 }
 
-int read_from_client(int fd, std::string *message, Server *server /* User *client */)
+int read_from_client(int fd, std::string *message, Server *server, User *user)
 {
+	(void)user;
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
@@ -121,7 +121,7 @@ int read_from_client(int fd, std::string *message, Server *server /* User *clien
 // 		std::cout << buf << std::endl;
 // }
 
-
+/*
 void irc(Server *server) //! If we want server to have access to the container _clients, will need to think about adding this function into server class...
 {
 	fd_set				fdsMaster, fdsRead; //, fdsWrite;
@@ -143,8 +143,8 @@ void irc(Server *server) //! If we want server to have access to the container _
 //	Prepares args for bind() call
 	bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET; //					bind call
-    server_addr.sin_port = htons(server->getPort()); //		conversion to network byte order (Ip adress)
-    server_addr.sin_addr.s_addr = INADDR_ANY; //			host ip adress **INADDR_ANY go get localhost
+	server_addr.sin_port = htons(server->getPort()); //		conversion to network byte order (Ip adress)
+	server_addr.sin_addr.s_addr = INADDR_ANY; //			host ip adress **INADDR_ANY go get localhost
 
 //	Connects to the server's port
 	if (bind(baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
@@ -172,7 +172,7 @@ void irc(Server *server) //! If we want server to have access to the container _
 			throw std::invalid_argument(" > Error at select(): ");
 		else if (socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &fdsRead))
 		{
-			if (i == baseSocket) /*Connection request on base socket*/
+			if (i == baseSocket) //Connection request on base socket
 			{
 				newSocket = accept(baseSocket, (struct sockaddr *) &client_addr, &client_len);
 
@@ -183,13 +183,15 @@ void irc(Server *server) //! If we want server to have access to the container _
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-					//new instance of class User: store the info on client_addr.sin_port
+					User user(client_addr);//new instance of class User: store the info on client_addr.sin_port
+					server->_clients[newSocket] = user;
+					//server->_clients.insert(std::pair<int, User*>(newSocket, user));
 					FD_SET(newSocket, &fdsMaster);
 				}
 			}
 			else //	Reads messages from a known client
 			{
-				if (read_from_client(i, &message, server /*will need to add the instance of User*/) < 0) //	do else if () instead (?)
+				if (read_from_client(i, &message, server, user) < 0) //	do else if () instead (?)
 				{
 					close(i);
 					FD_CLR(i, &fdsMaster);
@@ -209,50 +211,51 @@ void irc(Server *server) //! If we want server to have access to the container _
 	close(baseSocket);
 	close(newSocket);
 }
+*/
 
 int main(int ac, char **av)
 {
-    signal(SIGQUIT, SIG_IGN); //ignore ctrl-backslash
-    signal(SIGINT, stop);
+	signal(SIGQUIT, SIG_IGN); //ignore ctrl-backslash
+	signal(SIGINT, stop);
 
 	std::cout << DEFCOL;
-    try
-    {
-        if (ac != 3)
-            throw std::invalid_argument(" > Error main(): Invalid argument count.");
+	try
+	{
+		if (ac != 3)
+			throw std::invalid_argument(" > Error main(): Invalid argument count.");
 
  //       std::string firstArg = av[1];
-        std::size_t found = std::string(av[1]).find_first_not_of("1234567890");
-        if (found != std::string::npos)
-            throw std::invalid_argument(" > Error main(): Not a port");
+		std::size_t found = std::string(av[1]).find_first_not_of("1234567890");
+		if (found != std::string::npos)
+			throw std::invalid_argument(" > Error main(): Not a port");
 
-        int port = atoi(av[1]);
-        if (port < 6660 || 6669 < port)
-            throw std::invalid_argument(" > Error main(): Not a TCP port for IRC");
-        if (port < 1025 || 65535 < port)
-            throw std::invalid_argument(" > Error main(): Invalid port");
+		int port = atoi(av[1]);
+		if (port < 6660 || 6669 < port)
+			throw std::invalid_argument(" > Error main(): Not a TCP port for IRC");
+		if (port < 1025 || 65535 < port)
+			throw std::invalid_argument(" > Error main(): Invalid port");
 
 		std::string password = av[2];
-        Server server(port);
+		Server server(port);
 		if (password.compare(server.getPass()) != 0)
 			throw std::invalid_argument(" > Error main(): Invalid password");
 
-        std::cout << std::endl; //  DEBUG
-        irc(&server);
-    }
-    catch (std::exception &e)
-    {
-        std::cerr << std::endl << std::endl << RED << e.what() << DEFCOL ;
+		std::cout << std::endl; //  DEBUG
+		server.irc();
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << std::endl << std::endl << RED << e.what() << DEFCOL ;
 
-        if (errno)
-            std::cout << RED << std::strerror(errno) << DEFCOL << std::endl;
+		if (errno)
+			std::cout << RED << std::strerror(errno) << DEFCOL << std::endl;
 
-        close (baseSocket);
-        close (newSocket);
+		close (baseSocket);
+		close (newSocket);
 
-        std::cout << std::endl << std::endl; // DEBUG
+		std::cout << std::endl << std::endl; // DEBUG
 
-        exit(EXIT_FAILURE);
-    }
-    exit(EXIT_SUCCESS);
+		exit(EXIT_FAILURE);
+	}
+	exit(EXIT_SUCCESS);
 }

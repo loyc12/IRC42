@@ -14,6 +14,8 @@ class Server
 		// Data
 		int	_port;
 		std::string	_password;
+		int	_baseSocket;
+		int _newSocket;
 		std::map<int, User*> _clients; //container to store all our clients info
 		// Private Constructor
 		Server();
@@ -28,6 +30,9 @@ class Server
 		// Getters - Setters
 		const int &	getPort(void) const ;
 		const std::string & getPass(void) const;
+		void	irc(void);
+		int		read_from_client(int fd, std::string *message, User *user);
+		void	checkPassword(char *buff, int fd, User* user);
 
 };
 
