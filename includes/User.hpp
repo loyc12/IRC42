@@ -4,7 +4,8 @@
 
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
-# include <fcntl.h>			// for file descriptors (?)
+# include <fcntl.h> // for file descriptors (?)
+# include <sys/socket.h>
 # include "Message.hpp"
 
 class Message;
@@ -15,7 +16,7 @@ class User
 		// Data
 		std::string	_name;
 		std::string	_nick;
-		sockaddr_in _client_addr; //when client is connected
+		//sockaddr_in _client_addr; //when client is connected
 
 	public:
 		// Constructors & Destructor
