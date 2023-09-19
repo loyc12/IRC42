@@ -56,7 +56,11 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	// }
 	//std::string pass = buff.substr(5, 4); //isolate the password sent by client ***HARD CODE here
 	if (pass.compare(this->getPass()) != 0)
-		throw std::invalid_argument(" > Error: invalid password"); //wondering if I should delete the client here or not...
+	{
+		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
+//		throw std::invalid_argument(" > Error: invalid password"); DISCONNECT THE CLIENT INSTEAD, DON'T CRASH THE SERVER PLZ
+//			TODO : remove the user from the container after closing its FD and telling them to fuck off
+	}
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
 		//syntax below on how to send msg to Limechat
@@ -229,6 +233,8 @@ void	Server::irc(void){
 	FD_ZERO(&fdsMaster);
 	FD_SET(this->_baseSocket, &fdsMaster);
 
+	std::cout << std::endl << GREEN << "0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
+
 //	Client interaction loop
 	while (!stopFlag)
 	{
@@ -255,7 +261,7 @@ void	Server::irc(void){
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << this->_newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-					User* user = new User(client_addr);//new instance of class User: store the info on client_addr.sin_port
+					User* user = new User(client_addr); //	new instance of class User: store the info on client_addr.sin_port
 					std::cout << std::endl << std::endl;
 					// this->_clients[this->_newSocket] = user;
 					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
