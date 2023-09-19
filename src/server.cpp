@@ -174,8 +174,8 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		// }
 		/*------------------------------------------------------------------------------------------------*/
 		//Check what's in the container (temporary)
-		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
-			std::cout << it->first << " => " << it->second->getNick() << std::endl;
+		// for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
+		// 	std::cout << it->first << " => " << it->second->getNick() << std::endl;
 		/*------------------------------------------------------------------------------------------------*/
 
 		//ret = send(fd, message, message->length(), 0);
