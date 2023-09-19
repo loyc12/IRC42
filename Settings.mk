@@ -6,10 +6,11 @@
 NAME		=	ircserv
 
 # Source file names (prefix their subdir if needed)
-FILES		=	test \
+FILES		=	message \
 				server \
+				test \
 				user \
-				message \
+				utils \
 
 # Directory names
 SRCDIR		=	src/

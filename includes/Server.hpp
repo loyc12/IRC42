@@ -32,7 +32,7 @@ class Server
 		const std::string & getPass(void) const;
 		void	irc(void);
 		int		readFromClient(int fd, std::string *message, User *user);
-		void	checkPassword(char *buff, int fd, User* user);
+		void	checkPassword(std::string buff, int fd, User* user);
 
 };
 
