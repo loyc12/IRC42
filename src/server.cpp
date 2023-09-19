@@ -103,6 +103,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		if (it != this->_clients.end())
 			delete it->second;
 		this->_clients.erase(fd);
+		std::cout << std::endl << std::endl;
 		return (-1);
 	}
 	else if (byteReceived)
@@ -174,8 +175,8 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		// }
 		/*------------------------------------------------------------------------------------------------*/
 		//Check what's in the container (temporary)
-		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
-			std::cout << it->first << " => " << it->second->getNick() << std::endl;
+//		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
+//			std::cout << it->first << " => " << it->second->getNick() << std::endl;
 		/*------------------------------------------------------------------------------------------------*/
 
 		//ret = send(fd, message, message->length(), 0);
@@ -255,6 +256,7 @@ void	Server::irc(void){
 					<< " > on socket : " << this->_newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
 					User* user = new User(client_addr);//new instance of class User: store the info on client_addr.sin_port
+					std::cout << std::endl << std::endl;
 					// this->_clients[this->_newSocket] = user;
 					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 					it = this->_clients.find(this->_newSocket);
