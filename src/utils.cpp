@@ -2,14 +2,14 @@
 
 std::string	*splitStringPrivate(const char *str, const char *chrs)
 {
-	std::cout << "buff : \'" << str << "\'" << std::endl;
-	std::cout << "chars : \'" << chrs << "\'" << std::endl;
+//	std::cout << "buff : \'" << str << "\'" << std::endl;
+//	std::cout << "chars : \'" << chrs << "\'" << std::endl;
 
 	int		i = 0;
-	char	*ptr = strtok(strdup(str), chrs);
+	char	*ptr = strtok(strdup(str), chrs); //	strtok works kinda like readline (iterative) ...
 	while (ptr != NULL)
 	{
-		ptr = strtok(NULL, chrs);
+		ptr = strtok(NULL, chrs); //			... so you need to recall it for each token
 		i++;
 	}
 
@@ -20,7 +20,7 @@ std::string	*splitStringPrivate(const char *str, const char *chrs)
 	while (ptr != NULL)
 	{
 		args[i] = strdup(ptr);
-		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl;
+//		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl;
 		ptr = strtok(NULL, chrs);
 		i++;
 	}

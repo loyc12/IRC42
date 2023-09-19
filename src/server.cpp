@@ -110,7 +110,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		//int ret;
 		//stringArray pour ramasser les arguments de la ligne. Split aux espaces
 		std::string	*args = splitString(buff, " \r\n");
-		std::cout << "stringArray[1]: " << args[1] << std::endl;
+		//std::cout << "stringArray[1]: " << args[1] << std::endl;
 		/*--switch case implementation*/
 		std::string cmdArray[8] = {
 			"PASS",
@@ -124,7 +124,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		};
 		int index = 0;
 		while (index < 8) {
-			std::cout << "first arg: \'" << args[0] << "\'" << std::endl;
+			//std::cout << "first arg: \'" << args[0] << "\'" << std::endl;
 			if (!cmdArray[index].compare(args[0]))
 				break;
 			index++;
