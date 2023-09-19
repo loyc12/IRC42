@@ -9,7 +9,7 @@ std::string	*splitStringPrivate(const char *str, const char *chrs)
 	char	*ptr = strtok(strdup(str), chrs); //	strtok works kinda like readline (iterative) ...
 	while (ptr != NULL)
 	{
-		ptr = strtok(NULL, chrs); //			... so you need to recall it for each token
+		ptr = strtok(NULL, chrs); //				... so you need to recall it for each token
 		i++;
 	}
 
