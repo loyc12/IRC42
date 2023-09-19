@@ -6,7 +6,7 @@ static int baseSocket = 0;
 /**
  * Function to switch our global bool (flag) to stop the infinite loop
  * The infinite loop to keep our IRC server running
- * @param sig 
+ * @param sig
  */
 static void	stop(int sig)
 {
@@ -19,8 +19,8 @@ static void	stop(int sig)
 /**
  * Function to parse and validate the password sent from client
  * example of the password format received PASS 3432
- * @param buff 
- * @param server 
+ * @param buff
+ * @param server
  */
 void checkPassword(char *buff, Server *server)
 {
@@ -44,10 +44,10 @@ void checkPassword(char *buff, Server *server)
 /**
  * Function to receive and read what we got from clients
  * Starting some parsing on what we received
- * @param fd 
- * @param message 
- * @param server 
- * @return int 
+ * @param fd
+ * @param message
+ * @param server
+ * @return int
  */
 int read_from_client(int fd, std::string *message, Server *server)
 {
@@ -97,7 +97,7 @@ int read_from_client(int fd, std::string *message, Server *server)
 /**
  * Main function to have our server running
  * Takes an instance of class Server. Function will need to be shorten...
- * @param server 
+ * @param server
  */
 void irc(Server *server)
 {
