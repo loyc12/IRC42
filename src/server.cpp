@@ -109,6 +109,49 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	{
 		//int ret;
 		std::string tmp = buff;
+		/*--switch case implementation
+		std::string cmdArray[8] = {
+			"PASS ",
+			"NICK ",
+			"USER ",
+			"JOIN ",
+			"KICK ",
+			"INVITE ",
+			"TOPIC ",
+			"MODE "
+		};
+		int index = 0;
+		while (index < 8) {
+			if (cmdArray[index] == tmp)
+				break;
+			index++;
+		}
+		switch (index) {
+			case 0:
+				this->checkPassword(buff, fd, user);
+			case 1: {
+				std::string tmp2 = tmp.substr(5, message->length());
+				user->setNick(tmp2);
+				std::cout << "nickname: " << user->getNick() << std::endl;
+			}
+			case 2:
+				std::cout << "will do stuff for user" << std::endl;
+			case 3:
+				std::cout << "do stuff for join" << std::endl;
+			case 4:
+				std::cout << "do stuff to be kick" << std::endl;
+			case 5:
+				std::cout << "do stuff for invite" << std::endl;
+			case 6:
+				std::cout << "do stuff to topic" << std::endl;
+			case 7:
+				std::cout << "do stuff to mode" << std::endl;
+			// default:
+			// 	std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+		}
+		message->assign(buff, 0, byteReceived);
+		std::cout << *message;*/
+
 		//need to implement a switch case to look for PASS, NICK, JOIN, KICK, INVITE, TOPIC, MODE, etc...
 		if (tmp.find("PASS ") != std::string::npos)
 			this->checkPassword(buff, fd, user);
