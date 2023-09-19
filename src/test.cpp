@@ -101,6 +101,8 @@ int read_from_client(int fd, std::string *message, Server *server, User *user)
 }
 
 
+//	in Server.cpp now
+
 // void	checkBuff(char *buff, Server *server)
 // {
 // 	/*
