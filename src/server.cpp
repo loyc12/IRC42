@@ -41,20 +41,20 @@ const std::string & Server::getPass(void) const { return (this->_password);}
 
 // 0================ OTHER FUNCTIONS ================0
 
-void Server::checkPassword(char *buff, int fd, User* user)
+void Server::checkPassword(std::string pass, int fd, User* user)
 {
 	//PASS 5645 <- client send password like this
 	(void)user;
 	int ret;
-	std::string buf = buff;
-	size_t i = 0;
-	while (i < buf.length())
-	{
-		if (buf.compare("PASS ") == 0) //loop to make sure that you get PASS
-			break;
-		i++;
-	}
-	std::string pass = buf.substr(5, 4); //isolate the password sent by client ***HARD CODE here
+	//std::string buf = buff;
+	//size_t i = 0;
+	// while (i < buff.length())
+	// {
+	// 	if (buff.compare("PASS ") == 0) //loop to make sure that you get PASS
+	// 		break;
+	// 	i++;
+	// }
+	//std::string pass = buff.substr(5, 4); //isolate the password sent by client ***HARD CODE here
 	if (pass.compare(this->getPass()) != 0)
 		throw std::invalid_argument(" > Error: invalid password"); //wondering if I should delete the client here or not...
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
@@ -108,61 +108,70 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	else if (byteReceived)
 	{
 		//int ret;
-		std::string tmp = buff;
-		/*--switch case implementation
+		//stringArray pour ramasser les arguments de la ligne. Split aux espaces
+		std::string	*args = splitString(buff, " \r\n");
+		std::cout << "stringArray[1]: " << args[1] << std::endl;
+		/*--switch case implementation*/
 		std::string cmdArray[8] = {
-			"PASS ",
-			"NICK ",
-			"USER ",
-			"JOIN ",
-			"KICK ",
-			"INVITE ",
-			"TOPIC ",
-			"MODE "
+			"PASS",
+			"NICK",
+			"USER",
+			"JOIN",
+			"KICK",
+			"INVITE",
+			"TOPIC",
+			"MODE"
 		};
 		int index = 0;
 		while (index < 8) {
-			if (cmdArray[index] == tmp)
+			std::cout << "first arg: \'" << args[0] << "\'" << std::endl;
+			if (!cmdArray[index].compare(args[0]))
 				break;
 			index++;
 		}
 		switch (index) {
 			case 0:
-				this->checkPassword(buff, fd, user);
-			case 1: {
-				std::string tmp2 = tmp.substr(5, message->length());
-				user->setNick(tmp2);
+				this->checkPassword(args[1], fd, user);
+				break;
+			case 1:
+				user->setNick(args[1]);
 				std::cout << "nickname: " << user->getNick() << std::endl;
-			}
+				break;
 			case 2:
 				std::cout << "will do stuff for user" << std::endl;
+				break;
 			case 3:
 				std::cout << "do stuff for join" << std::endl;
+				break;
 			case 4:
 				std::cout << "do stuff to be kick" << std::endl;
+				break;
 			case 5:
 				std::cout << "do stuff for invite" << std::endl;
+				break;
 			case 6:
 				std::cout << "do stuff to topic" << std::endl;
+				break;
 			case 7:
 				std::cout << "do stuff to mode" << std::endl;
-			// default:
-			// 	std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+				break;
+			default:
+				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
 		}
-		message->assign(buff, 0, byteReceived);
-		std::cout << *message;*/
-
-		//need to implement a switch case to look for PASS, NICK, JOIN, KICK, INVITE, TOPIC, MODE, etc...
-		if (tmp.find("PASS ") != std::string::npos)
-			this->checkPassword(buff, fd, user);
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
-		if (tmp.find("NICK ") != std::string::npos)
-		{
-			std::string tmp2 = tmp.substr(5, message->length());
-			user->setNick(tmp2);
-			std::cout << "nickname: " << user->getNick() << std::endl;
-		}
+
+		//need to implement a switch case to look for PASS, NICK, JOIN, KICK, INVITE, TOPIC, MODE, etc...
+		// if (tmp.find("PASS ") != std::string::npos)
+		// 	this->checkPassword(buff, fd, user);
+		// message->assign(buff, 0, byteReceived);
+		// std::cout << *message;
+		// if (tmp.find("NICK ") != std::string::npos)
+		// {
+		// 	std::string tmp2 = tmp.substr(5, message->length());
+		// 	user->setNick(tmp2);
+		// 	std::cout << "nickname: " << user->getNick() << std::endl;
+		// }
 		/*------------------------------------------------------------------------------------------------*/
 		//Check what's in the container (temporary)
 		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)

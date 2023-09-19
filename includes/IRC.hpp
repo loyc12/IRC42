@@ -20,6 +20,7 @@
 # include "Message.hpp"
 # include "Server.hpp"
 # include "User.hpp"
+# include "Utils.hpp"
 
 # define BUFFSIZE 256
 
