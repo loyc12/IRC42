@@ -58,6 +58,19 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	if (pass.compare(this->getPass()) != 0)
 	{
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
+		std::string errorMessage = ":ircserv 403 binouche :Incorrect password\r\n"; //TODO need to change it. Hard code NOW
+
+    // Send the error message to the LimeChat client
+    	send(fd, errorMessage.c_str(), errorMessage.size(), 0);
+		close(fd);
+		std::map<int, User*>::iterator it = this->_clients.find(fd);
+
+		if (it != this->_clients.end())
+			delete it->second;
+
+		this->_clients.erase(fd);
+
+		std::cout << std::endl << std::endl;
 //		throw std::invalid_argument(" > Error: invalid password"); DISCONNECT THE CLIENT INSTEAD, DON'T CRASH THE SERVER PLZ
 //			TODO : remove the user from the container after closing its FD and telling them to fuck off
 	}
@@ -243,6 +256,7 @@ void	Server::irc(void){
 		fdsRead = fdsMaster;
 //		fdsWrite = fdsMaster; // 	for eventual reading; third argument of select()
 
+//		will need to check for active and non-active socket... //TODO fix that so when we close a client fd when incorrect password does not crash server
 //		still blocking ... but that's normal ???
 		socketCount = select(FD_SETSIZE, &fdsRead, nullptr, nullptr, nullptr);
 
