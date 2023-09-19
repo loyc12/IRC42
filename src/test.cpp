@@ -1,6 +1,6 @@
 #include "IRC.hpp"
 
-//added them in Server.hpp
+//add them in Server.hpp
 static int newSocket = 0;
 static int baseSocket = 0;
 
@@ -15,12 +15,11 @@ static void	stop(int sig)
 	(void)sig;
 	stopFlag = true;
 	std::cout << std::endl << std::endl << MAGENTA << " > Closing and cleaning ..." << DEFCOL << std::endl << std::endl;
-//	exit(1); //	here because commands are blocking, preventing flag checks
+//	exit(1); //	DO NOT ACTIVATE UNLESS REALLY NEEDED, SHOULD NOT BE USED IN FINAL CODE
 }
 
 void checkPassword(char *buff, Server *server, int fd /* User *client */)
 {
-	//PASS 5645 <- client send password like this
 	int ret;
 	std::string buf = buff;
 	size_t i = 0;
@@ -57,7 +56,7 @@ void checkPassword(char *buff, Server *server, int fd /* User *client */)
 		{
 			std::cout << "YEAH" << std::endl;
 		}
-		//std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl;
+//		std::cout << GREEN << "Welcome to this IRC server!" << NOCOLOR << std::endl; //	prints in server oof
 	}
 	//return (0);
 }
@@ -72,10 +71,8 @@ int read_from_client(int fd, std::string *message, Server *server, User *user)
 	{
 		bzero(buff, BUFFSIZE);
 		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
-		//will need to delete our client from map. Even check if it was already in the container
-		/*
-		server->_clients(fd) //might need an error check here if it was not there, erase will not work...
-		*/
+		// will need to delete our client from map. Even check if it was already in the container
+//		server->_clients(fd) //might need an error check here if it was not there, erase will not work...
 		return (-1);
 	}
 	else if (byteReceived)
@@ -111,7 +108,6 @@ int main(int ac, char **av)
 		if (ac != 3)
 			throw std::invalid_argument(" > Error main(): Invalid argument count.");
 
- //       std::string firstArg = av[1];
 		std::size_t found = std::string(av[1]).find_first_not_of("1234567890");
 		if (found != std::string::npos)
 			throw std::invalid_argument(" > Error main(): Not a port");
@@ -124,6 +120,7 @@ int main(int ac, char **av)
 
 		std::string password = av[2];
 		Server server(port);
+
 		if (password.compare(server.getPass()) != 0)
 			throw std::invalid_argument(" > Error main(): Invalid password");
 

@@ -102,20 +102,23 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	{
 		bzero(buff, BUFFSIZE);
 		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
+
 		//will need to delete our client from map. Even check if it was already in the container
+
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
+
 		if (it != this->_clients.end())
 			delete it->second;
+
 		this->_clients.erase(fd);
+
 		std::cout << std::endl << std::endl;
 		return (-1);
 	}
 	else if (byteReceived)
 	{
-		//int ret;
-		//stringArray pour ramasser les arguments de la ligne. Split aux espaces
 		std::string	*args = splitString(buff, " \r\n");
-		//std::cout << "stringArray[1]: " << args[1] << std::endl;
+
 		/*--switch case implementation*/
 		std::string cmdArray[8] = {
 			"PASS",
@@ -129,7 +132,6 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		};
 		int index = 0;
 		while (index < 8) {
-			//std::cout << "first arg: \'" << args[0] << "\'" << std::endl;
 			if (!cmdArray[index].compare(args[0]))
 				break;
 			index++;
@@ -261,11 +263,15 @@ void	Server::irc(void){
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << this->_newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
+
 					User* user = new User(client_addr); //	new instance of class User: store the info on client_addr.sin_port
+
 					std::cout << std::endl << std::endl;
+
 					// this->_clients[this->_newSocket] = user;
 					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 					it = this->_clients.find(this->_newSocket);
+
 					FD_SET(this->_newSocket, &fdsMaster);
 				}
 			}
