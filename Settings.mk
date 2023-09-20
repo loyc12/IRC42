@@ -8,8 +8,8 @@ NAME		=	ircserv
 # Source file names (prefix their subdir if needed)
 FILES		=	test \
 				server \
-				user \
 				message \
+				user \
 
 # Directory names
 SRCDIR		=	src/
