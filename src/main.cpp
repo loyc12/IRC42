@@ -1,5 +1,11 @@
 #include "IRC.hpp"
 
+#define PASSWORD " > Error main(): Invalid password"
+#define PORT " > Error main(): Invalid port"
+#define TCP " > Error main(): Not a TCP port for IRC"
+#define ARG " > Error main(): Not a port"
+#define COUNT " > Error main(): Invalid argument count."
+
 //add them in Server.hpp
 static int newSocket = 0;
 static int baseSocket = 0;
@@ -11,59 +17,58 @@ static int baseSocket = 0;
  */
 static void	stop(int sig)
 {
-//	Switchs our global bool to stop the infinite loop
 	(void)sig;
 	stopFlag = true;
-	std::cout << std::endl << std::endl << MAGENTA << " > Closing and cleaning ..." << DEFCOL << std::endl << std::endl;
+	std::cout << "\n\n" << MAGENTA << " > Closing and cleaning ..." << DEFCOL << "\n" << std::endl;
 }
 
 int parseArg(int ac, char **av)
 {
-    int port;
-	if (ac != 3)
-		throw std::invalid_argument(" > Error main(): Invalid argument count.");
+    int 		port;
+	std::size_t found;
 
-	std::size_t found = std::string(av[1]).find_first_not_of("1234567890");
+	if (ac != 3)
+		throw std::invalid_argument(COUNT);
+
+	found = std::string(av[1]).find_first_not_of("1234567890");
 	if (found != std::string::npos)
-		throw std::invalid_argument(" > Error main(): Not a port");
+		throw std::invalid_argument(ARG);
 
 	port = atoi(av[1]);
 	if (port < 6660 || 6669 < port)
-		throw std::invalid_argument(" > Error main(): Not a TCP port for IRC");
+		throw std::invalid_argument(TCP);
 	if (port < 1025 || 65535 < port)
-		throw std::invalid_argument(" > Error main(): Invalid port");
+		throw std::invalid_argument(PORT);
+
     return (port);
 }
 
 int main(int ac, char **av)
 {
-	signal(SIGQUIT, SIG_IGN); //ignore ctrl-backslash
+	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, stop);
 
+	int 		 port;
+	std::string  password;
 	std::cout << DEFCOL;
-	try
-	{
-        int port = parseArg(ac, av);
-        std::string password = av[2];
-		Server server(port);
 
+	try {
+        port = parseArg(ac, av);
+        password = av[2];
+
+//		Create object server
+		Server server(port);
 		if (password.compare(server.getPass()) != 0)
-			throw std::invalid_argument(" > Error main(): Invalid password");
-		//std::cout << std::endl; //  DEBUG
+			throw std::invalid_argument(PASSWORD);
 		server.start();
 	}
-	catch (std::exception &e)
-	{
-		std::cerr << std::endl << std::endl << RED << e.what() << DEFCOL ;
-        //std::cerr << "\n\n"
+	catch (std::exception &e) {
+
+		std::cerr << std::endl << std::endl << RED << e.what() << "\n" << DEFCOL;
 		if (errno)
 			std::cout << RED << std::strerror(errno) << DEFCOL << std::endl;
-
 		close (baseSocket);
 		close (newSocket);
-
-		std::cout << std::endl << std::endl; // DEBUG
-
 		exit(EXIT_FAILURE);
 	}
 	exit(EXIT_SUCCESS);

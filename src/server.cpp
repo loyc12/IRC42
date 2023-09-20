@@ -49,7 +49,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	(void)user;
 	int ret;
 
-	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe 
+	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe
 	{
 		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
@@ -217,22 +217,54 @@ void	Server::init()
 
 }
 
+void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it){
+
+	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
+	if (this->_newSocket <= 0)
+		throw std::invalid_argument(" > Error at accept(): ");
+	else
+	{
+		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket : "
+		<< this->_newSocket << " " << inet_ntoa(client_addr->sin_addr)
+		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
+
+//	Creation de l'objet de User
+		User* user = new User(*client_addr);
+
+		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
+		*it = this->_clients.find(this->_newSocket);
+		FD_SET(this->_newSocket, &this->_fdsMaster);
+	}
+}
+
+void	Server::knownClient(std::map<int, User*>::iterator *it, int *i){
+
+	std::string	message;
+
+	if (*it != this->_clients.end()){
+
+		User* userPtr = it->second;
+		if (readFromClient(*i, &message, userPtr) < 0) {
+			close(*i);
+			FD_CLR(*i, &this->_fdsMaster);
+		}
+	}
+}
 
 void	Server::start(void){
 
-	//fd_set				fdsMaster, fdsRead; // maybe change fdsRead for fdsCopy
-	//int 				socketCount;
 	struct sockaddr_in	client_addr;
 	socklen_t 			client_len = sizeof(client_addr);
-	std::string 		message;
 	std::map<int, User*>::iterator it;
 
 //	Setup our server (binding and socket)
 	this->init();
+
 //	Prepares fds for select
 	FD_ZERO(&this->_fdsMaster);
 	FD_SET(this->_baseSocket, &this->_fdsMaster);
-	std::cout << std::endl << GREEN << "0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
+
+	std::cout << GREEN << "\n\n0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
 //	Client interaction loop
 //[] stopFlag ?--> self descriptive ?
 	while (!stopFlag)
@@ -242,7 +274,7 @@ void	Server::start(void){
 //		will need to check for active and non-active socket... //TODO fix that so when we close a client fd when incorrect password does not crash server
 		this->_socketCount = select(FD_SETSIZE, &this->_fdsRead, nullptr, nullptr, nullptr);
 
-		if (stopFlag)//bcs of this 
+		if (stopFlag)//bcs of this
 			break;
 		//[] need description
 		if (this->_socketCount == -1)
@@ -250,45 +282,10 @@ void	Server::start(void){
 		//[] need description
 		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_fdsRead))
 		{
-			// Connection is requested on base socket (parent)
 			if (i == this->_baseSocket)
-			{
-				// newClient();
-				//------------------------------------------------------------------------------------------
-				this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &client_addr, &client_len);
-
-				if (this->_newSocket <= 0)
-					throw std::invalid_argument(" > Error at accept(): ");
-				else
-				{
-					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
-					<< " > on socket : " << this->_newSocket << " " << inet_ntoa(client_addr.sin_addr)
-					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-					std::cout << std::endl << std::endl;
-
-					//Creation de l'objet de User
-					User* user = new User(client_addr);
-
-					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
-					it = this->_clients.find(this->_newSocket);
-
-					FD_SET(this->_newSocket, &this->_fdsMaster);
-				}
-				//------------------------------------------------------------------------------------------
-			}
-			else //	Reads messages from a known client
-			{
-				// knownClient();
-				//need to send the correct pointer
-				if (it != this->_clients.end()){
-					User* userPtr = it->second;
-					if (readFromClient(i, &message, userPtr) < 0)
-					{
-						close(i);
-						FD_CLR(i, &this->_fdsMaster);
-					}
-				}
-			}
+				this->newClient(&client_addr, &client_len, &it);
+			else
+				this->knownClient(&it, &i);//problem here
 		}}}
 	}
 	//new to call delete user? to be checked with leaks
