@@ -35,7 +35,7 @@ class Server
 		const std::string & getPass(void) const;
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-		void	knownClient(std::map<int, User*>::iterator *it, int *i);
+		void	knownClient(std::map<int, User*>::iterator it, int *i);
 		int		readFromClient(int fd, std::string *message, User *user);
 		void	checkPassword(std::string buff, int fd, User* user);
 		void	init(void);

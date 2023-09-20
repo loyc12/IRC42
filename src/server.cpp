@@ -237,13 +237,13 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	}
 }
 
-void	Server::knownClient(std::map<int, User*>::iterator *it, int *i){
+void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 
 	std::string	message;
 
-	if (*it != this->_clients.end()){
+	if (it != this->_clients.end()){
 
-		User* userPtr = it.second;
+		User* userPtr = it->second;
 		if (readFromClient(*i, &message, userPtr) < 0) {
 			close(*i);
 			FD_CLR(*i, &this->_fdsMaster);
@@ -285,7 +285,7 @@ void	Server::start(void){
 			if (i == this->_baseSocket)
 				this->newClient(&client_addr, &client_len, &it);
 			else
-				this->knownClient(&it, &i);//problem here
+				this->knownClient(it, &i);//problem here
 		}}}
 	}
 	//new to call delete user? to be checked with leaks
