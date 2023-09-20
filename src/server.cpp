@@ -243,7 +243,7 @@ void	Server::knownClient(std::map<int, User*>::iterator *it, int *i){
 
 	if (*it != this->_clients.end()){
 
-		User* userPtr = it->second;
+		User* userPtr = it.second;
 		if (readFromClient(*i, &message, userPtr) < 0) {
 			close(*i);
 			FD_CLR(*i, &this->_fdsMaster);
