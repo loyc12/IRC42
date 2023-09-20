@@ -44,6 +44,7 @@ const std::string & Server::getPass(void) const { return (this->_password);}
 void Server::checkPassword(std::string pass, int fd, User* user)
 {
 	//PASS 5645 <- client send password like this
+	//starting cleanup
 	(void)user;
 	int ret;
 	//std::string buf = buff;
