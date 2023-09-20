@@ -179,7 +179,7 @@ vleaks: all
 	@echo "$(GREEN)\n\nExited normally! $(DEFCOL)"
 	@echo "$(DEFCOL)"
 
-# Runs the norminette
+# Runs the norminette (USELESS ON CPP)
 norm:
 	@echo "$(DEFCOL)"
 	@echo "$(YELLOW)Norminetting .cpp files $(RED)"
