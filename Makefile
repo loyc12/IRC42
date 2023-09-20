@@ -61,7 +61,7 @@ DEFAULT_GOAL: all
 CFLAGS	=	-Wall -Werror -Wextra -std=c++98 $(XFLAGS)
 LFLAGS	=	-atExit
 VFLAGS	=	--leak-check=full --show-leak-kinds=all --trace-children=yes --track-fds=yes
-# add "--suppressions=include/supp" to use the supression file
+# Just add "--suppressions=include/supp" to use the supression file
 
 # Comment the line bellow to have verbose cmds:
 HIDE	=	@
