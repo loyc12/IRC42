@@ -1,5 +1,7 @@
 #include "IRC.hpp"
 
+
+
 // 0================ BASE FUNCTIONS ================0
 //private
 Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0){
@@ -186,14 +188,9 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	return (0);
 }
 
-void	Server::irc(void){
-
-	fd_set				fdsMaster, fdsRead; // maybe change fdsRead for fdsCopy
-	int 				socketCount;
-	std::string 		message;
-	struct sockaddr_in	server_addr, client_addr;
-	socklen_t 			client_len = sizeof(client_addr);
-	std::map<int, User*>::iterator it;
+void	Server::init()
+{
+	struct sockaddr_in	server_addr;
 
 //	Inits base socket
 	this->_baseSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -218,28 +215,46 @@ void	Server::irc(void){
 //	Sets up baseSocket to receive all connections
 	listen(this->_baseSocket, SOMAXCONN);
 
+}
+
+
+void	Server::start(void){
+
+	//fd_set				fdsMaster, fdsRead; // maybe change fdsRead for fdsCopy
+	//int 				socketCount;
+	struct sockaddr_in	client_addr;
+	socklen_t 			client_len = sizeof(client_addr);
+	std::string 		message;
+	std::map<int, User*>::iterator it;
+
+//	Setup our server (binding and socket)
+	this->init();
 //	Prepares fds for select
-	FD_ZERO(&fdsMaster);
-	FD_SET(this->_baseSocket, &fdsMaster);
-
+	FD_ZERO(&this->_fdsMaster);
+	FD_SET(this->_baseSocket, &this->_fdsMaster);
 	std::cout << std::endl << GREEN << "0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
-
 //	Client interaction loop
+//[] stopFlag ?--> self descriptive ?
 	while (!stopFlag)
 	{
-		fdsRead = fdsMaster;
+		this->_fdsRead = this->_fdsMaster;
 
 //		will need to check for active and non-active socket... //TODO fix that so when we close a client fd when incorrect password does not crash server
-		socketCount = select(FD_SETSIZE, &fdsRead, nullptr, nullptr, nullptr);
+		this->_socketCount = select(FD_SETSIZE, &this->_fdsRead, nullptr, nullptr, nullptr);
 
-		if (stopFlag)
+		if (stopFlag)//bcs of this 
 			break;
-		if (socketCount == -1)
+		//[] need description
+		if (this->_socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
-		else if (socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &fdsRead))
+		//[] need description
+		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_fdsRead))
 		{
-			if (i == this->_baseSocket) /*Connection request on base socket*/
+			// Connection is requested on base socket (parent)
+			if (i == this->_baseSocket)
 			{
+				// newClient();
+				//------------------------------------------------------------------------------------------
 				this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &client_addr, &client_len);
 
 				if (this->_newSocket <= 0)
@@ -257,18 +272,20 @@ void	Server::irc(void){
 					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 					it = this->_clients.find(this->_newSocket);
 
-					FD_SET(this->_newSocket, &fdsMaster);
+					FD_SET(this->_newSocket, &this->_fdsMaster);
 				}
+				//------------------------------------------------------------------------------------------
 			}
 			else //	Reads messages from a known client
 			{
+				// knownClient();
 				//need to send the correct pointer
 				if (it != this->_clients.end()){
 					User* userPtr = it->second;
 					if (readFromClient(i, &message, userPtr) < 0)
 					{
 						close(i);
-						FD_CLR(i, &fdsMaster);
+						FD_CLR(i, &this->_fdsMaster);
 					}
 				}
 			}
