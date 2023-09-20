@@ -16,6 +16,9 @@ class Server
 		std::string	_password;
 		int	_baseSocket;
 		int _newSocket;
+		fd_set _fdsMaster;
+		fd_set _fdsRead;
+		int		_socketCount;
 		std::map<int, User*> _clients; //container to store all our clients info
 		// Private Constructor
 		Server();
@@ -30,9 +33,10 @@ class Server
 		// Getters - Setters
 		const int &	getPort(void) const ;
 		const std::string & getPass(void) const;
-		void	irc(void);
+		void	start(void);
 		int		readFromClient(int fd, std::string *message, User *user);
 		void	checkPassword(std::string buff, int fd, User* user);
+		void	init(void);
 
 };
 

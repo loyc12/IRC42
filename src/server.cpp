@@ -1,5 +1,7 @@
 #include "IRC.hpp"
 
+
+
 // 0================ BASE FUNCTIONS ================0
 //private
 Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0){
@@ -40,29 +42,22 @@ const int & Server::getPort(void) const { return (this->_port);}
 const std::string & Server::getPass(void) const { return (this->_password);}
 
 // 0================ OTHER FUNCTIONS ================0
-
+//pass -> already verified here
 void Server::checkPassword(std::string pass, int fd, User* user)
 {
-	//PASS 5645 <- client send password like this
+	//starting cleanup
 	(void)user;
 	int ret;
-	//std::string buf = buff;
-	//size_t i = 0;
-	// while (i < buff.length())
-	// {
-	// 	if (buff.compare("PASS ") == 0) //loop to make sure that you get PASS
-	// 		break;
-	// 	i++;
-	// }
-	//std::string pass = buff.substr(5, 4); //isolate the password sent by client ***HARD CODE here
-	if (pass.compare(this->getPass()) != 0)
+
+	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe 
 	{
+		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 		std::string errorMessage = ":ircserv 403 binouche :Incorrect password\r\n"; //TODO need to change it. Hard code NOW
 
-    // Send the error message to the LimeChat client
+    	// Send the error message to the LimeChat client
     	send(fd, errorMessage.c_str(), errorMessage.size(), 0);
-		close(fd);
+		close(fd);//a enlever eventuellement, autre solution.
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 		if (it != this->_clients.end())
@@ -71,8 +66,6 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		this->_clients.erase(fd);
 
 		std::cout << std::endl << std::endl;
-//		throw std::invalid_argument(" > Error: invalid password"); DISCONNECT THE CLIENT INSTEAD, DON'T CRASH THE SERVER PLZ
-//			TODO : remove the user from the container after closing its FD and telling them to fuck off
 	}
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
@@ -83,6 +76,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		std::string welcome = ss.str();
 
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
+		//Code de gestion d'erreur
 		if (ret == 0)
 		{
 			std::cout << "DISCONNECT ?" << std::endl;
@@ -115,9 +109,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	{
 		bzero(buff, BUFFSIZE);
 		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
-
-		//will need to delete our client from map. Even check if it was already in the container
-
+		//delete client from container
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 		if (it != this->_clients.end())
@@ -132,7 +124,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	{
 		std::string	*args = splitString(buff, " \r\n");
 
-		/*--switch case implementation*/
+		/*--switch case implementation--*/
 		std::string cmdArray[8] = {
 			"PASS",
 			"NICK",
@@ -181,23 +173,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
 
-		//need to implement a switch case to look for PASS, NICK, JOIN, KICK, INVITE, TOPIC, MODE, etc...
-		// if (tmp.find("PASS ") != std::string::npos)
-		// 	this->checkPassword(buff, fd, user);
-		// message->assign(buff, 0, byteReceived);
-		// std::cout << *message;
-		// if (tmp.find("NICK ") != std::string::npos)
-		// {
-		// 	std::string tmp2 = tmp.substr(5, message->length());
-		// 	user->setNick(tmp2);
-		// 	std::cout << "nickname: " << user->getNick() << std::endl;
-		// }
-		/*------------------------------------------------------------------------------------------------*/
-		//Check what's in the container (temporary)
-//		for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); ++it)
-//			std::cout << it->first << " => " << it->second->getNick() << std::endl;
-		/*------------------------------------------------------------------------------------------------*/
-
+//		will need send according to what was done as a command (above)
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
 		// {
@@ -212,14 +188,9 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	return (0);
 }
 
-void	Server::irc(void){
-
-	fd_set				fdsMaster, fdsRead; //, fdsWrite;
-	int 				socketCount;
-	std::string 		message;
-	struct sockaddr_in	server_addr, client_addr;
-	socklen_t 			client_len = sizeof(client_addr);
-	std::map<int, User*>::iterator it;
+void	Server::init()
+{
+	struct sockaddr_in	server_addr;
 
 //	Inits base socket
 	this->_baseSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -244,30 +215,46 @@ void	Server::irc(void){
 //	Sets up baseSocket to receive all connections
 	listen(this->_baseSocket, SOMAXCONN);
 
+}
+
+
+void	Server::start(void){
+
+	//fd_set				fdsMaster, fdsRead; // maybe change fdsRead for fdsCopy
+	//int 				socketCount;
+	struct sockaddr_in	client_addr;
+	socklen_t 			client_len = sizeof(client_addr);
+	std::string 		message;
+	std::map<int, User*>::iterator it;
+
+//	Setup our server (binding and socket)
+	this->init();
 //	Prepares fds for select
-	FD_ZERO(&fdsMaster);
-	FD_SET(this->_baseSocket, &fdsMaster);
-
+	FD_ZERO(&this->_fdsMaster);
+	FD_SET(this->_baseSocket, &this->_fdsMaster);
 	std::cout << std::endl << GREEN << "0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
-
 //	Client interaction loop
+//[] stopFlag ?--> self descriptive ?
 	while (!stopFlag)
 	{
-		fdsRead = fdsMaster;
-//		fdsWrite = fdsMaster; // 	for eventual reading; third argument of select()
+		this->_fdsRead = this->_fdsMaster;
 
 //		will need to check for active and non-active socket... //TODO fix that so when we close a client fd when incorrect password does not crash server
-//		still blocking ... but that's normal ???
-		socketCount = select(FD_SETSIZE, &fdsRead, nullptr, nullptr, nullptr);
+		this->_socketCount = select(FD_SETSIZE, &this->_fdsRead, nullptr, nullptr, nullptr);
 
-		if (stopFlag)
+		if (stopFlag)//bcs of this 
 			break;
-		if (socketCount == -1)
+		//[] need description
+		if (this->_socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
-		else if (socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &fdsRead))
+		//[] need description
+		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_fdsRead))
 		{
-			if (i == this->_baseSocket) /*Connection request on base socket*/
+			// Connection is requested on base socket (parent)
+			if (i == this->_baseSocket)
 			{
+				// newClient();
+				//------------------------------------------------------------------------------------------
 				this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &client_addr, &client_len);
 
 				if (this->_newSocket <= 0)
@@ -277,36 +264,29 @@ void	Server::irc(void){
 					std::cout << std::endl << CYAN << "0========== CLIENT CONNECTED =========0" << std::endl
 					<< " > on socket : " << this->_newSocket << " " << inet_ntoa(client_addr.sin_addr)
 					<< ":" << ntohs(client_addr.sin_port) << DEFCOL << std::endl << std::endl;
-
-					User* user = new User(client_addr); //	new instance of class User: store the info on client_addr.sin_port
-
 					std::cout << std::endl << std::endl;
 
-					// this->_clients[this->_newSocket] = user;
+					//Creation de l'objet de User
+					User* user = new User(client_addr);
+
 					this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 					it = this->_clients.find(this->_newSocket);
 
-					FD_SET(this->_newSocket, &fdsMaster);
+					FD_SET(this->_newSocket, &this->_fdsMaster);
 				}
+				//------------------------------------------------------------------------------------------
 			}
 			else //	Reads messages from a known client
 			{
+				// knownClient();
 				//need to send the correct pointer
 				if (it != this->_clients.end()){
 					User* userPtr = it->second;
-					if (readFromClient(i, &message, userPtr) < 0) //	do else if () instead (?)
+					if (readFromClient(i, &message, userPtr) < 0)
 					{
 						close(i);
-						FD_CLR(i, &fdsMaster);
+						FD_CLR(i, &this->_fdsMaster);
 					}
-					// if (accept_from_client(i, &message, server) < 0)
-					// {
-					// 	//Parsing de commande (mdp)
-					// }
-					// if (send_to_clients(i, &message, server) < 0)
-					// {
-					// 	//Envoyer aux destinataires voulus.
-					// }
 				}
 			}
 		}}}

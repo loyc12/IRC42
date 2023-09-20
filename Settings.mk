@@ -8,7 +8,7 @@ NAME		=	ircserv
 # Source file names (prefix their subdir if needed)
 FILES		=	message \
 				server \
-				test \
+				main \
 				user \
 				utils \
 
