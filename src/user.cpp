@@ -5,29 +5,40 @@
 User::User()
 {
 	std::cout << YELLOW << ": Called default constructor (USER) " << DEFCOL;
-	this->name = "UNINITIALIZED";
-	this->nick = "UNINITIALIZED";
+	this->_name = "UNINITIALIZED";
+	this->_nick = "UNINITIALIZED";
 }
+
+User::User(sockaddr_in client_addr) : _client_addr(client_addr) {
+	std::cout << YELLOW << ": Called constructor (USER) " << DEFCOL;
+	this->_name = "UNINITIALIZED";
+	this->_nick = "UNINITIALIZED";//will be changed later on
+
+}
+
+
 User::User(const std::string _name, const std::string _nick)
 {
 	std::cout << YELLOW << ": Called parameterized constructor (USER) " << DEFCOL;
 
-	this->name = _name;
-	this->nick = _nick;
+	this->_name = _name;
+	this->_nick = _nick;
 }
 User::User(const User &other)
 {
 	std::cout << YELLOW << ": Called copy constructor (USER) " << DEFCOL;
 
-	this->name = other.getName();
-	this->nick = other.getNick();
+	this->_name = other.getName();
+	this->_nick = other.getNick();
+	this->_client_addr = other.getClientAddr();
 }
 User &User::operator= (const User &other)
 {
 	std::cout << YELLOW << ": Called assignment operator (USER) " << DEFCOL;
 
-	this->name = other.getName();
-	this->nick = other.getNick();
+	this->_name = other.getName();
+	this->_nick = other.getNick();
+	this->_client_addr = other.getClientAddr();
 
 	return *this;
 }
@@ -48,7 +59,10 @@ std::ostream &operator<< (std::ostream &out, const User &rhs)
 
 // 0================ GETTERS / SETTERS ================0
 
-std::string	User::getName(void) const { return (this->name);}
-std::string	User::getNick(void) const { return (this->nick);}
+std::string	User::getName(void) const { return (this->_name);}
+std::string	User::getNick(void) const { return (this->_nick);}
+void User::setName(std::string name) { this->_name = name; }
+void User::setNick(std::string nick) { this->_nick = nick; }
+sockaddr_in	User::getClientAddr(void) const { return (this->_client_addr);}
 
 // 0================ OTHER FUNCTIONS ================0
