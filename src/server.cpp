@@ -40,30 +40,22 @@ const int & Server::getPort(void) const { return (this->_port);}
 const std::string & Server::getPass(void) const { return (this->_password);}
 
 // 0================ OTHER FUNCTIONS ================0
-
+//pass -> already verified here
 void Server::checkPassword(std::string pass, int fd, User* user)
 {
-	//PASS 5645 <- client send password like this
 	//starting cleanup
 	(void)user;
 	int ret;
-	//std::string buf = buff;
-	//size_t i = 0;
-	// while (i < buff.length())
-	// {
-	// 	if (buff.compare("PASS ") == 0) //loop to make sure that you get PASS
-	// 		break;
-	// 	i++;
-	// }
-	//std::string pass = buff.substr(5, 4); //isolate the password sent by client ***HARD CODE here
-	if (pass.compare(this->getPass()) != 0)
+
+	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe 
 	{
+		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 		std::string errorMessage = ":ircserv 403 binouche :Incorrect password\r\n"; //TODO need to change it. Hard code NOW
 
-    // Send the error message to the LimeChat client
+    	// Send the error message to the LimeChat client
     	send(fd, errorMessage.c_str(), errorMessage.size(), 0);
-		close(fd);
+		close(fd);//a enlever eventuellement, autre solution.
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 		if (it != this->_clients.end())
@@ -72,7 +64,6 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		this->_clients.erase(fd);
 
 		std::cout << std::endl << std::endl;
-//		throw std::invalid_argument(" > Error: invalid password"); DISCONNECT THE CLIENT INSTEAD, DON'T CRASH THE SERVER PLZ
 //			TODO : remove the user from the container after closing its FD and telling them to fuck off
 	}
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
