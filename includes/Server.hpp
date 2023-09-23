@@ -19,6 +19,7 @@ class Server
 		fd_set _fdsMaster;
 		fd_set _fdsRead;
 		int		_socketCount;
+		std::string	_nameServer;
 		std::map<int, User*> _clients; //container to store all our clients info
 		// Private Constructor
 		Server();

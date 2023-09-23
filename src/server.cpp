@@ -4,7 +4,7 @@
 
 // 0================ BASE FUNCTIONS ================0
 //private
-Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0){
+Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv"){
 	std::cout << YELLOW << ": Called default constructor (SERVER) " << DEFCOL;
 
 }
