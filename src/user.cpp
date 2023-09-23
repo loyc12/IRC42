@@ -61,6 +61,8 @@ std::ostream &operator<< (std::ostream &out, const User &rhs)
 
 std::string	User::getName(void) const { return (this->_name);}
 std::string	User::getNick(void) const { return (this->_nick);}
+std::string User::getUsername(void) const { return (this->_userName);}
+std::string User::getMode(void) const { return (this->_mode);}
 void User::setName(std::string name) { this->_name = name; }
 void User::setNick(std::string nick) { this->_nick = nick; }
 void User::setUsername(std::string userName) { this->_userName = userName; }

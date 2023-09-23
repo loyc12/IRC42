@@ -155,8 +155,8 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 				std::cout << "nickname: " << user->getNick() << std::endl;
 				break;
 			case 2:
-				//user->parseUserInfo(args);
-				std::cout << "will do stuff for user" << std::endl; //
+				user->parseUserInfo(args);
+				std::cout << user->getUsername() << " " << user->getMode() << std::endl; //
 				break;
 			case 3:
 				std::cout << "do stuff for join" << std::endl;

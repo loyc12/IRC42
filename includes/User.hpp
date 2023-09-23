@@ -33,6 +33,8 @@ class User
 		std::string	getName(void) const;
 		std::string	getNick(void) const;
 		sockaddr_in	getClientAddr(void) const;
+		std::string getUsername(void) const;
+		std::string getMode(void) const;
 		void		setName(std::string name);
 		void		setNick(std::string nick);
 		void		setUsername(std::string userName);
