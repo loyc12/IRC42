@@ -41,6 +41,8 @@ const int & Server::getPort(void) const { return (this->_port);}
 
 const std::string & Server::getPass(void) const { return (this->_password);}
 
+const std::string & Server::getNameServer(void) const { return (this->_nameServer);}
+
 // 0================ OTHER FUNCTIONS ================0
 //pass -> already verified here
 void Server::checkPassword(std::string pass, int fd, User* user)
@@ -53,10 +55,11 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	{
 		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
-		std::string errorMessage = ":ircserv 403 binouche :Incorrect password\r\n"; //TODO need to change it. Hard code NOW
+		std::string errMsg = "Incorrect password";
+		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n"; //TODO create a enum or list of status code/numeric codes
 
     	// Send the error message to the LimeChat client
-    	send(fd, errorMessage.c_str(), errorMessage.size(), 0);
+		send(fd, response.c_str(), response.size(), 0);
 		close(fd);//a enlever eventuellement, autre solution.
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
@@ -72,7 +75,8 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		//syntax below on how to send msg to Limechat
 		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
-		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
+		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
+		//TODO: enum list for numeric code, 001
 		std::string welcome = ss.str();
 
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
@@ -150,7 +154,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 				std::cout << "nickname: " << user->getNick() << std::endl;
 				break;
 			case 2:
-				std::cout << "will do stuff for user" << std::endl;
+				std::cout << "will do stuff for user" << std::endl; //
 				break;
 			case 3:
 				std::cout << "do stuff for join" << std::endl;

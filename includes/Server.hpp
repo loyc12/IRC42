@@ -34,6 +34,7 @@ class Server
 		// Getters - Setters
 		const int &	getPort(void) const ;
 		const std::string & getPass(void) const;
+		const std::string & getNameServer(void) const;
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
