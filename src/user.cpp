@@ -63,6 +63,14 @@ std::string	User::getName(void) const { return (this->_name);}
 std::string	User::getNick(void) const { return (this->_nick);}
 void User::setName(std::string name) { this->_name = name; }
 void User::setNick(std::string nick) { this->_nick = nick; }
+void User::setUsername(std::string userName) { this->_userName = userName; }
+void User::setMode(std::string mode) { this->_mode = mode; }
 sockaddr_in	User::getClientAddr(void) const { return (this->_client_addr);}
 
 // 0================ OTHER FUNCTIONS ================0
+
+void	User::parseUserInfo(std::string *args){
+	this->setUsername(args[1]);
+	this->setMode(args[2]);
+	this->setName(args[4]);
+}

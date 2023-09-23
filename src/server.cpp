@@ -56,7 +56,8 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 		std::string errMsg = "Incorrect password";
-		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n"; //TODO create a enum or list of status code/numeric codes
+		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n";
+		//TODO create a enum or list of status code/numeric codes
 
     	// Send the error message to the LimeChat client
 		send(fd, response.c_str(), response.size(), 0);
@@ -154,6 +155,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 				std::cout << "nickname: " << user->getNick() << std::endl;
 				break;
 			case 2:
+				//user->parseUserInfo(args);
 				std::cout << "will do stuff for user" << std::endl; //
 				break;
 			case 3:

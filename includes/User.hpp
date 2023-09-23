@@ -15,6 +15,7 @@ class User
 	private:
 		// Data
 		std::string	_name;
+		std::string _userName;
 		std::string	_nick;
 		std::string _mode;//maybe char better?
 		sockaddr_in _client_addr; //when client is connected
@@ -34,6 +35,9 @@ class User
 		sockaddr_in	getClientAddr(void) const;
 		void		setName(std::string name);
 		void		setNick(std::string nick);
+		void		setUsername(std::string userName);
+		void		setMode(std::string mode);
+		void		parseUserInfo(std::string *args);
 };
 
 
