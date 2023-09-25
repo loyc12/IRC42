@@ -16,8 +16,8 @@ class Server
 		std::string	_password;
 		int	_baseSocket;
 		int _newSocket;
-		fd_set _fdsMaster;
-		fd_set _fdsRead;
+		fd_set _baseFds;
+		fd_set _targetFds;
 		int		_socketCount;
 		std::map<int, User*> _clients; //container to store all our clients info
 		// Private Constructor

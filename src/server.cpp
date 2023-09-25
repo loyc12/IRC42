@@ -6,7 +6,6 @@
 //private
 Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0){
 	std::cout << YELLOW << ": Called default constructor (SERVER) " << DEFCOL;
-
 }
 
 //public
@@ -24,6 +23,7 @@ Server &Server::operator= (const Server &other)
 	this->_port = other.getPort();
 	return *this;
 }
+
 Server::~Server()
 {
 	std::cout << YELLOW << ": Called destructor (SERVER) " << DEFCOL;
@@ -233,7 +233,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		*it = this->_clients.find(this->_newSocket);
-		FD_SET(this->_newSocket, &this->_fdsMaster);
+		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
 
@@ -246,10 +246,18 @@ void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 		User* userPtr = it->second;
 		if (readFromClient(*i, &message, userPtr) < 0) {
 			close(*i);
-			FD_CLR(*i, &this->_fdsMaster);
+			FD_CLR(*i, &this->_baseFds);
 		}
 	}
 }
+
+/*
+	Variables : Structure for clients info, a buffer size for clients and a Container for User.
+	1. init(); Setup our server (binding and socket)
+	2. FD_();  Prepares fds for select
+	3. while();
+		3.1.
+*/
 
 void	Server::start(void){
 
@@ -257,38 +265,32 @@ void	Server::start(void){
 	socklen_t 			client_len = sizeof(client_addr);
 	std::map<int, User*>::iterator it;
 
-//	Setup our server (binding and socket)
 	this->init();
-
-//	Prepares fds for select
-	FD_ZERO(&this->_fdsMaster);
-	FD_SET(this->_baseSocket, &this->_fdsMaster);
+	FD_ZERO(&this->_baseFds);
+	FD_SET(this->_baseSocket, &this->_baseFds);
 
 	std::cout << GREEN << "\n\n0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
-//	Client interaction loop
-//[] stopFlag ?--> self descriptive ?
-	while (!stopFlag)
+	while (!shutServ)
 	{
-		this->_fdsRead = this->_fdsMaster;
-
-//		will need to check for active and non-active socket... //TODO fix that so when we close a client fd when incorrect password does not crash server
-		this->_socketCount = select(FD_SETSIZE, &this->_fdsRead, nullptr, nullptr, nullptr);
-
-		if (stopFlag)//bcs of this
+		this->_targetFds = this->_baseFds;
+		if (shutServ)
 			break;
-		//[] need description
+//		!will need to check for active and non-active socket...
+//TODO fix that so when we close a client fd when incorrect password does not crash server
+		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
 		if (this->_socketCount == -1)
 			throw std::invalid_argument(" > Error at select(): ");
-		//[] need description
-		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_fdsRead))
+//		Checking all clients fd to find if already here or is a new one.
+		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
 		{
 			if (i == this->_baseSocket)
 				this->newClient(&client_addr, &client_len, &it);
 			else
-				this->knownClient(it, &i);//problem here
+				this->knownClient(it, &i);
+//				! problem here
 		}}}
 	}
-	//new to call delete user? to be checked with leaks
+//!	new to call delete user? to be checked with leaks
 	close(this->_baseSocket);
 	close(this->_newSocket);
 }

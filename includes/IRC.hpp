@@ -25,7 +25,7 @@
 # define BUFFSIZE 256
 
 //	put defines here
-static bool	stopFlag = false;
+static bool	shutServ = false;
 
 //test.cpp
 void irc(Server *server);

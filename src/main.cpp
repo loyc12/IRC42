@@ -18,7 +18,7 @@ static int baseSocket = 0;
 static void	stop(int sig)
 {
 	(void)sig;
-	stopFlag = true;
+	shutServ = true;
 	std::cout << "\n\n" << MAGENTA << " > Closing and cleaning ..." << DEFCOL << "\n" << std::endl;
 }
 
