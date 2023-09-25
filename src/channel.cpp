@@ -15,10 +15,11 @@ void				Channel::setAdmin(std::string const &admin) { this->_admin = admin; }
 // 0================ OTHER FUNCTIONS ================0
 
 void	Channel::joinChan(Server *server, User *user, int fd){
-	//send msg when added to channel
-	(void)user;
-	//std::cout << ":" << server->getNameServer() << " JOIN " << this->getNameChan() << std::endl;
-	std::string joinMSG = ":" + server->getNameServer() + " JOIN " + this->getNameChan() + "\r\n";
-	send(fd, joinMSG.c_str(), joinMSG.size(), 0);
-	std::cout << "who is the admin" << this->getAdmin() << std::endl;
+	//setup of msg to send when join channel
+	std::ostringstream joinMsg;
+	joinMsg << ":" << user->getNick() << "!" << user->getUsername() << "@" << server->getNameServer() << " JOIN " << this->getNameChan() << "\r\n";
+	std::string joinChan = joinMsg.str();
+	//letting everyone knows what happens
+	send(fd, joinChan.c_str(), joinChan.size(), 0);
+
 }

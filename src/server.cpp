@@ -97,6 +97,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	}
 }
 
+//TODO Tuesday morning problem to finish
 void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
