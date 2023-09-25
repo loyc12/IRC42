@@ -97,6 +97,25 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	}
 }
 
+void	Server::manageJoinCmd(std::string *args, User *user, int fd){
+	//first check if the chan already exists on server
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (it != this->_chanContainer.end()){
+		std::cout << "just join channel" << std::endl;
+		//add the code to join
+		//ft to check if there is a password
+		it->second->joinChan(this, user, fd);
+	}
+	else {
+		std::cout << "add new channel to container" << std::endl;
+		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+		//ft to join channel and set admin as the user who created it
+		newChannel->setAdmin(user->getNick());
+		newChannel->joinChan(this, user, fd);
+	}
+}
+
 /**
  * @brief to read what the client sent and int for success or fail.
  *
@@ -159,7 +178,9 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 				std::cout << user->getUsername() << " " << user->getMode() << std::endl; //
 				break;
 			case 3:
-				std::cout << "do stuff for join" << std::endl;
+				this->manageJoinCmd(args, user, fd);
+				//channel->joinCmd(args);
+				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
 				break;
 			case 4:
 				std::cout << "do stuff to be kick" << std::endl;

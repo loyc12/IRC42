@@ -6,6 +6,7 @@
 # include <stdlib.h>		// for which functions ??
 # include <fcntl.h> // for file descriptors (?)
 # include <sys/socket.h>
+# include <netinet/in.h>
 # include "Message.hpp"
 
 class Message;
@@ -40,6 +41,7 @@ class User
 		void		setUsername(std::string userName);
 		void		setMode(std::string mode);
 		void		parseUserInfo(std::string *args);
+
 };
 
 

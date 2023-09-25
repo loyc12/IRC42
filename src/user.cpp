@@ -74,5 +74,6 @@ sockaddr_in	User::getClientAddr(void) const { return (this->_client_addr);}
 void	User::parseUserInfo(std::string *args){
 	this->setUsername(args[1]);
 	this->setMode(args[2]);
+	//do I need to store the placeholder for the real hostname
 	this->setName(args[4]);
 }
