@@ -53,14 +53,28 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 
 	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe
 	{
+		/*
+		std::ostringstream ss;
+		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
+		//TODO: enum list for numeric code, 001
+		std::string welcome = ss.str();
+
+		ret = send(fd, welcome.c_str(), welcome.size(), 0);
+		*/
+
+
 		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
-		std::string errMsg = "Incorrect password";
-		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n";
+		//std::string errMsg = "Incorrect password";
+		//std::string response = ":" + this->getNameServer() + " 464" + user->getNick() + "\n";
+		std::ostringstream errMsg;
+		std::cout << this->getNameServer() << std::endl;
+		errMsg << ":" << this->getNameServer() << " 464" << user->getNick() << ":Incorrect password" << "\n";
 		//TODO create a enum or list of status code/numeric codes
+		std::string reply = errMsg.str();
 
     	// Send the error message to the LimeChat client
-		send(fd, response.c_str(), response.size(), 0);
+		send(fd, reply.c_str(), reply.size(), 0);
 		close(fd);//a enlever eventuellement, autre solution.
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
