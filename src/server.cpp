@@ -1,7 +1,5 @@
 #include "IRC.hpp"
 
-
-
 // 0================ BASE FUNCTIONS ================0
 //private
 Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv"){
@@ -45,7 +43,7 @@ const std::string & Server::getNameServer(void) const { return (this->_nameServe
 
 // 0================ OTHER FUNCTIONS ================0
 //pass -> already verified here
-void Server::checkPassword(std::string pass, int fd, User* user)
+int Server::checkPassword(std::string pass, int fd, User* user)
 {
 	//starting cleanup
 	(void)user;
@@ -84,6 +82,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		this->_clients.erase(fd);
 
 		std::cout << std::endl << std::endl;
+		return (-1);
 	}
 	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
 	{
@@ -109,6 +108,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 			std::cout << "YEAH" << std::endl;
 		}
 	}
+	return (0);
 }
 
 int	Server::disconnectClient(char *buff, int fd)
@@ -160,9 +160,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 	if (byteReceived <= 0)
-	{
 		return (disconnectClient(buff, fd));
-	}
 	else if (byteReceived)
 	{
 		std::string	*args = splitString(buff, " \r\n");
@@ -186,7 +184,8 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		}
 		switch (index) {
 			case 0:
-				this->checkPassword(args[1], fd, user);
+				if (this->checkPassword(args[1], fd, user) < 0)
+					return (disconnectClient(buff, fd));
 				break;
 			case 1:
 				user->setNick(args[1]);
@@ -218,7 +217,6 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		}
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
-
 //		will need send according to what was done as a command (above)
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
@@ -254,8 +252,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	Variables : Pointer to an new Objet User
 	1. accept();	set the new socket, if accepted the new client is connected.
 	2. new User();	create new object user. At this point, no data as been received from Client except the connection.
-
-!	[ ] After new User, Implement a condition to block a Client if password (first output) is not OK, delete user and return.
+//	[X] After new User, Implement a condition to block a Client if password (first output) is not OK, delete user and return.
 	*/
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
 	if (this->_newSocket <= 0)
