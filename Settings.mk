@@ -11,6 +11,7 @@ FILES		=	message \
 				main \
 				user \
 				utils \
+				channel \
 
 # Directory names
 SRCDIR		=	src/

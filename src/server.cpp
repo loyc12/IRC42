@@ -129,6 +129,25 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
+//TODO Tuesday morning problem to finish
+void	Server::manageJoinCmd(std::string *args, User *user, int fd){
+	//first check if the chan already exists on server
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (it != this->_chanContainer.end()){ //channel exists
+		std::cout << "just join channel" << std::endl;
+		//ft to check if there is a password
+		it->second->joinChan(user, fd);
+	}
+	else { //channel does not exist
+		std::cout << "add new channel to container" << std::endl;
+		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+		newChannel->setNameChan(args[1]);
+		newChannel->setAdmin(user->getNick());
+		newChannel->joinChan(user, fd);
+	}
+}
+
 /**
  * @brief to read what the client sent and int for success or fail.
  *
