@@ -18,8 +18,8 @@ class Server
 		std::string	_password;
 		int	_baseSocket;
 		int _newSocket;
-		fd_set _fdsMaster;
-		fd_set _fdsRead;
+		fd_set _baseFds;
+		fd_set _targetFds;
 		int		_socketCount;
 		std::string	_nameServer;
 		std::map<int, User*> _clients; //container to store all our clients info
@@ -42,6 +42,7 @@ class Server
 		// Others functions
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
+		int		disconnectClient(char *buff, int fd);
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
 		int		readFromClient(int fd, std::string *message, User *user);
 		void	checkPassword(std::string buff, int fd, User* user);

@@ -14,7 +14,8 @@ class Message;
 class User
 {
 	private:
-		// Data
+// 		Data
+		//std::string _password;
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
@@ -24,14 +25,13 @@ class User
 		User();
 
 	public:
-		// Constructors & Destructor
-		User(sockaddr_in client_addr); //constructor that will take the client_addr.sin_port
-		User(const std::string _name, const std::string _nick);
-		User(const User &other);
-		User &operator= (const User &other);
+// 		Constructors & Destructor
+		User(sockaddr_in client_addr);
+		//User(const User &other);
+		//User &operator= (const User &other);
 		~User();
 
-		// Getters - Setters
+// 		Getters - Setters
 		std::string	getName(void) const;
 		std::string	getNick(void) const;
 		sockaddr_in	getClientAddr(void) const;
