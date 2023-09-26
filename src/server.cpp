@@ -328,7 +328,14 @@ void	Server::start(void)
 			break;
 		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
 		if (this->_socketCount == -1)
+		{
+			if (EINTR)
+			{
+				std::cout << "EINTR" << std::endl;
+				break ;
+			}
 			throw std::invalid_argument(" > Error at select(): ");
+		}
 		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
 		{
 			if (i == this->_baseSocket)
