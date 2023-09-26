@@ -18,7 +18,8 @@ class User
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
-		std::string _mode;//maybe char better?
+		std::string _mode;
+		std::string _hostname;
 		sockaddr_in _client_addr; //when client is connected
 		User();
 
@@ -36,10 +37,12 @@ class User
 		sockaddr_in	getClientAddr(void) const;
 		std::string getUsername(void) const;
 		std::string getMode(void) const;
+		std::string getHostname(void) const;
 		void		setName(std::string name);
 		void		setNick(std::string nick);
 		void		setUsername(std::string userName);
 		void		setMode(std::string mode);
+		void		setHostname(std::string hostname);
 		void		parseUserInfo(std::string *args);
 
 };

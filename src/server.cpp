@@ -101,19 +101,18 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (it != this->_chanContainer.end()){
+	if (it != this->_chanContainer.end()){ //channel exists
 		std::cout << "just join channel" << std::endl;
-		//add the code to join
 		//ft to check if there is a password
-		it->second->joinChan(this, user, fd);
+		it->second->joinChan(user, fd);
 	}
-	else {
+	else { //channel does not exist
 		std::cout << "add new channel to container" << std::endl;
 		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-		//ft to join channel and set admin as the user who created it
+		newChannel->setNameChan(args[1]);
 		newChannel->setAdmin(user->getNick());
-		newChannel->joinChan(this, user, fd);
+		newChannel->joinChan(user, fd);
 	}
 }
 

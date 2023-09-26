@@ -32,7 +32,8 @@ class Channel {
 		std::string const &getAdmin(void) const;
 		std::string const &getPass(void) const;
 		void			  setAdmin(std::string const &admin);
-		void			  joinChan(Server *server, User *user, int fd);
+		void			  setNameChan(std::string const &chan);
+		void			  joinChan(User *user, int fd);
 };
 
 #endif
