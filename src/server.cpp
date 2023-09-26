@@ -67,7 +67,7 @@ int Server::checkPassword(std::string pass, int fd, User* user)
 		//std::string response = ":" + this->getNameServer() + " 464" + user->getNick() + "\n";
 		std::ostringstream errMsg;
 		std::cout << this->getNameServer() << std::endl;
-		errMsg << ":" << this->getNameServer() << " 464" << user->getNick() << ":Incorrect password" << "\n";
+		errMsg << ":" << user->getHostname() << " 464 :Incorrect password\n";
 		//TODO create a enum or list of status code/numeric codes
 		std::string reply = errMsg.str();
 
