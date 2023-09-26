@@ -42,10 +42,10 @@ class Server
 		// Others functions
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-		void	disconnectClient(char *buff, int fd);
+		int		disconnectClient(char *buff, int fd);
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
 		int		readFromClient(int fd, std::string *message, User *user);
-		void	checkPassword(std::string buff, int fd, User* user);
+		int 	checkPassword(std::string buff, int fd, User* user);
 		void	init(void);
 		void	manageJoinCmd(std::string *args, User *user, int fd);
 
