@@ -36,12 +36,11 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 // 0================ GETTERS / SETTERS ================0
 
 const int & Server::getPort(void) const { return (this->_port);}
-
 const std::string & Server::getPass(void) const { return (this->_password);}
-
 const std::string & Server::getNameServer(void) const { return (this->_nameServer);}
 
 // 0================ OTHER FUNCTIONS ================0
+
 //pass -> already verified here
 int Server::checkPassword(std::string pass, int fd, User* user)
 {
@@ -64,9 +63,7 @@ int Server::checkPassword(std::string pass, int fd, User* user)
 
 		if (it != this->_clients.end())
 			delete it->second;
-
 		this->_clients.erase(fd);
-
 		std::cout << std::endl << std::endl;
 		return (-1);
 	}
@@ -249,13 +246,10 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 		<< this->_newSocket << " " << inet_ntoa(client_addr->sin_addr)
 		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
 
-// -----------------------------------------
 		User* user = new User(*client_addr);
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		*it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
-
-// -----------------------------------------
 	}
 }
 
@@ -307,7 +301,7 @@ void	Server::start(void)
 		3.2.	FD_ISSET(); Target Fd is compared will all active sockets.
 				IF target = base socket = its a new client, otherwise it already in the system.
 	4. If Shutserv = close sockets.
-!	[ ] Checking for active and non-active socket (wdm?) at select();
+//	[X] Checking for active and non-active socket (wdm?) at select();
 !	[ ] Checking leaks (Malloc in User)... Checking at Deleted and at not deleted.
 !	[ ] Problem at knownClient but we didnt write the reason so ?
 */
@@ -324,16 +318,11 @@ void	Server::start(void)
 	while (!shutServ)
 	{
 		this->_targetFds = this->_baseFds;
-		if (shutServ)
-			break;
 		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
 		if (this->_socketCount == -1)
 		{
 			if (EINTR)
-			{
-				std::cout << "EINTR" << std::endl;
 				break ;
-			}
 			throw std::invalid_argument(" > Error at select(): ");
 		}
 		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
@@ -344,6 +333,14 @@ void	Server::start(void)
 				this->knownClient(it, &i);
 		}}}
 	}
+	it = this->_clients.begin();
+	std::map<int, User*>::iterator ite = this->_clients.end();
+	while (it != ite)
+	{
+		delete it->second;
+		it++;
+	}
+	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
 }
