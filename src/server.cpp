@@ -92,6 +92,22 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	}
 }
 
+int	Server::disconnectClient(char *buff, int fd)
+{
+	/*
+	1. clear buffer
+	2. delete client from container with std::map
+	*/
+	bzero(buff, BUFFSIZE);
+	std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
+	std::map<int, User*>::iterator it = this->_clients.find(fd);
+	if (it != this->_clients.end())
+			delete it->second;
+	this->_clients.erase(fd);
+	std::cout << std::endl << std::endl;
+	return (-1);
+}
+
 /**
  * @brief to read what the client sent and int for success or fail.
  *
@@ -107,18 +123,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 	if (byteReceived <= 0)
 	{
-		bzero(buff, BUFFSIZE);
-		std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
-		//delete client from container
-		std::map<int, User*>::iterator it = this->_clients.find(fd);
-
-		if (it != this->_clients.end())
-			delete it->second;
-
-		this->_clients.erase(fd);
-
-		std::cout << std::endl << std::endl;
-		return (-1);
+		return (disconnectClient(buff, fd));
 	}
 	else if (byteReceived)
 	{
@@ -220,12 +225,13 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 		<< this->_newSocket << " " << inet_ntoa(client_addr->sin_addr)
 		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
 
-// -------------------------------------------------------------------------------------------------------------------------
+// -----------------------------------------
 		User* user = new User(*client_addr);
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		*it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
-// ------------------------------------------------------------------------------------------
+
+// -----------------------------------------
 	}
 }
 
