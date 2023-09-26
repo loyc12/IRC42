@@ -22,6 +22,7 @@ void	Channel::joinChan(User *user, int fd){
 	std::cout << joinMsg.str() << std::endl;
 	std::string joinChan = joinMsg.str();
 	//letting everyone knows what happens
+	std::cout << joinChan << std::endl;
 	send(fd, joinChan.c_str(), joinChan.size(), 0);
 
 }

@@ -89,7 +89,7 @@ int Server::checkPassword(std::string pass, int fd, User* user)
 		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
 		//TODO: enum list for numeric code, 001
 		std::string welcome = ss.str();
-
+		std::cout << welcome << std::endl; //DEBUG
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
 		//Code de gestion d'erreur
 		if (ret == 0)
