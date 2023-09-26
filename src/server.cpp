@@ -1,10 +1,8 @@
 #include "IRC.hpp"
 
-
-
 // 0================ BASE FUNCTIONS ================0
 //private
-Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0){
+Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv"){
 	std::cout << YELLOW << ": Called default constructor (SERVER) " << DEFCOL;
 }
 
@@ -41,6 +39,8 @@ const int & Server::getPort(void) const { return (this->_port);}
 
 const std::string & Server::getPass(void) const { return (this->_password);}
 
+const std::string & Server::getNameServer(void) const { return (this->_nameServer);}
+
 // 0================ OTHER FUNCTIONS ================0
 //pass -> already verified here
 void Server::checkPassword(std::string pass, int fd, User* user)
@@ -53,10 +53,12 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	{
 		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
 		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
-		std::string errorMessage = ":ircserv 403 binouche :Incorrect password\r\n"; //TODO need to change it. Hard code NOW
+		std::string errMsg = "Incorrect password";
+		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n";
+		//TODO create a enum or list of status code/numeric codes
 
     	// Send the error message to the LimeChat client
-    	send(fd, errorMessage.c_str(), errorMessage.size(), 0);
+		send(fd, response.c_str(), response.size(), 0);
 		close(fd);//a enlever eventuellement, autre solution.
 		std::map<int, User*>::iterator it = this->_clients.find(fd);
 
@@ -72,7 +74,8 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 		//syntax below on how to send msg to Limechat
 		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
 		std::ostringstream ss;
-		ss << GREEN << "Welcome to this IRC server!" << NOCOLOR << "\r\n";
+		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
+		//TODO: enum list for numeric code, 001
 		std::string welcome = ss.str();
 
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
@@ -92,7 +95,7 @@ void Server::checkPassword(std::string pass, int fd, User* user)
 	}
 }
 
-int	Server::disconnectClient(char *buff, int fd)
+void	Server::disconnectClient(char *buff, int fd)
 {
 	/*
 	1. clear buffer
@@ -105,7 +108,25 @@ int	Server::disconnectClient(char *buff, int fd)
 			delete it->second;
 	this->_clients.erase(fd);
 	std::cout << std::endl << std::endl;
-	return (-1);
+}
+
+//TODO Tuesday morning problem to finish
+void	Server::manageJoinCmd(std::string *args, User *user, int fd){
+	//first check if the chan already exists on server
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (it != this->_chanContainer.end()){ //channel exists
+		std::cout << "just join channel" << std::endl;
+		//ft to check if there is a password
+		it->second->joinChan(user, fd);
+	}
+	else { //channel does not exist
+		std::cout << "add new channel to container" << std::endl;
+		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+		newChannel->setNameChan(args[1]);
+		newChannel->setAdmin(user->getNick());
+		newChannel->joinChan(user, fd);
+	}
 }
 
 /**
@@ -122,9 +143,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 	if (byteReceived <= 0)
-	{
-		return (disconnectClient(buff, fd));
-	}
+		disconnectClient(buff, fd);
 	else if (byteReceived)
 	{
 		std::string	*args = splitString(buff, " \r\n");
@@ -155,10 +174,13 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 				std::cout << "nickname: " << user->getNick() << std::endl;
 				break;
 			case 2:
-				std::cout << "will do stuff for user" << std::endl;
+				user->parseUserInfo(args);
+				std::cout << user->getUsername() << " " << user->getMode() << std::endl; //
 				break;
 			case 3:
-				std::cout << "do stuff for join" << std::endl;
+				this->manageJoinCmd(args, user, fd);
+				//channel->joinCmd(args);
+				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
 				break;
 			case 4:
 				std::cout << "do stuff to be kick" << std::endl;
@@ -213,7 +235,6 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	Variables : Pointer to an new Objet User
 	1. accept();	set the new socket, if accepted the new client is connected.
 	2. new User();	create new object user. At this point, no data as been received from Client except the connection.
-
 !	[ ] After new User, Implement a condition to block a Client if password (first output) is not OK, delete user and return.
 	*/
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
