@@ -52,7 +52,8 @@ sockaddr_in	User::getClientAddr(void) const { return (this->_client_addr);}
 
 // 0================ OTHER FUNCTIONS ================0
 
-void	User::parseUserInfo(std::string *args){
+void	User::parseUserInfo(std::string *args)
+{
 	this->setUsername(args[1]);
 	this->setMode(args[2]);
 	this->setHostname(inet_ntoa(this->_client_addr.sin_addr));
