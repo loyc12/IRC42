@@ -14,13 +14,15 @@ class Server
 {
 	private:
 		// Data
-		int	_port;
+		int			_port;
 		std::string	_password;
-		int	_baseSocket;
-		int _newSocket;
-		fd_set _baseFds;
-		fd_set _targetFds;
-		int		_socketCount;
+		int			_baseSocket;
+		int 		_newSocket;
+		fd_set 		_baseFds;
+		fd_set 		_targetFds;
+		int			_socketCount;
+		bool		_welcomeFlag;
+		bool		_isSet;
 		std::string	_nameServer;
 		std::map<int, User*> _clients; //container to store all our clients info
 		std::map<std::string, Channel*> _chanContainer; //have all the channels that exist on our server
@@ -45,9 +47,15 @@ class Server
 		int		disconnectClient(char *buff, int fd);
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
 		int		readFromClient(int fd, std::string *message, User *user);
+
+		void 	responseToClient(User* user, int fd, std::string code, std::string message);
+		int		badPassword(int fd, User* user);
 		int 	checkPassword(std::string buff, int fd, User* user);
+		void	checkNickname(std::string *args, User *user, int fd);
 		void	init(void);
 		void	manageJoinCmd(std::string *args, User *user, int fd);
+		void	welcomeMsg(User *user, int fd);
+		void 	debugPrint(std::string color, std::string message);
 
 };
 
