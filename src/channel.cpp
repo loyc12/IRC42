@@ -18,8 +18,9 @@ void				Channel::setNameChan(std::string const &chan) { this->_nameChan = chan; 
 void	Channel::joinChan(User *user, int fd){
 	//setup of msg to send when join channel
 	std::ostringstream joinMsg;
-	joinMsg << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " JOIN " << this->getNameChan() << "\n";
-	std::cout << joinMsg.str() << std::endl;
+	//joinMsg << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " JOIN " << this->getNameChan() << "\n";
+	joinMsg << ":" << user->getNick() << " JOIN " << this->getNameChan() << "\r\n";
+ 	std::cout << joinMsg.str() << std::endl;
 	std::string joinChan = joinMsg.str();
 	//letting everyone knows what happens
 	send(fd, joinChan.c_str(), joinChan.size(), 0);

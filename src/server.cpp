@@ -88,6 +88,7 @@ int Server::checkPassword(std::string pass, int fd, User* user)
 		std::ostringstream ss;
 		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
 		//TODO: enum list for numeric code, 001
+		//TODO: Welcome msg ONLY send AFTER PASS and NICK checked
 		std::string welcome = ss.str();
 		std::cout << welcome << std::endl; //DEBUG
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
