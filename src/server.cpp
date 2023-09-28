@@ -1,16 +1,17 @@
 #include "IRC.hpp"
 
-# define CONSTR_PRIVATE "0======== DFL-CONSTR(SERVER) ========0"
-# define CONSTR_PARAM "0======== PARAM-CONSTR(SERVER) ========0"
+# define CONSTR_PARAM "0========= PARAM-CONSTR(SERVER) ======0"
 # define CONSTR_COPY "0======== COPY-CONSTR(SERVER) ========0"
 # define CONSTR_ASSIGN "0======== ASSIGN-CONSTR(SERVER) ========0"
 # define DESTRUCT "0======== DESTRUCT-(SERVER) ========0"
 
+# define LAUNCH "\n0========== SERVER LAUNCHED ==========0"
+
 // 0================ BASE FUNCTIONS ================0
 
 void	Server::debugPrint(std::string color, std::string message)		{std::cout << color << message << DEFCOL;}
-Server::Server(int port) : _port(port), _password("1234") 		{debugPrint(YELLOW, CONSTR_PARAM); }
-Server::~Server() 												{debugPrint(YELLOW, DESTRUCT); }
+Server::Server(int port) : _port(port), _password("1234") 				{debugPrint(YELLOW, CONSTR_PARAM); }
+Server::~Server() 														{debugPrint(YELLOW, DESTRUCT); }
 
 const int & Server::getPort(void) const					{ return (this->_port);}
 const std::string & Server::getPass(void) const			{ return (this->_password);}
@@ -47,7 +48,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 	if (byteReceived <= 0)
-		return (disconnectClient(buff, fd));
+		return (deleteClient(fd, buff));
 	else if (byteReceived)
 	{
 		std::string	*args = splitString(buff, " \r\n");
@@ -71,8 +72,8 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 		}
 		switch (index) {
 			case 0:
-				if (this->checkPassword(args[1], fd, user) < 0)
-					return (disconnectClient(buff, fd));
+				if (this->checkPassword(user, fd, args[1]) < 0)
+					return (deleteClient(fd, buff));
 				break;
 			case 1:
 				this->checkNickname(args, user, fd);
@@ -137,17 +138,18 @@ void	Server::responseToClient(User* user, int fd, std::string code, std::string 
 
 
 
-int 	Server::checkPassword(std::string pass, int fd, User* user) {
-	std::cout << "checkPassword()" << "isSET: " << this->_isSet << "flag: " << this->_welcomeFlag << std::endl;
+int	Server::checkPassword(User* user, int fd, std::string pass)
+{
 	if (pass.compare(this->getPass()) != 0)
-		return (badPassword(fd, user));
+		return (badPassword(user, fd));
 	else
 		this->_welcomeFlag = 1;
-	std::cout << "Client all setup" << std::endl;
+
 	return (0);
 }
 
-int		Server::badPassword(int fd, User* user) {
+int	Server::badPassword(User* user, int fd)
+{
 	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 	std::string errMsg = "Incorrect password";
 	responseToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
@@ -208,7 +210,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	}
 }
 
-int		Server::disconnectClient(char *buff, int fd) {
+int		Server::deleteClient(int fd, char *buff) {
 	/*  1. clear buffer
 		2. delete client from container with std::map */
 	bzero(buff, BUFFSIZE);
@@ -275,7 +277,7 @@ void	Server::start(void) {
 	FD_ZERO(&this->_baseFds);
 	FD_SET(this->_baseSocket, &this->_baseFds);
 
-	std::cout << GREEN << "\n\n0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
+	debugPrint(GREEN, LAUNCH);
 	while (!shutServ)
 	{
 		this->_targetFds = this->_baseFds;
