@@ -16,19 +16,26 @@
 # include <sys/time.h> //	select
 # include <sys/select.h> //	select
 
+class Server;
+class User;
+class Channel;
+//class Message;
+
 # include "Colours.hpp"
-# include "Message.hpp"
-# include "Server.hpp"
-# include "User.hpp"
 # include "Utils.hpp"
 
+# include "User.hpp"
+# include "Server.hpp"
+# include "Channel.hpp"
+//# include "Message.hpp"
+
+// PUT NON_CODE DEFINES HERE
 # define BUFFSIZE 256
 
-//	put defines here
 static bool	shutServ = false;
 
 //test.cpp
-void irc(Server *server);
+//void irc(Server *server);
 
 
 

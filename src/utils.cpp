@@ -1,5 +1,10 @@
 #include "Utils.hpp"
 
+void	debugPrint(std::string color, std::string message)
+{
+	std::cout << color << message << DEFCOL;
+}
+
 std::string	*splitStringPrivate(const char *str, const char *chrs)
 {
 //	std::cout << "buff : \'" << str << "\'" << std::endl;

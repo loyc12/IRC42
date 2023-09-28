@@ -1,14 +1,9 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "User.hpp"
-# include "Message.hpp"
-# include "Channel.hpp"
 # include <map>
 
-class User;
-class Channel;
-class Message;
+# include "IRC.hpp"
 
 class Server
 {
@@ -44,20 +39,18 @@ class Server
 		// Others functions
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-		int		disconnectClient(char *buff, int fd);
+		int		disconnectClient(User *user, char *buff);
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
-		int		readFromClient(int fd, std::string *message, User *user);
+		int		readFromClient(User *user, std::string *message);
 
-		void	sendToClient(User *user, int fd, std::string message);
-		void 	responseToClient(User* user, int fd, std::string code, std::string message);
-		int		badPassword(int fd, User* user);
-		int 	checkPassword(std::string buff, int fd, User* user);
-		void	checkNickname(std::string *args, User *user, int fd);
+		void	sendToClient(User *user, std::string message);
+		void 	responseToClient(User* user, std::string code, std::string message);
+		int		badPassword(User* user);
+		int 	checkPassword(User *user, std::string pass);
+		void	checkNickname(User *user, std::string *args);
 		void	init(void);
-		void	manageJoinCmd(std::string *args, User *user, int fd);
-		void	welcomeMsg(User *user, int fd);
-		void 	debugPrint(std::string color, std::string message);
-
+		void	manageJoinCmd(std::string *args, User *user);
+		void	welcomeMsg(User *user);
 };
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs);

@@ -6,9 +6,8 @@
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
 # include <fcntl.h>			// for file descriptors (?)
-# include "User.hpp"
 
-class User;
+# include "IRC.hpp"
 
 class Message
 {

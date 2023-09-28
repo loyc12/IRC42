@@ -7,8 +7,7 @@
 # include <string>
 # include <sys/socket.h>
 # include <vector> //container of users found in a channel
-# include "User.hpp"
-# include "Server.hpp"
+
 # include "IRC.hpp"
 
 class Server;
@@ -33,7 +32,7 @@ class Channel {
 		std::string const &getPass(void) const;
 		void			  setAdmin(std::string const &admin);
 		void			  setNameChan(std::string const &chan);
-		void			  joinChan(User *user, int fd);
+		void			  joinChan(User *user);
 };
 
 #endif

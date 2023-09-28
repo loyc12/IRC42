@@ -1,4 +1,4 @@
-#include "IRC.hpp"
+#include "Message.hpp"
 
 // 0================ BASE FUNCTIONS ================0
 

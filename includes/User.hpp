@@ -7,15 +7,14 @@
 # include <fcntl.h> // for file descriptors (?)
 # include <sys/socket.h>
 # include <netinet/in.h>
-# include "Message.hpp"
 
-class Message;
+# include "IRC.hpp"
 
 class User //								ADD FD INSIDE USER
 {
 	private:
 // 		Data
-//		int			fd;
+		int			_fd;
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
@@ -32,6 +31,7 @@ class User //								ADD FD INSIDE USER
 		~User();
 
 // 		Getters - Setters
+		int			getFD(void) const;
 		std::string	getName(void) const;
 		std::string	getNick(void) const;
 		sockaddr_in	getClientAddr(void) const;
@@ -39,6 +39,7 @@ class User //								ADD FD INSIDE USER
 		std::string getMode(void) const;
 		std::string getHostname(void) const;
 
+		void		setFD(int fd);
 		void		setName(std::string name);
 		void		setNick(std::string nick);
 		void		setUsername(std::string userName);
