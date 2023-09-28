@@ -1,10 +1,10 @@
 #include "IRC.hpp"
 
-# define CONSTR_PRIVATE ": Called default constructor (SERVER) "
-# define CONSTR_PARAM ": Called default constructor (SERVER) "
-# define CONSTR_COPY ": Called parameterized constructor (SERVER) "
-# define CONSTR_ASSIGN ": Called copy constructor (SERVER) "
-# define DESTRUCT ": Called destructor (SERVER)"
+# define CONSTR_PRIVATE "0======== DFL-CONSTR(SERVER) ========0"
+# define CONSTR_PARAM "0======== PARAM-CONSTR(SERVER) ========0"
+# define CONSTR_COPY "0======== COPY-CONSTR(SERVER) ========0"
+# define CONSTR_ASSIGN "0======== ASSIGN-CONSTR(SERVER) ========0"
+# define DESTRUCT "0======== DESTRUCT-(SERVER) ========0"
 
 // 0================ BASE FUNCTIONS ================0
 

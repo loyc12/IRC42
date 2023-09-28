@@ -4,7 +4,19 @@
 # include "User.hpp"
 # include "Message.hpp"
 # include "Channel.hpp"
+# include "Utils.hpp"
 # include <map>
+
+//ENTRY CODE
+# define RPL_WELCOME " 001"
+
+//CHANNEL CODE
+# define ERR_NOSUCHCHANNEL "403" //chan does not exist
+
+
+# define RPL_NOTOPIC "331" //no topic set for chan
+# define RPL_TOPIC "332" //topic of the chan
+# define RPL_NAMREPLY "353" //list of nicknames in channel
 
 class User;
 class Channel;
