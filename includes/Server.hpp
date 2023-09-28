@@ -13,7 +13,6 @@
 //CHANNEL CODE
 # define ERR_NOSUCHCHANNEL "403" //chan does not exist
 
-
 # define RPL_NOTOPIC "331" //no topic set for chan
 # define RPL_TOPIC "332" //topic of the chan
 # define RPL_NAMREPLY "353" //list of nicknames in channel
@@ -26,62 +25,48 @@ class Server
 {
 	private:
 //		Parsing
-		int			_port;
-		std::string	_password;
-
+			int			_port;
+			std::string	_password;
 //		Start
-		int			_baseSocket;
-		int 		_newSocket;
-		int			_socketCount;
-		fd_set 		_baseFds;
-		fd_set 		_targetFds;
-
+			int			_baseSocket;
+			int 		_newSocket;
+			int			_socketCount;
+			fd_set 		_baseFds;
+			fd_set 		_targetFds;
 //		Flag
-		bool		_welcomeFlag;
-		bool		_isSet;
-
+			bool		_welcomeFlag;
+			bool		_isSet;
 //		Storage
-		std::map<int, User*> 			_clients;
-		std::map<std::string, Channel*> _chanContainer;
+			std::map<int, User*> 			_clients;
+			std::map<std::string, Channel*> _chanContainer;
 
 	public:
 //		Constructor - Destructor
-		Server(int port);
-		~Server();
+			Server(int port);
+			~Server();
 
 // 		Getters - Setters
-		const int 			& getPort(void) const;
-		const std::string 	& getPass(void) const;
+			const int 			& getPort(void) const;
+			const std::string 	& getPass(void) const;
 
-//			VERIFICATION
-				int 	checkPassword(User* user, int fd, std::string buff);
-
-//			ERROR
-				int		badPassword(User* user, int fd);
-
-//			CORE
-				void	init(void);
-				void	start(void);
-
-//			SOCKET
-				void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-				void	knownClient(std::map<int, User*>::iterator it, int *i);
-				int		deleteClient(int fd, char *buff);
+//		FT_VERIF
+			int 	checkPassword(User* user, int fd, std::string buff);
+//		FT_ERROR
+			int		badPassword(User* user, int fd);
+//		FT_CORE
+			void	init(void);
+			void	start(void);
+//		FT_SOCKET
+			void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
+			void	knownClient(std::map<int, User*>::iterator it, int *i);
+			int		deleteClient(int fd, char *buff);
+//		FT_I/O
+			int		readFromClient(User *user, int fd, std::string *message);
+			void	sendToClient(User *user, int fd, std::string message);
+			void 	responseToClient(User* user, int fd, std::string code, std::string message);
+//		FT_STORAGE
+			void	storeNickname(User *user, int fd, std::string *args);
 //		UTIL
-
-		// Others functions
-
-
-
-
-		int		readFromClient(int fd, std::string *message, User *user);
-
-		void	sendToClient(User *user, int fd, std::string message);
-		void 	responseToClient(User* user, int fd, std::string code, std::string message);
-
-
-		void	checkNickname(std::string *args, User *user, int fd);
-
 		void	manageJoinCmd(std::string *args, User *user, int fd);
 		void	welcomeMsg(User *user, int fd);
 		void 	debugPrint(std::string color, std::string message);

@@ -42,7 +42,7 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
-int	Server::readFromClient(int fd, std::string *message, User *user)
+int	Server::readFromClient(User *user, int fd, std::string *message)
 {
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
@@ -76,7 +76,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 					return (deleteClient(fd, buff));
 				break;
 			case 1:
-				this->checkNickname(args, user, fd);
+				this->storeNickname(user, fd, args);
 				break;
 			case 2:
 				user->parseUserInfo(args);
@@ -156,7 +156,7 @@ int	Server::badPassword(User* user, int fd)
 	return (-1);
 }
 
-void	Server::checkNickname(std::string *args, User *user, int fd) {
+void	Server::storeNickname(User *user, int fd, std::string *args) {
 
 	user->setNick(args[1]);
 	std::cout << "nickname: " << user->getNick() << std::endl;
@@ -182,7 +182,7 @@ void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 	if (it != this->_clients.end()){
 
 		User* userPtr = it->second;
-		if (readFromClient(*i, &msg, userPtr) < 0) {
+		if (readFromClient(userPtr, *i, &msg) < 0) {
 			close(*i);
 			FD_CLR(*i, &this->_baseFds);
 		}
