@@ -1,116 +1,49 @@
 #include "IRC.hpp"
 
+# define RPL_WELCOME " 001" //welcome msg
+# define RPL_NOTOPIC "331" //no topic set for chan
+# define RPL_TOPIC "332" //topic of the chan
+# define RPL_NAMREPLY "353" //list of nicknames in channel
+# define ERR_NOSUCHCHANNEL "403" //chan does not exist
+
+# define CONSTR_PRIVATE ": Called default constructor (SERVER) "
+# define CONSTR_PARAM ": Called default constructor (SERVER) "
+# define CONSTR_COPY ": Called parameterized constructor (SERVER) "
+# define CONSTR_ASSIGN ": Called copy constructor (SERVER) "
+# define DESTRUCT ": Called destructor (SERVER)"
+
 // 0================ BASE FUNCTIONS ================0
-//private
-Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv"){
-	std::cout << YELLOW << ": Called default constructor (SERVER) " << DEFCOL;
-}
 
-//public
-Server::Server(int port) : _port(port), _password("1234") {
-	std::cout << YELLOW << ": Called parameterized constructor (SERVER) " << DEFCOL;
-}
-Server::Server(const Server &other)
-{
-	std::cout << YELLOW << ": Called copy constructor (SERVER) " << DEFCOL;
-	this->_port = other.getPort();
-}
-Server &Server::operator= (const Server &other)
-{
-	std::cout << YELLOW << ": Called assignment operator (SERVER) " << DEFCOL;
-	this->_port = other.getPort();
-	return *this;
-}
+void	Server::debugPrint(std::string color, std::string message)		{std::cout << color << message << DEFCOL;}
 
-Server::~Server()
-{
-	std::cout << YELLOW << ": Called destructor (SERVER) " << DEFCOL;
-	//TODO : FREE
-}
+Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv")	{debugPrint(YELLOW, CONSTR_PRIVATE); }
+Server::Server(int port) : _port(port), _password("1234") 		{debugPrint(YELLOW, CONSTR_PARAM); }
+Server::Server(const Server &other) : _port(other.getPort()) 	{debugPrint(YELLOW, CONSTR_COPY); }
+Server &Server::operator= (const Server &other) 				{debugPrint(YELLOW, CONSTR_ASSIGN); this->_port = other.getPort(); return *this ; }
+Server::~Server() 												{debugPrint(YELLOW, DESTRUCT); }
+
+const int & Server::getPort(void) const					{ return (this->_port);}
+const std::string & Server::getPass(void) const			{ return (this->_password);}
+const std::string & Server::getNameServer(void) const	{ return (this->_nameServer);}
+
 std::ostream &operator<< (std::ostream &out, const Server &rhs)
 {
 	out << "IRC Server port : " << rhs.getPort();
 	return (out);
 }
 
-// 0================ GETTERS / SETTERS ================0
-
-const int & Server::getPort(void) const { return (this->_port);}
-const std::string & Server::getPass(void) const { return (this->_password);}
-const std::string & Server::getNameServer(void) const { return (this->_nameServer);}
-
 // 0================ OTHER FUNCTIONS ================0
 
-//pass -> already verified here
-int Server::checkPassword(std::string pass, int fd, User* user)
+void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
 {
-	//starting cleanup
-	(void)user;
-	int ret;
-
-	if (pass.compare(this->getPass()) != 0)//check si c'est le bon mot de passe
-	{
-		//task = select et/ou voir le code quand un client deconnecte, probablement cela qu'il faut faire TODO : closing its FD and telling them to fuck off
-		std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
-		std::string errMsg = "Incorrect password";
-		std::string response = ":" + this->getNameServer() + " " + std::to_string(403) + " " + user->getNick() + " :" + errMsg + "\r\n";
-		//TODO create a enum or list of status code/numeric codes
-
-    	// Send the error message to the LimeChat client
-		send(fd, response.c_str(), response.size(), 0);
-		close(fd);//a enlever eventuellement, autre solution.
-		std::map<int, User*>::iterator it = this->_clients.find(fd);
-
-		if (it != this->_clients.end())
-			delete it->second;
-		this->_clients.erase(fd);
-		std::cout << std::endl << std::endl;
-		return (-1);
-	}
-	else //	 ----------------------------------------------------------------------------------------------------------- WELCOME MESSAGE HERE
-	{
-		//syntax below on how to send msg to Limechat
-		/*oss << ":" << m_hostname << " 001 " << m_userDB[fd].m_nickname << " :Welcome to the IRCServ, " << m_userDB[fd].m_nickname << "!" << m_userDB[fd].m_username << "@" << m_hostname << "\r\n";*/
-		std::ostringstream ss;
-		ss << ":" << this->getNameServer() << " 001" << user->getNick() << " :Welcome to this IRC server, " << user->getNick() << "!" << user->getName() << "@" << this->getNameServer() << "\r\n";
-		//TODO: enum list for numeric code, 001
-		std::string welcome = ss.str();
-
-		ret = send(fd, welcome.c_str(), welcome.size(), 0);
-		//Code de gestion d'erreur
-		if (ret == 0)
-		{
-			std::cout << "DISCONNECT ?" << std::endl;
-		}
-		else if (ret < 0)
-		{
-			std::cout << "ERROR" << std::endl;
-		}
-		else if (ret > 0)
-		{
-			std::cout << "YEAH" << std::endl;
-		}
-	}
-	return (0);
+	std::string response = ":" + this->getNameServer() + " " + code + " " + user->getNick() + " :" + message + "\r\n";
+	if (send(fd, response.c_str(), response.size(), 0) < 0)
+		throw std::invalid_argument("send() at response to client");
+	else
+		std::cout << "Code sended to Client" << std::endl;
+	close(fd);
 }
 
-int	Server::disconnectClient(char *buff, int fd)
-{
-	/*
-	1. clear buffer
-	2. delete client from container with std::map
-	*/
-	bzero(buff, BUFFSIZE);
-	std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
-	std::map<int, User*>::iterator it = this->_clients.find(fd);
-	if (it != this->_clients.end())
-			delete it->second;
-	this->_clients.erase(fd);
-	std::cout << std::endl << std::endl;
-	return (-1);
-}
-
-//TODO Tuesday morning problem to finish
 void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -171,8 +104,7 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 					return (disconnectClient(buff, fd));
 				break;
 			case 1:
-				user->setNick(args[1]);
-				std::cout << "nickname: " << user->getNick() << std::endl;
+				this->checkNickname(args, user, fd);
 				break;
 			case 2:
 				user->parseUserInfo(args);
@@ -195,11 +127,12 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 			case 7:
 				std::cout << "do stuff to mode" << std::endl;
 				break;
-			default:
-				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+//			default:
+//				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
 		}
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
+
 //		will need send according to what was done as a command (above)
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
@@ -215,28 +148,71 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	return (0);
 }
 
+void	Server::sendToClient(User *user, int fd, std::string msg)
+{
+	(void)user;
+
+	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToClient() ");
+}
+
+
+
+int 	Server::checkPassword(std::string pass, int fd, User* user) {
+	std::cout << "checkPassword()" << "isSET: " << this->_isSet << "flag: " << this->_welcomeFlag << std::endl;
+	if (pass.compare(this->getPass()) != 0)
+		return (badPassword(fd, user));
+	else
+		this->_welcomeFlag = 1;
+	std::cout << "Client all setup" << std::endl;
+	return (0);
+}
+
+int		Server::badPassword(int fd, User* user) {
+	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
+	std::string errMsg = "Incorrect password";
+	responseToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+	return (-1);
+}
+
+void	Server::checkNickname(std::string *args, User *user, int fd) {
+
+	user->setNick(args[1]);
+	std::cout << "nickname: " << user->getNick() << std::endl;
+	if (this->_welcomeFlag == 1 && this->_isSet == 0){
+		this->welcomeMsg(user, fd);
+		this->_isSet = 1;
+		std::cout << "Pass && nickname done" << std::endl;
+	}
+}
+
+void	Server::welcomeMsg(User *user, int fd) {
+
+	std::ostringstream welcome;
+	welcome << ":" << this->getNameServer() << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
+
+	sendToClient(user, fd, welcome.str());
+}
+
 void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 
-	std::string	message;
+	std::string	msg;
 
 	if (it != this->_clients.end()){
 
 		User* userPtr = it->second;
-		if (readFromClient(*i, &message, userPtr) < 0) {
+		if (readFromClient(*i, &msg, userPtr) < 0) {
 			close(*i);
 			FD_CLR(*i, &this->_baseFds);
 		}
 	}
 }
 
-void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it)
-{
+void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it) {
 	/*
 	Variables : Pointer to an new Objet User
 	1. accept();	set the new socket, if accepted the new client is connected.
-	2. new User();	create new object user. At this point, no data as been received from Client except the connection.
-//	[X] After new User, Implement a condition to block a Client if password (first output) is not OK, delete user and return.
-	*/
+	2. new User();	create new object user. At this point, no data as been received from Client except the connection. */
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
 	if (this->_newSocket <= 0)
 		throw std::invalid_argument(" > Error at accept(): ");
@@ -253,8 +229,20 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	}
 }
 
-void	Server::init()
-{
+int		Server::disconnectClient(char *buff, int fd) {
+	/*  1. clear buffer
+		2. delete client from container with std::map */
+	bzero(buff, BUFFSIZE);
+	std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
+	std::map<int, User*>::iterator it = this->_clients.find(fd);
+	if (it != this->_clients.end())
+			delete it->second;
+	this->_clients.erase(fd);
+	std::cout << std::endl << std::endl;
+	return (-1);
+}
+
+void	Server::init() {
 	/*
 	Variables : Structure for server info. const int setted later bf edge case.
 	1. socket();		Init baseSocket
@@ -289,9 +277,7 @@ void	Server::init()
 	listen(this->_baseSocket, SOMAXCONN);
 }
 
-
-void	Server::start(void)
-{
+void	Server::start(void) {
 	/*
 	Variables : Structure for clients info, a buffer size for clients and a Container for User.
 	1. init();	Setup our server (binding and socket)
@@ -300,11 +286,7 @@ void	Server::start(void)
 		3.1.	select(); Return qt of active sockets. Return error if (-1)
 		3.2.	FD_ISSET(); Target Fd is compared will all active sockets.
 				IF target = base socket = its a new client, otherwise it already in the system.
-	4. If Shutserv = close sockets.
-//	[X] Checking for active and non-active socket (wdm?) at select();
-!	[ ] Checking leaks (Malloc in User)... Checking at Deleted and at not deleted.
-!	[ ] Problem at knownClient but we didnt write the reason so ?
-*/
+	4. If Shutserv = close sockets. */
 
 	struct sockaddr_in	client_addr;
 	socklen_t 			client_len = sizeof(client_addr);
