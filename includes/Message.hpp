@@ -29,5 +29,6 @@ class Message
 		User		*getSender(void) const;
 };
 
+//	SUPERFLUOUS
 
 #endif // MESSAGE_HPP

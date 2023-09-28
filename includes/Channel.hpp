@@ -18,7 +18,7 @@ class Channel {
 	private:
 		std::string _nameChan;
 		std::string _admin; //userName of the creator of channel
-		std::vector<std::string> _membersChannel;
+		std::vector<std::string> _membersChannel; // could be pointers to users?
 		std::string _password;
 		Channel(void);
 		Channel(Channel const &copy);
