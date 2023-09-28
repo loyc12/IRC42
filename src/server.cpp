@@ -14,7 +14,6 @@ Server::~Server() 												{debugPrint(YELLOW, DESTRUCT); }
 
 const int & Server::getPort(void) const					{ return (this->_port);}
 const std::string & Server::getPass(void) const			{ return (this->_password);}
-const std::string & Server::getNameServer(void) const	{ return (this->_nameServer);}
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs)
 {
@@ -130,7 +129,7 @@ void	Server::sendToClient(User *user, int fd, std::string msg)
 
 void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
 {
-	std::string response = ":" + this->getNameServer() + " " + code + " " + user->getNick() + " :" + message + "\r\n";
+	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
 	sendToClient(user, fd, response);
 	std::cout << "Code sended to Client" << std::endl;
 	close(fd);
@@ -169,7 +168,7 @@ void	Server::checkNickname(std::string *args, User *user, int fd) {
 void	Server::welcomeMsg(User *user, int fd) {
 
 	std::ostringstream welcome;
-	welcome << ":" << this->getNameServer() << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
+	welcome << ":" << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
 
 	sendToClient(user, fd, welcome.str());
 }

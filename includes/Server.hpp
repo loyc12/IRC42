@@ -25,28 +25,33 @@ class Message;
 class Server
 {
 	private:
-		// Data
+//		Parsing
 		int			_port;
 		std::string	_password;
+
+//		Start
 		int			_baseSocket;
 		int 		_newSocket;
+		int			_socketCount;
 		fd_set 		_baseFds;
 		fd_set 		_targetFds;
-		int			_socketCount;
+
+//		Flag
 		bool		_welcomeFlag;
 		bool		_isSet;
-		std::string	_nameServer;
-		std::map<int, User*> _clients; //container to store all our clients info
-		std::map<std::string, Channel*> _chanContainer; //have all the channels that exist on our server
+
+//		Storage
+		std::map<int, User*> 			_clients;
+		std::map<std::string, Channel*> _chanContainer;
 
 	public:
+//		Constructor - Destructor
 		Server(int port);
 		~Server();
 
-		// Getters - Setters
+// 		Getters - Setters
 		const int &	getPort(void) const ;
 		const std::string & getPass(void) const;
-		const std::string & getNameServer(void) const;
 
 		// Others functions
 		void	start(void);
