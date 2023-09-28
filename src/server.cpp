@@ -1,11 +1,5 @@
 #include "IRC.hpp"
 
-# define RPL_WELCOME " 001" //welcome msg
-# define RPL_NOTOPIC "331" //no topic set for chan
-# define RPL_TOPIC "332" //topic of the chan
-# define RPL_NAMREPLY "353" //list of nicknames in channel
-# define ERR_NOSUCHCHANNEL "403" //chan does not exist
-
 # define CONSTR_PRIVATE ": Called default constructor (SERVER) "
 # define CONSTR_PARAM ": Called default constructor (SERVER) "
 # define CONSTR_COPY ": Called parameterized constructor (SERVER) "
@@ -34,16 +28,6 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 
 // 0================ OTHER FUNCTIONS ================0
 
-void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
-{
-	std::string response = ":" + this->getNameServer() + " " + code + " " + user->getNick() + " :" + message + "\r\n";
-	if (send(fd, response.c_str(), response.size(), 0) < 0)
-		throw std::invalid_argument("send() at response to client");
-	else
-		std::cout << "Code sended to Client" << std::endl;
-	close(fd);
-}
-
 void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -62,14 +46,6 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
-/**
- * @brief to read what the client sent and int for success or fail.
- *
- * @param fd
- * @param message
- * @param user
- * @return int
- */
 int	Server::readFromClient(int fd, std::string *message, User *user)
 {
 	char 		buff[BUFFSIZE];
@@ -151,9 +127,17 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 void	Server::sendToClient(User *user, int fd, std::string msg)
 {
 	(void)user;
-
+	std::cout << "MSG SEND TO CL:\t" << msg << std::endl;
 	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at sendToClient() ");
+}
+
+void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
+{
+	std::string response = ":" + this->getNameServer() + " " + code + " " + user->getNick() + " :" + message + "\r\n";
+	sendToClient(user, fd, response);
+	std::cout << "Code sended to Client" << std::endl;
+	close(fd);
 }
 
 

@@ -15,13 +15,22 @@ void				Channel::setNameChan(std::string const &chan) { this->_nameChan = chan; 
 
 // 0================ OTHER FUNCTIONS ================0
 
+//The channel is created implicitly when the first client joins it, and the channel ceases to exist when the last client leaves it.
+/*
+:test!test@127.0.0.1 JOIN #
+
+*/
+
 void	Channel::joinChan(User *user, int fd){
-	//setup of msg to send when join channel
+//	[ ] code
+
+	std::cout << "JOINCHAN()" << std::endl;
 	std::ostringstream joinMsg;
 	joinMsg << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " JOIN " << this->getNameChan() << "\n";
 	std::cout << joinMsg.str() << std::endl;
 	std::string joinChan = joinMsg.str();
 	//letting everyone knows what happens
-	send(fd, joinChan.c_str(), joinChan.size(), 0);
+	if (send(fd, joinChan.c_str(), joinChan.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at joinChan() ");
 
 }
