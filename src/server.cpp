@@ -72,8 +72,10 @@ int	Server::readFromClient(User *user, std::string *message)
 	char 		buff[BUFFSIZE];
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(user->getFD(), buff, BUFFSIZE - 1, 0);
-	if (byteReceived <= 0)
-		return (disconnectClient(user, buff));
+	if (byteReceived <= 0) {
+		disconnectClient(user, buff);
+		return (0);
+	}
 	else if (byteReceived)
 	{
 		std::string	*args = splitString(buff, " \r\n");
@@ -98,8 +100,8 @@ int	Server::readFromClient(User *user, std::string *message)
 		switch (index) {
 			case 0:
 				if (this->checkPassword(user, args[1]) < 0)
-					return (disconnectClient(user, buff));
-				break;
+				disconnectClient(user, buff);
+				return (0);
 			case 1:
 				this->checkNickname(user, args);
 				break;
@@ -235,9 +237,10 @@ void	Server::disconnectClient(User *user, char *buff) { //		takes super long to 
 	std::map<int, User*>::iterator it = this->_clients.find(user->getFD());
 	close(user->getFD());
 	FD_CLR(user->getFD(), &this->_baseFds);
-	this->_clients.erase(user->getFD());
+	std::cerr << "\nhere\n"; //															DEBUG
 	if (it != this->_clients.end()) //									why can't we also delete the last client ???
 		delete it->second;
+	this->_clients.erase(user->getFD());
 	std::cout << std::endl << std::endl;
 }
 
