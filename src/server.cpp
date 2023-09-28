@@ -14,17 +14,17 @@
 
 // 0================ BASE FUNCTIONS ================0
 
-void	Server::debugPrint(std::string color, std::string message) { std::cout << color << message << DEFCOL; }
+void	Server::debugPrint(std::string color, std::string message)		{std::cout << color << message << DEFCOL;}
 
-Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv"){ debugPrint(YELLOW, CONSTR_PRIVATE); }
-Server::Server(int port) : _port(port), _password("1234") {debugPrint(YELLOW, CONSTR_PARAM); }
-Server::Server(const Server &other) : _port(other.getPort()) {debugPrint(YELLOW, CONSTR_COPY); }
-Server &Server::operator= (const Server &other) { debugPrint(YELLOW, CONSTR_ASSIGN); this->_port = other.getPort(); return *this ; }
-Server::~Server() {debugPrint(YELLOW, DESTRUCT); }
+Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv")	{debugPrint(YELLOW, CONSTR_PRIVATE); }
+Server::Server(int port) : _port(port), _password("1234") 		{debugPrint(YELLOW, CONSTR_PARAM); }
+Server::Server(const Server &other) : _port(other.getPort()) 	{debugPrint(YELLOW, CONSTR_COPY); }
+Server &Server::operator= (const Server &other) 				{debugPrint(YELLOW, CONSTR_ASSIGN); this->_port = other.getPort(); return *this ; }
+Server::~Server() 												{debugPrint(YELLOW, DESTRUCT); }
 
-const int & Server::getPort(void) const { return (this->_port);}
-const std::string & Server::getPass(void) const { return (this->_password);}
-const std::string & Server::getNameServer(void) const { return (this->_nameServer);}
+const int & Server::getPort(void) const					{ return (this->_port);}
+const std::string & Server::getPass(void) const			{ return (this->_password);}
+const std::string & Server::getNameServer(void) const	{ return (this->_nameServer);}
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs)
 {
@@ -127,11 +127,12 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 			case 7:
 				std::cout << "do stuff to mode" << std::endl;
 				break;
-			default:
-				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+//			default:
+//				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
 		}
 		message->assign(buff, 0, byteReceived);
 		std::cout << *message;
+
 //		will need send according to what was done as a command (above)
 		//ret = send(fd, message, message->length(), 0);
 		// if (ret == 0)
@@ -146,6 +147,15 @@ int	Server::readFromClient(int fd, std::string *message, User *user)
 	}
 	return (0);
 }
+
+void	Server::sendToClient(User *user, int fd, std::string msg)
+{
+	(void)user;
+
+	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToClient() ");
+}
+
 
 
 int 	Server::checkPassword(std::string pass, int fd, User* user) {
@@ -178,21 +188,20 @@ void	Server::checkNickname(std::string *args, User *user, int fd) {
 
 void	Server::welcomeMsg(User *user, int fd) {
 
-		std::ostringstream ss;
-		ss << ":" << this->getNameServer() << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
-		std::string welcome = ss.str();
-		if (send(fd, welcome.c_str(), welcome.size(), 0) < 0)
-			throw std::invalid_argument(" > Error at send():, welcomeMsg(); ");
+	std::ostringstream welcome;
+	welcome << ":" << this->getNameServer() << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
+
+	sendToClient(user, fd, welcome.str());
 }
 
 void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 
-	std::string	message;
+	std::string	msg;
 
 	if (it != this->_clients.end()){
 
 		User* userPtr = it->second;
-		if (readFromClient(*i, &message, userPtr) < 0) {
+		if (readFromClient(*i, &msg, userPtr) < 0) {
 			close(*i);
 			FD_CLR(*i, &this->_baseFds);
 		}

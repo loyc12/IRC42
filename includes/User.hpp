@@ -11,11 +11,11 @@
 
 class Message;
 
-class User
+class User //								ADD FD INSIDE USER
 {
 	private:
 // 		Data
-		//std::string _password;
+//		int			fd;
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
@@ -38,6 +38,7 @@ class User
 		std::string getUsername(void) const;
 		std::string getMode(void) const;
 		std::string getHostname(void) const;
+
 		void		setName(std::string name);
 		void		setNick(std::string nick);
 		void		setUsername(std::string userName);

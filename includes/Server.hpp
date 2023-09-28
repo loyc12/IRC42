@@ -48,6 +48,7 @@ class Server
 		void	knownClient(std::map<int, User*>::iterator it, int *i);
 		int		readFromClient(int fd, std::string *message, User *user);
 
+		void	sendToClient(User *user, int fd, std::string message);
 		void 	responseToClient(User* user, int fd, std::string code, std::string message);
 		int		badPassword(int fd, User* user);
 		int 	checkPassword(std::string buff, int fd, User* user);
