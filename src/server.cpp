@@ -215,11 +215,12 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	else
 	{
 		debugPrint(CYAN, "\n0========== CLIENT CONNECTED =========0\n"); //				DEBUG
-//		std::cout << CYAN << " > on socket : " << //									DEBUG
-//		this->_newSocket << " " << inet_ntoa(client_addr->sin_addr) << //				DEBUG
-//		":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl; //		DEBUG
+		std::cout << CYAN << " > on socket : " << //									DEBUG
+		this->_newSocket << " " << inet_ntoa(client_addr->sin_addr) << //				DEBUG
+		":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl; //		DEBUG
 
 		User* user = new User(*client_addr);
+		std::cout << std::endl;
 		user->setFD(this->_newSocket);
 
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
@@ -237,7 +238,6 @@ void	Server::disconnectClient(User *user, char *buff) { //		takes super long to 
 	std::map<int, User*>::iterator it = this->_clients.find(user->getFD());
 	close(user->getFD());
 	FD_CLR(user->getFD(), &this->_baseFds);
-	std::cerr << "\nhere\n"; //															DEBUG
 	if (it != this->_clients.end()) //									why can't we also delete the last client ???
 		delete it->second;
 	this->_clients.erase(user->getFD());
