@@ -39,8 +39,8 @@ class Server
 		// Others functions
 		void	start(void);
 		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-		int		disconnectClient(User *user, char *buff);
-		void	knownClient(std::map<int, User*>::iterator it, int *i);
+		void	disconnectClient(User *user, char *buff);
+		void	knownClient(std::map<int, User*>::iterator it);
 		int		readFromClient(User *user, std::string *message);
 
 		void	sendToClient(User *user, std::string message);

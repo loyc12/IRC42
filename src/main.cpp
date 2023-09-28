@@ -19,7 +19,7 @@ static void	stop(int sig)
 {
 	(void)sig;
 	shutServ = true;
-	std::cout << "\n\n" << MAGENTA << " > Closing and cleaning ..." << DEFCOL << "\n" << std::endl;
+	debugPrint(MAGENTA, "\n\n > Closing and cleaning ...\n");
 }
 
 int parseArg(int ac, char **av)

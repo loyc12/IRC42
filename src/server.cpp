@@ -38,20 +38,20 @@ void	Server::responseToClient(User* user, std::string code, std::string message)
 	if (send(user->getFD(), response.c_str(), response.size(), 0) < 0)
 		throw std::invalid_argument("send() at response to client");
 	else
-		std::cout << "Code sended to Client" << std::endl;
+		std::cout << "Code sent to Client" << std::endl; //											DEBUG
 	close(user->getFD());
 }
 
 void	Server::manageJoinCmd(std::string *args, User *user){
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (it != this->_chanContainer.end()){ //channel exists
+	if (it != this->_chanContainer.end()){ //channel exists //										DEBUG
 		std::cout << "just join channel" << std::endl;
 		//ft to check if there is a password
 		it->second->joinChan(user);
 	}
 	else { //channel does not exist
-		std::cout << "add new channel to container" << std::endl;
+		std::cout << "add new channel to container" << std::endl; //								DEBUG
 		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 		newChannel->setNameChan(args[1]);
@@ -156,17 +156,17 @@ void	Server::sendToClient(User *user, std::string msg)
 
 
 int 	Server::checkPassword(User *user, std::string pass) {
-	std::cout << "checkPassword()" << "isSET: " << this->_isSet << "flag: " << this->_welcomeFlag << std::endl;
+//	std::cout << "checkPassword()" << "isSET: " << this->_isSet << "flag: " << this->_welcomeFlag << std::endl; //		DEBUG
 	if (pass.compare(this->getPass()) != 0)
 		return (badPassword(user));
 	else
 		this->_welcomeFlag = 1;
-	std::cout << "Client all setup" << std::endl;
+//	std::cout << "Client all setup" << std::endl; //										DEBUG
 	return (0);
 }
 
 int		Server::badPassword(User *user) {
-	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
+	debugPrint(RED, "\n0========= CONNECTION DENIED =========0\n\n"); //					DEBUG
 	std::string errMsg = "Incorrect password";
 	responseToClient(user, ERR_NOSUCHCHANNEL, errMsg);
 	return (-1);
@@ -179,7 +179,7 @@ void	Server::checkNickname(User *user, std::string *args) {
 	if (this->_welcomeFlag == 1 && this->_isSet == 0){
 		this->welcomeMsg(user);
 		this->_isSet = 1;
-		std::cout << "Pass && nickname done" << std::endl;
+		std::cout << "Pass && nickname done" << std::endl; //								DEBUG
 	}
 }
 
@@ -191,17 +191,14 @@ void	Server::welcomeMsg(User *user) {
 	sendToClient(user, welcome.str());
 }
 
-void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
+void	Server::knownClient(std::map<int, User*>::iterator it){
 
 	std::string	msg;
 
 	if (it != this->_clients.end()){
 
 		User *user = it->second;
-		if (readFromClient(user, &msg) < 0) {
-			close(*i);
-			FD_CLR(*i, &this->_baseFds);
-		}
+		readFromClient(user, &msg);
 	}
 }
 
@@ -215,28 +212,33 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
-		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket : "
-		<< this->_newSocket << " " << inet_ntoa(client_addr->sin_addr)
-		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
+		debugPrint(CYAN, "\n0========== CLIENT CONNECTED =========0\n"); //				DEBUG
+//		std::cout << CYAN << " > on socket : " << //									DEBUG
+//		this->_newSocket << " " << inet_ntoa(client_addr->sin_addr) << //				DEBUG
+//		":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl; //		DEBUG
 
 		User* user = new User(*client_addr);
+		user->setFD(this->_newSocket);
+
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		*it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
 
-int		Server::disconnectClient(User *user, char *buff) {
+void	Server::disconnectClient(User *user, char *buff) { //		takes super long to leave when called from client side
 	/*  1. clear buffer
 		2. delete client from container with std::map */
 	bzero(buff, BUFFSIZE);
-	std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
-	std::map<int, User*>::iterator it = this->_clients.find(user->getFD()); //			REDUNDANT USE OF FD
-	if (it != this->_clients.end())
-			delete it->second;
-	this->_clients.erase(user->getFD()); //											REDUNDANT USE OF FD
+	debugPrint(CYAN, "\n0======== CLIENT DISCONNECTED ========0\n\n"); //				DEBUG
+
+	std::map<int, User*>::iterator it = this->_clients.find(user->getFD());
+	close(user->getFD());
+	FD_CLR(user->getFD(), &this->_baseFds);
+	this->_clients.erase(user->getFD());
+	if (it != this->_clients.end()) //									why can't we also delete the last client ???
+		delete it->second;
 	std::cout << std::endl << std::endl;
-	return (-1);
 }
 
 void	Server::init() {
@@ -293,7 +295,7 @@ void	Server::start(void) {
 	FD_ZERO(&this->_baseFds);
 	FD_SET(this->_baseSocket, &this->_baseFds);
 
-	std::cout << GREEN << "\n\n0========== SERVER LAUNCHED ==========0" << DEFCOL << std::endl;
+	debugPrint(GREEN, "\n\n0========== SERVER LAUNCHED ==========0\n"); //					DEBUG
 	while (!shutServ)
 	{
 		this->_targetFds = this->_baseFds;
@@ -309,7 +311,7 @@ void	Server::start(void) {
 			if (i == this->_baseSocket)
 				this->newClient(&client_addr, &client_len, &it);
 			else
-				this->knownClient(it, &i);
+				this->knownClient(it);
 		}}}
 	}
 	it = this->_clients.begin();
