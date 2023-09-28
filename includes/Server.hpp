@@ -39,6 +39,8 @@ class Server
 //		Storage
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
+			struct sockaddr_in				_serverAddr;
+
 
 	public:
 //		Constructor - Destructor
@@ -53,10 +55,11 @@ class Server
 			int 	checkPassword(User* user, int fd, std::string buff);
 //		FT_ERROR
 			int		badPassword(User* user, int fd);
-//		FT_CORE
-			void	init(void);
+//		FT_SERVER
+			void	initServ(void);
 			void	start(void);
-//		FT_SOCKET
+			void	clearServ(void);
+//		FT_CLIENT
 			void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
 			void	knownClient(std::map<int, User*>::iterator it, int *i);
 			int		deleteClient(int fd, char *buff);

@@ -4,8 +4,8 @@
 # define CONSTR_COPY "0======== COPY-CONSTR(SERVER) ========0"
 # define CONSTR_ASSIGN "0======== ASSIGN-CONSTR(SERVER) ========0"
 # define DESTRUCT "0======== DESTRUCT-(SERVER) ========0"
-
 # define LAUNCH "\n0========== SERVER LAUNCHED ==========0"
+# define DISCONNECTED "\n0========= CONNECTION DENIED =========0"
 
 // 0================ BASE FUNCTIONS ================0
 
@@ -189,16 +189,16 @@ void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
 	}
 }
 
-void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it) {
-	/*
-	Variables : Pointer to an new Objet User
-	1. accept();	set the new socket, if accepted the new client is connected.
-	2. new User();	create new object user. At this point, no data as been received from Client except the connection. */
+
+void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it)
+{
+
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
 	if (this->_newSocket <= 0)
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
+
 		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket("
 		<< this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr)
 		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
@@ -210,93 +210,53 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 	}
 }
 
-int		Server::deleteClient(int fd, char *buff) {
-	/*  1. clear buffer
-		2. delete client from container with std::map */
-	bzero(buff, BUFFSIZE);
-	std::cout << std::endl << CYAN << "0======== CLIENT DISCONNECTED ========0" << DEFCOL << std::endl << std::endl;
+int		Server::deleteClient(int fd, char *buff)
+{
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
+
+	bzero(buff, BUFFSIZE);
 	if (it != this->_clients.end())
 			delete it->second;
+
 	this->_clients.erase(fd);
-	std::cout << std::endl << std::endl;
+	debugPrint(CYAN, DISCONNECTED);
 	return (-1);
 }
 
-void	Server::init() {
-	/*
-	Variables : Structure for server info. const int setted later bf edge case.
-	1. socket();		Init baseSocket
-	2. setsockopt();	Setting options with a reuse option bool target (to use if available)
-	3. prepare for bind call
-		bzero();		Cleaning servers adress and setting new data information.
-		3.1				AF_INET = bind call
-		3.2				htons	= conversion to network byte order (Ip adress)
-		3.3				INADDR_ANY = localhost
-	4. bind();			connect the server's port
-	5. listen();		sets up baseSocket to receive all connections
-	*/
-
-	struct sockaddr_in	server_addr;
-
-	this->_baseSocket = socket(AF_INET, SOCK_STREAM, 0);
+//	BASE SOCKET OF SERVER (ENTRY POINT)
+void	Server::initServ()
+{
+	//struct sockaddr_in	server_addr;
+//	Set BaseSocket (Entry point)
+	this->_baseSocket 	= socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_baseSocket < 0)
 		throw std::invalid_argument(" > Error at socket(): ");
 
+//	Set Options for BaseSocket
 	const int reuse = 1;
 	if (setsockopt(this->_baseSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0)
 		throw std::invalid_argument(" > Error at setsocketopt(): ");
 
-	bzero((char *) &server_addr, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(this->getPort());
-	server_addr.sin_addr.s_addr = INADDR_ANY;
+//	Set Server Adress
+	bzero(&this->_serverAddr, sizeof(this->_serverAddr));
+	this->_serverAddr.sin_family = AF_INET;					//	bind call
+	this->_serverAddr.sin_port = htons(this->getPort());	//	Ip Adress
+	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; 		//	localhost
 
-	if (bind(this->_baseSocket, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+//	Connect server's port
+	if (bind(this->_baseSocket, (struct sockaddr *) &this->_serverAddr, sizeof(this->_serverAddr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 
+//	Set to receive all conections
 	listen(this->_baseSocket, SOMAXCONN);
-}
-
-void	Server::start(void) {
-	/*
-	Variables : Structure for clients info, a buffer size for clients and a Container for User.
-	1. init();	Setup our server (binding and socket)
-	2. FD_();	Prepares fds for select
-	3. while();
-		3.1.	select(); Return qt of active sockets. Return error if (-1)
-		3.2.	FD_ISSET(); Target Fd is compared will all active sockets.
-				IF target = base socket = its a new client, otherwise it already in the system.
-	4. If Shutserv = close sockets. */
-
-	struct sockaddr_in	client_addr;
-	socklen_t 			client_len = sizeof(client_addr);
-	std::map<int, User*>::iterator it;
-
-	this->init();
 	FD_ZERO(&this->_baseFds);
 	FD_SET(this->_baseSocket, &this->_baseFds);
+}
 
-	debugPrint(GREEN, LAUNCH);
-	while (!shutServ)
-	{
-		this->_targetFds = this->_baseFds;
-		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
-		if (this->_socketCount == -1)
-		{
-			if (EINTR)
-				break ;
-			throw std::invalid_argument(" > Error at select(): ");
-		}
-		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
-		{
-			if (i == this->_baseSocket)
-				this->newClient(&client_addr, &client_len, &it);
-			else
-				this->knownClient(it, &i);
-		}}}
-	}
-	it = this->_clients.begin();
+//	SERVER EXIT POINT
+void	Server::clearServ(void)
+{
+	std::map<int, User*>::iterator	it = this->_clients.begin();
 	std::map<int, User*>::iterator ite = this->_clients.end();
 	while (it != ite)
 	{
@@ -306,4 +266,36 @@ void	Server::start(void) {
 	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
+}
+
+//	SERVER ENTRY POINT
+void	Server::start(void)
+{
+	std::map<int, User*>::iterator	it;
+	struct sockaddr_in				client_addr;
+	socklen_t 						client_len = sizeof(client_addr);
+
+	this->initServ();
+	debugPrint(GREEN, LAUNCH);
+	while (!shutServ)
+	{
+		this->_targetFds = this->_baseFds;
+		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
+		if (this->_socketCount == -1)
+		{
+//			If CTRL-C at select, it's not an error.
+			if (EINTR)
+				break ;
+			throw std::invalid_argument(" > Error at select(): ");
+		}
+		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
+		{
+//			A Valid FD have been Found.
+			if (i == this->_baseSocket)
+				this->newClient(&client_addr, &client_len, &it);
+			else
+				this->knownClient(it, &i);
+		}}}
+	}
+	clearServ();
 }
