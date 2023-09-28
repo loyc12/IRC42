@@ -22,13 +22,10 @@ class User //								ADD FD INSIDE USER
 		std::string _mode;
 		std::string _hostname;
 		sockaddr_in _client_addr; //when client is connected
-		User();
 
 	public:
 // 		Constructors & Destructor
 		User(sockaddr_in client_addr);
-		//User(const User &other);
-		//User &operator= (const User &other);
 		~User();
 
 // 		Getters - Setters
@@ -45,6 +42,8 @@ class User //								ADD FD INSIDE USER
 		void		setMode(std::string mode);
 		void		setHostname(std::string hostname);
 		void		parseUserInfo(std::string *args);
+
+		void 	debugPrint(std::string color, std::string message);
 
 };
 

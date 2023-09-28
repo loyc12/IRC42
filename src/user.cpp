@@ -1,39 +1,13 @@
 #include "IRC.hpp"
 
+# define CONSTR_PARAM "0======== PARAM-CONSTR(USER) ========0"
+# define DESTRUCT "0======== DESTRUCT-(USER) ========0"
+
 // 0================ BASE FUNCTIONS ================0
-//private
-User::User() { std::cout << YELLOW << ": Called default constructor (USER) " << DEFCOL; }
 
-// User::User(const User &other)
-// {
-// 	std::cout << YELLOW << ": Called copy constructor (USER) " << DEFCOL;
-// 	this->_name = other.getName();
-// 	this->_nick = other.getNick();
-// 	this->_client_addr = other.getClientAddr();
-// }
-
-// User &User::operator= (const User &other)
-// {
-// 	std::cout << YELLOW << ": Called assignment operator (USER) " << DEFCOL;
-
-// 	this->_name = other.getName();
-// 	this->_nick = other.getNick();
-// 	this->_client_addr = other.getClientAddr();
-
-// 	return *this;
-// }
-
-// std::ostream &operator<< (std::ostream &out, const User &rhs)
-// {
-// 	out << "IRC User [ name : " << rhs.getName() << " | nick : " << rhs.getNick() << " ]";
-// 	return (out);
-// }
-
-//new Client
-User::User(sockaddr_in client_addr) : _client_addr(client_addr) {
-	std::cout << YELLOW << ": Called constructor (USER) " << DEFCOL; }
-// Delete Client
-User::~User(){ std::cout << YELLOW << ": Called destructor (USER) " << DEFCOL;}
+void	User::debugPrint(std::string color, std::string message)		{ std::cout << color << message << DEFCOL;}
+User::User(sockaddr_in client_addr) : _client_addr(client_addr) 		{ debugPrint(YELLOW, CONSTR_PARAM); }
+User::~User()															{ debugPrint(YELLOW, DESTRUCT); }
 
 
 // 0================ GETTERS / SETTERS ================0

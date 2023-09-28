@@ -38,14 +38,9 @@ class Server
 		std::string	_nameServer;
 		std::map<int, User*> _clients; //container to store all our clients info
 		std::map<std::string, Channel*> _chanContainer; //have all the channels that exist on our server
-		// Private Constructor
-		Server();
 
 	public:
-		// Constructors & Destructor
 		Server(int port);
-		Server(const Server &other);
-		Server &operator= (const Server &other);
 		~Server();
 
 		// Getters - Setters

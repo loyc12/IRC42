@@ -9,11 +9,7 @@
 // 0================ BASE FUNCTIONS ================0
 
 void	Server::debugPrint(std::string color, std::string message)		{std::cout << color << message << DEFCOL;}
-
-Server::Server() : _port(6667), _password("1234"), _baseSocket(0), _newSocket(0), _nameServer("ircserv")	{debugPrint(YELLOW, CONSTR_PRIVATE); }
 Server::Server(int port) : _port(port), _password("1234") 		{debugPrint(YELLOW, CONSTR_PARAM); }
-Server::Server(const Server &other) : _port(other.getPort()) 	{debugPrint(YELLOW, CONSTR_COPY); }
-Server &Server::operator= (const Server &other) 				{debugPrint(YELLOW, CONSTR_ASSIGN); this->_port = other.getPort(); return *this ; }
 Server::~Server() 												{debugPrint(YELLOW, DESTRUCT); }
 
 const int & Server::getPort(void) const					{ return (this->_port);}
@@ -202,8 +198,8 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, s
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
-		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket : "
-		<< this->_newSocket << " " << inet_ntoa(client_addr->sin_addr)
+		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket("
+		<< this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr)
 		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
 
 		User* user = new User(*client_addr);
