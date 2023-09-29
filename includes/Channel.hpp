@@ -1,17 +1,10 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-# include <iostream>
-# include <stdlib.h>
-# include <fcntl.h>
-# include <string>
-# include <sys/socket.h>
-# include <vector> //container of users found in a channel
-
 # include "IRC.hpp"
 
-class Server;
-class User;
+# define CONSTR_CHAN	"0======= PARAM-CONSTR(CHANNEL) =======0"
+# define DEST_CHAN		"0======== DESTRUCT-(CHANNEL) =========0"
 
 class Channel {
 	private:

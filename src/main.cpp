@@ -1,27 +1,14 @@
 #include "IRC.hpp"
 
-#define PASSWORD " > Error main(): Invalid password"
-#define PORT " > Error main(): Invalid port"
-#define TCP " > Error main(): Not a TCP port for IRC"
-#define ARG " > Error main(): Not a port"
-#define COUNT " > Error main(): Invalid argument count."
-
-//add them in Server.hpp
-static int newSocket = 0;
-static int baseSocket = 0;
-
-/**
- * Function to switch our global bool (flag) to stop the infinite loop
- * The infinite loop to keep our IRC server running
- * @param sig
- */
-static void	stop(int sig)
+//	CTRL_C HANDLING
+static void	stop(int signal)
 {
-	(void)sig;
+	(void)signal;
 	shutServ = true;
-	debugPrint(MAGENTA, "\n\n > Closing and cleaning ...\n");
+	debugPrint(MAGENTA, "\n\n > Closing and cleaning ...\n"); //			DEBUG
 }
 
+//	COMMAND LINE DATA VERIFICATION
 int parseArg(int ac, char **av)
 {
     int 		port;
@@ -43,6 +30,7 @@ int parseArg(int ac, char **av)
     return (port);
 }
 
+//	PROGRAM ENTRY POINT
 int main(int ac, char **av)
 {
 	signal(SIGQUIT, SIG_IGN);
@@ -50,25 +38,24 @@ int main(int ac, char **av)
 
 	int 		 port;
 	std::string  password;
-	std::cout << DEFCOL;
 
-	try {
-        port = parseArg(ac, av);
-        password = av[2];
-
+	try
+	{
+		std::cout << DEFCOL;
+        port 		= parseArg(ac, av);
+		password 	= av[2];
 //		Create object server
 		Server server(port);
 		if (password.compare(server.getPass()) != 0)
 			throw std::invalid_argument(PASSWORD);
+
 		server.start();
 	}
-	catch (std::exception &e) {
-
-		std::cerr << std::endl << std::endl << RED << e.what() << "\n" << DEFCOL;
+	catch (std::exception &e) //	DEBUG
+	{
+		std::cerr << "\n\n" << RED << e.what() << "\n" << DEFCOL;
 		if (errno)
 			std::cout << RED << std::strerror(errno) << DEFCOL << std::endl;
-		close (baseSocket);
-		close (newSocket);
 		exit(EXIT_FAILURE);
 	}
 	exit(EXIT_SUCCESS);

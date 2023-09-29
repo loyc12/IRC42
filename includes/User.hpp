@@ -1,14 +1,12 @@
 #ifndef USER_HPP
 # define USER_HPP
 
-
-# include <iostream>
-# include <stdlib.h>		// for which functions ??
-# include <fcntl.h> // for file descriptors (?)
-# include <sys/socket.h>
-# include <netinet/in.h>
-
 # include "IRC.hpp"
+
+# define CONSTR_USER	"0========= PARAM-CONSTR(USER) ========0"
+# define DEST_USER		"0========== DESTRUCT-(USER) ==========0"
+
+//class Message;
 
 class User //								ADD FD INSIDE USER
 {
@@ -21,13 +19,10 @@ class User //								ADD FD INSIDE USER
 		std::string _mode;
 		std::string _hostname;
 		sockaddr_in _client_addr; //when client is connected
-		User();
 
 	public:
 // 		Constructors & Destructor
 		User(sockaddr_in client_addr);
-		//User(const User &other);
-		//User &operator= (const User &other);
 		~User();
 
 // 		Getters - Setters
@@ -46,7 +41,6 @@ class User //								ADD FD INSIDE USER
 		void		setMode(std::string mode);
 		void		setHostname(std::string hostname);
 		void		parseUserInfo(std::string *args);
-
 };
 
 
