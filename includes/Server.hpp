@@ -33,6 +33,7 @@ class Server
 //		Flag
 			bool		_welcomeFlag;
 			bool		_isSet;
+			bool		_isMsg;
 //		Storage
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;

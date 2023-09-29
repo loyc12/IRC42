@@ -43,9 +43,8 @@ int	Server::checkPassword(User* user, int fd, std::string pass)
 
 int	Server::badPassword(User* user, int fd)
 {
-	std::cout << std::endl << RED << DENIED << DEFCOL;
-	std::string errMsg = "Incorrect password";
-	sendToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+	debugPrint(RED, "0========= CONNECTION DENIED =========0");
+	sendToClient(user, fd, ERR_NOSUCHCHANNEL, "Incorrect password");
 	return (-1);
 }
 
@@ -71,14 +70,14 @@ void	Server::sendToClient(User* user, int fd, std::string code, std::string inpu
 	std::ostringstream 	message;
 	std::string 		result;
 
-	message << ":irc.example.com " << code << " " << user->getNick() << " :" << input << "\r\n";
+	message << ":irc.example.com " << code << " " << user->getNick() << " :" << input << "\r\n"; //	To change irc.example
 
 	result = message.str();
 	debugPrint(GREEN, result);
 	if (send(fd, result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at sendToClient() ");
 
-	debugPrint(GREEN, "Code sended to Client\n");
+	debugPrint(MAGENTA, "Code sended to Client\n");
 }
 
 int	Server::command(std::string	*args)
@@ -117,15 +116,15 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 			case 0:
 				if (this->checkPassword(user, fd, args[1]) < 0)
 					return (deleteClient(fd, buff));
-				std::cout << "\nSTEP 1\n" << std::endl;
+				std::cout << "\nSTEP 1" << std::endl;	// DEBUG
 				break;
 			case 1:
 				this->storeNickname(user, fd, args);
-				std::cout << "\nSTEP 2\n" << std::endl;
+				std::cout << "\nSTEP 2" << std::endl;	// DEBUG
 				break;
 			case 2:
 				user->parseUserInfo(args);
-				std::cout << user->getUsername() << " " << user->getMode() << std::endl;
+				std::cout << "\nSTEP 3" << std::endl;	// DEBUG
 				break;
 			case 3:
 				this->manageJoinCmd(args, user, fd);
@@ -145,10 +144,13 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 				std::cout << "do stuff to mode" << std::endl;
 				break;
 			default:
-				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+				this->_isMsg = 1;
 		}
 		message->assign(buff, 0, byteReceived);
-		std::cout << *message;
+		if (this->_isMsg == 1)
+			sendToClient(user, fd, "302", *message);
+		this->_isMsg = 0;
+		debugPrint(GREEN, *message);
 
 //		will need send according to what was done as a command (above)
 		//ret = send(fd, message, message->length(), 0);
@@ -311,8 +313,6 @@ void	Server::start(void)
 					else
 						this->knownClient(&clientFd);
 				}
-				// else
-				// 	throw std::invalid_argument(" > Error at start(), FD_ISSET()");
 			}
 		}
 	}
