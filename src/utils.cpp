@@ -1,4 +1,6 @@
-#include "Utils.hpp"
+#include "IRC.hpp"
+
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL;}
 
 std::string	*splitStringPrivate(const char *str, const char *chrs)
 {

@@ -1,6 +1,5 @@
 #include "IRC.hpp"
 
-void	Server::debugPrint(std::string color, std::string message) {std::cout << color << message << DEFCOL;}
 Server::Server(int port) : _port(port), _password("1234") 			{debugPrint(YELLOW, CONSTR_SERV); }
 Server::~Server() 													{debugPrint(YELLOW, DEST_SERV); }
 const int & Server::getPort(void) const								{ return (this->_port);}
@@ -32,8 +31,6 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
-
-
 void	Server::sendToClient(User *user, int fd, std::string msg)
 {
 	(void)user;
@@ -42,7 +39,7 @@ void	Server::sendToClient(User *user, int fd, std::string msg)
 		throw std::invalid_argument(" > Error at sendToClient() ");
 }
 
-void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
+void	Server::respondToClient(User* user, int fd, std::string code, std::string message)
 {
 	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
 	sendToClient(user, fd, response);
@@ -64,7 +61,7 @@ int	Server::badPassword(User* user, int fd)
 {
 	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 	std::string errMsg = "Incorrect password";
-	responseToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+	respondToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
 	return (-1);
 }
 
@@ -174,7 +171,7 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 }
 
 
-// FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+// FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	DEBUG PRINT
 void	Server::printClient(struct sockaddr_in *client_addr)
@@ -201,7 +198,7 @@ void	Server::knownClient(int *clientFd)
 		}
 	}
 }
-x
+
 //	DELETE TARGET CLIENT EXIT POINT
 int Server::deleteClient(int fd, char *buff)
 {
@@ -239,7 +236,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 	}
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	BASE SOCKET OF SERVER (ENTRY POINT)
 void	Server::initServ()

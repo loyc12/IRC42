@@ -1,18 +1,10 @@
 #ifndef USER_HPP
 # define USER_HPP
 
+# include "IRC.hpp"
 
-# include <iostream>
-# include <stdlib.h>		// for which functions ??
-# include <fcntl.h> // for file descriptors (?)
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include "Message.hpp"
-
-# define CONSTR_PARAM 	"0======== PARAM-CONSTR(USER) ========0"
-# define DESTRUCT 		"\n0======== DESTRUCT-(USER) ========0"
-# define LAUNCH 		"\n0========== SERVER LAUNCHED ==========0"
-# define DISCONNECTED 	"\n0========= CONNECTION DENIED =========0"
+# define CONSTR_USER 	"0======== PARAM-CONSTR(USER) ========0"
+# define DEST_USER 		"\n0======== DESTRUCT-(USER) ========0"
 
 class Message;
 
@@ -20,7 +12,7 @@ class User //								ADD FD INSIDE USER
 {
 	private:
 // 		Data
-//		int			fd;
+//		int			_fd;
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;

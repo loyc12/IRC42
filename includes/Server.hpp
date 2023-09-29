@@ -1,31 +1,20 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "User.hpp"
-# include "Message.hpp"
-# include "Channel.hpp"
-# include "Utils.hpp"
-# include <map>
+# include "IRC.hpp"
 
-# define CONSTR_SERV "0========= PARAM-CONSTR(SERVER) ======0"
-# define DEST_SERV "0======== DESTRUCT-(SERVER) ========0"
-
-# define LAUNCH "\n0========== SERVER LAUNCHED ==========0"
-# define DISCONNECTED "\n0========= CONNECTION DENIED =========0"
+# define CONSTR_SERV 		"0========= PARAM-CONSTR(SERVER) ======0"
+# define DEST_SERV 			"0======== DESTRUCT-(SERVER) ========0"
+# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0"
+# define DISCONNECTED 		"\n0========= CONNECTION DENIED =========0"
 
 //ENTRY CODE
-# define RPL_WELCOME " 001"
-
+# define RPL_WELCOME		" 001"
 //CHANNEL CODE
-# define ERR_NOSUCHCHANNEL "403" //chan does not exist
-
-# define RPL_NOTOPIC "331" //no topic set for chan
-# define RPL_TOPIC "332" //topic of the chan
-# define RPL_NAMREPLY "353" //list of nicknames in channel
-
-class User;
-class Channel;
-class Message;
+# define ERR_NOSUCHCHANNEL	"403" //chan does not exist
+# define RPL_NOTOPIC		"331" //no topic set for chan
+# define RPL_TOPIC			"332" //topic of the chan
+# define RPL_NAMREPLY		"353" //list of nicknames in channel
 
 class Server
 {
@@ -68,22 +57,20 @@ class Server
 			void	start(void);
 			void	clearServ(void);
 //		FT_CLIENT
-		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len);
-		void	knownClient(int *clientFd);
-		int		deleteClient(int fd, char *buff);
-		void	printClient(struct sockaddr_in *client_addr);
+			void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len);
+			void	knownClient(int *clientFd);
+			int		deleteClient(int fd, char *buff);
+			void	printClient(struct sockaddr_in *client_addr);
 //		FT_I/O
 			int		command(std::string	*args);
 			int		readFromClient(User *user, int fd, std::string *message);
 			void	sendToClient(User *user, int fd, std::string message);
-			void 	responseToClient(User* user, int fd, std::string code, std::string message);
+			void 	respondToClient(User* user, int fd, std::string code, std::string message);
 //		FT_STORAGE
 			void	storeNickname(User *user, int fd, std::string *args);
 //		UTIL
-		void	manageJoinCmd(std::string *args, User *user, int fd);
-		void	welcomeMsg(User *user, int fd);
-		void 	debugPrint(std::string color, std::string message);
-
+			void	manageJoinCmd(std::string *args, User *user, int fd);
+			void	welcomeMsg(User *user, int fd);
 
 };
 

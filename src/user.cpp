@@ -1,8 +1,8 @@
 #include "IRC.hpp"
 
 void	User::debugPrint(std::string color, std::string message){ std::cout << color << message << DEFCOL;}
-User::User(sockaddr_in client_addr) : _client_addr(client_addr) { debugPrint(YELLOW, CONSTR_PARAM); }
-User::~User()													{ debugPrint(YELLOW, DESTRUCT); }
+User::User(sockaddr_in client_addr) : _client_addr(client_addr) { debugPrint(YELLOW, CONSTR_USER); }
+User::~User()													{ debugPrint(YELLOW, DEST_USER); }
 
 std::string	User::getName(void) const 							{ return (this->_name);}
 std::string	User::getNick(void) const 							{ return (this->_nick);}
