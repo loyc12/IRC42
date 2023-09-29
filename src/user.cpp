@@ -24,6 +24,7 @@ sockaddr_in	User::getClientAddr(void) const 					{ return (this->_client_addr); 
 
 void	User::parseUserInfo(std::string *args)
 {
+	std::cout << "here\n" << std::endl;
 	this->setUsername(args[1]);
 	this->setMode(args[2]);
 	this->setHostname(inet_ntoa(this->_client_addr.sin_addr));

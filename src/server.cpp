@@ -32,24 +32,6 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
-
-
-void	Server::sendToClient(User *user, int fd, std::string msg)
-{
-	(void)user;
-	std::cout << "MSG SEND TO CL:\t" << msg << std::endl;
-	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
-}
-
-void	Server::responseToClient(User* user, int fd, std::string code, std::string message)
-{
-	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
-	sendToClient(user, fd, response);
-	std::cout << "Code sended to Client" << std::endl;
-	close(fd);
-}
-
 int	Server::checkPassword(User* user, int fd, std::string pass)
 {
 	if (pass.compare(this->getPass()) != 0)
@@ -64,30 +46,41 @@ int	Server::badPassword(User* user, int fd)
 {
 	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
 	std::string errMsg = "Incorrect password";
-	responseToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+	sendToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
 	return (-1);
 }
 
 void	Server::storeNickname(User *user, int fd, std::string *args) {
 
 	user->setNick(args[1]);
-	std::cout << "nickname: " << user->getNick() << std::endl;
-	if (this->_welcomeFlag == 1 && this->_isSet == 0){
+	if (this->_welcomeFlag == 1 && this->_isSet == 0)
+	{
 		this->welcomeMsg(user, fd);
 		this->_isSet = 1;
-		std::cout << "Pass && nickname done" << std::endl;
 	}
 }
 
 void	Server::welcomeMsg(User *user, int fd)
 {
-
-	std::ostringstream welcome;
-	welcome << ":" << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
-
-	sendToClient(user, fd, welcome.str());
+	sendToClient(user, fd, RPL_WELCOME, "Welcome to this IRC server");
 }
+
 // FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void	Server::sendToClient(User* user, int fd, std::string code, std::string input)
+{
+	std::ostringstream 	message;
+	std::string 		result;
+
+	message << ":irc.example.com " << code << " " << user->getNick() << " :" << input << "\r\n";
+
+	result = message.str();
+	debugPrint(GREEN, result);
+	if (send(fd, result.c_str(), result.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToClient() ");
+
+	debugPrint(GREEN, "Code sended to Client\n");
+}
 
 int	Server::command(std::string	*args)
 {
@@ -106,7 +99,6 @@ int	Server::command(std::string	*args)
 
 int	Server::readFromClient(User *user, int fd, std::string *message)
 {
-
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
@@ -126,14 +118,15 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 			case 0:
 				if (this->checkPassword(user, fd, args[1]) < 0)
 					return (deleteClient(fd, buff));
-				std::cout << "HERE\n" << std::endl;
+				std::cout << "\nSTEP 1\n" << std::endl;
 				break;
 			case 1:
 				this->storeNickname(user, fd, args);
+				std::cout << "\nSTEP 2\n" << std::endl;
 				break;
 			case 2:
 				user->parseUserInfo(args);
-				//std::cout << user->getUsername() << " " << user->getMode() << std::endl;
+				std::cout << user->getUsername() << " " << user->getMode() << std::endl;
 				break;
 			case 3:
 				this->manageJoinCmd(args, user, fd);
@@ -173,7 +166,6 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 	return (0);
 }
 
-
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 //	DEBUG PRINT
@@ -201,7 +193,7 @@ void	Server::knownClient(int *clientFd)
 		}
 	}
 }
-x
+
 //	DELETE TARGET CLIENT EXIT POINT
 int Server::deleteClient(int fd, char *buff)
 {
