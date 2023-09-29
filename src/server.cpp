@@ -11,86 +11,7 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 	return (out);
 }
 
-// 0================ OTHER FUNCTIONS ================0
 
-/*
-void	Server::manageJoinCmd(std::string *args, User *user, int fd){
-	//first check if the chan already exists on server
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (it != this->_chanContainer.end()){ //channel exists
-		std::cout << "just join channel" << std::endl;
-		//ft to check if there is a password
-		it->second->joinChan(user, fd);
-	}
-	else { //channel does not exist
-		std::cout << "add new channel to container" << std::endl;
-		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
-		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-		newChannel->setNameChan(args[1]);
-		newChannel->setAdmin(user->getNick());
-		newChannel->joinChan(user, fd);
-	}
-}
-*/
-
-void	Server::sendToClient(User *user, int fd, std::string msg)
-{
-	(void)user;
-
-	std::ostringstream debug; //									DEBUG
-	debug << "OUTGOING MSG TO   : (" << fd << ")\t|" << msg; //		DEBUG
-	debugPrint(GREEN, debug.str()); //								DEBUG
-
-	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
-}
-
-void	Server::respondToClient(User* user, int fd, std::string code, std::string message)
-{
-	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
-	sendToClient(user, fd, response);
-	std::cout << "Code sended to Client" << std::endl;
-	close(fd);
-}
-/*
-int	Server::checkPassword(User* user, int fd, std::string pass)
-{
-	if (pass.compare(this->getPass()) != 0)
-		return (badPassword(user, fd));
-	else
-		this->_welcomeFlag = 1;
-
-	return (0);
-}
-
-int	Server::badPassword(User* user, int fd)
-{
-	std::cout << std::endl << RED << DENIED << DEFCOL;
-	std::string errMsg = "Incorrect password";
-	respondToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
-	return (-1);
-}
-
-void	Server::storeNickname(User *user, int fd, std::string *args) {
-
-	user->setNick(args[1]);
-	std::cout << "nickname: " << user->getNick() << std::endl;
-	if (this->_welcomeFlag == 1 && this->_isSet == 0){
-		this->welcomeMsg(user, fd);
-		this->_isSet = 1;
-		std::cout << "Pass && nickname done" << std::endl;
-	}
-}
-*/
-
-void	Server::welcomeMsg(User *user, int fd)
-{
-
-	std::ostringstream welcome;
-	welcome << ":" << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
-
-	sendToClient(user, fd, welcome.str());
-}
 //	FT_CMD - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND
@@ -144,7 +65,7 @@ int	Server::storeNickname(User *user, int fd, std::string *args)
 	if (this->_welcomeFlag == 1 && this->_isSet == 0){
 		this->welcomeMsg(user, fd);
 		this->_isSet = 1;
-//		std::cout << "Nickname stored ( " << args[1] <<" )" << std::endl; //					DEBUG
+//		std::cout << "Nickname stored ( " << args[1] <<" )" << std::endl; //				DEBUG
 	}
 
 	return (0);
@@ -156,7 +77,7 @@ int	Server::storeUserInfo(User *user, int fd, std::string *args)
 
 	return (0);
 }
-int	Server::joinChannel(User *user, int fd, std::string *args) //		TODO : rework me?
+int	Server::joinChannel(User *user, int fd, std::string *args) //							TODO : rework me?
 {
 	//first check if the chan already exists on server
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -166,8 +87,8 @@ int	Server::joinChannel(User *user, int fd, std::string *args) //		TODO : rework
 		it->second->joinChan(user, fd);
 	}
 	else { //channel does not exist
-		std::cout << "add new channel to container" << std::endl; //							DEBUG
-		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
+		std::cout << "add new channel to container" << std::endl; //								DEBUG
+		Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 		newChannel->setNameChan(args[1]);
 		newChannel->setAdmin(user->getNick());
@@ -231,45 +152,93 @@ int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : impl
 
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+void	Server::sendToClient(User *user, int fd, std::string msg) //	TODO : make a sendToChannel that loops on all channel's clients
+{
+	(void)user;
+
+	std::ostringstream debug; //										DEBUG
+	debug << "OUTGOING MSG TO   : (" << fd << ")\t| " << msg; //		DEBUG
+	debugPrint(GREEN, debug.str()); //									DEBUG
+
+	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToClient() ");
+}
+
+void	Server::respondToClient(User* user, int fd, std::string code, std::string input)	// 		NOTE : alternate version of sendToClient() that uses codes
+{
+	std::ostringstream 	message;
+	std::string 		result;
+
+	message << ":irc.example.com " << code << " " << user->getNick() << " :" << input << "\r\n";
+	result = message.str();
+
+	std::ostringstream debug; //										DEBUG
+	debug << "OUTGOING C_MSG TO : (" << fd << ")\t| " << result; //		DEBUG
+	debugPrint(GREEN, debug.str()); //									DEBUG
+
+	if (send(fd, result.c_str(), result.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at respondToClient() ");
+
+//	debugPrint(MAGENTA, "Code sent to Client\n");
+}
+/*
+void	Server::respondToClient(User* user, int fd, std::string code, std::string message) //	NOTE : obsolete now ???
+{
+	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
+	sendToClient(user, fd, response);
+
+//	std::cout << "Code sent to Client" << std::endl;
+
+	close(fd);
+}
+*/
+
+void	Server::welcomeMsg(User *user, int fd)
+{
+	respondToClient(user, fd, RPL_WELCOME, "Welcome to this IRC server");
+}
 
 int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 {
-
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
-//	Check byte have been reveived = if error, delete client.			WARNING : do we really want that ?
+//	Check byte have been reveived = if error, delete client.				WARNING : do we really want that ?
 	if (byteReceived <= 0)
 		return (deleteClient(fd, buff));
 	else if (byteReceived)
 	{
 		std::string	*args = splitString(buff, " \r\n");
 
+//		if is not a command : manage the message (temp)
 		if (execCommand(user, fd, args) == 1)
 		{
 			last_msg->assign(buff, 0, byteReceived);
 
-			std::ostringstream debug; //										DEBUG
-			debug << "INCOMING MSG FROM : (" << fd << ")\t|" << *last_msg; //	DEBUG
-			debugPrint(GREEN, debug.str()); //									DEBUG
+			std::ostringstream debug; //											DEBUG
+			debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+			debugPrint(GREEN, debug.str()); //										DEBUG
+
+			respondToClient(user, fd, "302", *last_msg);
 		}
 
-/*		switch (getCmdID(args[0]))
+/*		switch (getCmdID(args[0])) //										NOTE : obsolete
 		{
 //			Client is deleted if wrong password.
 			case 0:
 				if (this->checkPassword(user, fd, args[1]) < 0)
 					return (deleteClient(fd, buff));
-				std::cout << "HERE\n" << std::endl;
+				std::cout << "\nSTEP 1" << std::endl; //					DEBUG
 				break;
 			case 1:
 				this->storeNickname(user, fd, args);
+				std::cout << "\nSTEP 2" << std::endl; //					DEBUG
 				break;
 			case 2:
-				user->setUserInfo(args);
-				//std::cout << user->getUsername() << " " << user->getMode() << std::endl;
+				user->parseUserInfo(args);
+				std::cout << "\nSTEP 3" << std::endl; //					DEBUG
 				break;
 			case 3:
 				this->manageJoinCmd(args, user, fd);
@@ -289,25 +258,18 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 				std::cout << "do stuff to mode" << std::endl;
 				break;
 			default:
-				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
-		}	*/
-
-//		will need send according to what was done as a command (above)
-		//ret = send(fd, message, message->length(), 0);
-		// if (ret == 0)
-		// {
-		// 	std::cout << "HERE" << std::endl;
-		// }
-		// else if (ret < 0)
-		// {
-		// 	std::cout << "ERROR" << std::endl;
-		// }
-
+				this->_isMsg = 1;
+		}
+		message->assign(buff, 0, byteReceived);
+		if (this->_isMsg == 1)
+			sendToClient(user, fd, "302", *message);
+		this->_isMsg = 0;
+		debugPrint(GREEN, *message);
+*/
 		bzero(buff, BUFFSIZE);
 	}
 	return (0);
 }
-
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -374,7 +336,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 	}
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//	FT_SERVER - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	BASE SOCKET OF SERVER (ENTRY POINT)
 void	Server::initServ()
@@ -455,8 +417,6 @@ void	Server::start(void)
 					else
 						this->knownClient(&clientFd);
 				}
-				// else
-				// 	throw std::invalid_argument(" > Error at start(), FD_ISSET()");
 			}
 		}
 	}

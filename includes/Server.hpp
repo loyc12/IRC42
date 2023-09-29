@@ -33,6 +33,7 @@ class Server
 //		Flag
 			bool		_welcomeFlag;
 			bool		_isSet;
+//			bool		_isMsg;
 //		Storage
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
@@ -50,10 +51,7 @@ class Server
 			const int 			& getPort(void) const;
 			const std::string 	& getPass(void) const;
 
-//		FT_VERIF
-			int 	checkPassword(User* user, int fd, std::string buff);
-//		FT_ERROR
-			int		badPassword(User* user, int fd);
+
 //		FT_SERVER
 			void	initServ(void);
 			void	start(void);
@@ -76,11 +74,10 @@ class Server
 			int		setUserMode(User *user, int fd, std::string *args);
 			int		processMessage(User *user, int fd, std::string *args);
 //		FT_I/O
-			int		readFromClient(User *user, int fd, std::string *last_msg);
 			void	sendToClient(User *user, int fd, std::string message);
-			void 	respondToClient(User* user, int fd, std::string code, std::string message);
-//		UTIL
+			void	respondToClient(User* user, int fd, std::string code, std::string input);
 			void	welcomeMsg(User *user, int fd);
+			int		readFromClient(User *user, int fd, std::string *last_msg);
 
 };
 
