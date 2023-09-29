@@ -1,20 +1,10 @@
 #include "IRC.hpp"
 
-# define CONSTR_PARAM "0========= PARAM-CONSTR(SERVER) ======0"
-# define CONSTR_COPY "0======== COPY-CONSTR(SERVER) ========0"
-# define CONSTR_ASSIGN "0======== ASSIGN-CONSTR(SERVER) ========0"
-# define DESTRUCT "0======== DESTRUCT-(SERVER) ========0"
-# define LAUNCH "\n0========== SERVER LAUNCHED ==========0"
-# define DISCONNECTED "\n0========= CONNECTION DENIED =========0"
-
-// 0================ BASE FUNCTIONS ================0
-
-void	Server::debugPrint(std::string color, std::string message)		{std::cout << color << message << DEFCOL;}
-Server::Server(int port) : _port(port), _password("1234") 				{debugPrint(YELLOW, CONSTR_PARAM); }
-Server::~Server() 														{debugPrint(YELLOW, DESTRUCT); }
-
-const int & Server::getPort(void) const					{ return (this->_port);}
-const std::string & Server::getPass(void) const			{ return (this->_password);}
+void	Server::debugPrint(std::string color, std::string message) {std::cout << color << message << DEFCOL;}
+Server::Server(int port) : _port(port), _password("1234") 			{debugPrint(YELLOW, CONSTR_SERV); }
+Server::~Server() 													{debugPrint(YELLOW, DEST_SERV); }
+const int & Server::getPort(void) const								{ return (this->_port);}
+const std::string & Server::getPass(void) const						{ return (this->_password);}
 
 std::ostream &operator<< (std::ostream &out, const Server &rhs)
 {
@@ -70,7 +60,9 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 				break;
 			index++;
 		}
-		switch (index) {
+		switch (index)
+		{
+//			Client is deleted if wrong password.
 			case 0:
 				if (this->checkPassword(user, fd, args[1]) < 0)
 					return (deleteClient(fd, buff));
@@ -136,8 +128,6 @@ void	Server::responseToClient(User* user, int fd, std::string code, std::string 
 	close(fd);
 }
 
-
-
 int	Server::checkPassword(User* user, int fd, std::string pass)
 {
 	if (pass.compare(this->getPass()) != 0)
@@ -175,58 +165,76 @@ void	Server::welcomeMsg(User *user, int fd) {
 	sendToClient(user, fd, welcome.str());
 }
 
-void	Server::knownClient(std::map<int, User*>::iterator it, int *i){
+// FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
+//	DEBUG PRINT
+void	Server::printClient(struct sockaddr_in *client_addr)
+{
+		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" <<
+		" > on socket(" << this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
+		":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
+}
+
+//	ENTRY POINT TO DISPATCH MESSAGE
+void	Server::knownClient(int *clientFd)
+{
 	std::string	msg;
-
-	if (it != this->_clients.end()){
-
-		User* userPtr = it->second;
-		if (readFromClient(userPtr, *i, &msg) < 0) {
-			close(*i);
-			FD_CLR(*i, &this->_baseFds);
+//	Find target client
+	if (this->_it != this->_clients.end())
+	{
+//		This will need explanation from Val
+		User* userPtr = this->_it->second;
+		if (readFromClient(userPtr, *clientFd, &msg) < 0)
+		{
+//			Close the client Fd and clear it in baseFds
+			close(*clientFd);
+			FD_CLR(*clientFd, &this->_baseFds);
 		}
 	}
 }
 
-
-void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it)
+//	DELETE TARGET CLIENT EXIT POINT
+int Server::deleteClient(int fd, char *buff)
 {
+//	Set iterator to the client's Fd
+	this->_it = this->_clients.find(fd);
 
-	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *) &*client_addr, &*client_len);
+//	Iterate to delete all data from client's struct
+	bzero(buff, BUFFSIZE);
+	if (this->_it != this->_clients.end())
+			delete this->_it->second;
+
+//	Clear the fd from this client
+	this->_clients.erase(fd);
+	debugPrint(CYAN, DISCONNECTED);
+
+//	-1 will trigger to close and clear fd from base socket in known client
+	return (-1);
+}
+
+// NEW CLIENT ENTRY POINT
+void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
+{
+//	Generate new socket connection to add to baseSocket
+	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *)&*client_addr, &*client_len);
 	if (this->_newSocket <= 0)
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
-
-		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" << " > on socket("
-		<< this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr)
-		<< ":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
-
+//		Create a new container user for this new Socket, insert User container inside Server's data
+		printClient(client_addr);
 		User* user = new User(*client_addr);
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
-		*it = this->_clients.find(this->_newSocket);
+		this->_it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
 
-int		Server::deleteClient(int fd, char *buff)
-{
-	std::map<int, User*>::iterator it = this->_clients.find(fd);
-
-	bzero(buff, BUFFSIZE);
-	if (it != this->_clients.end())
-			delete it->second;
-
-	this->_clients.erase(fd);
-	debugPrint(CYAN, DISCONNECTED);
-	return (-1);
-}
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 //	BASE SOCKET OF SERVER (ENTRY POINT)
 void	Server::initServ()
 {
-	//struct sockaddr_in	server_addr;
 //	Set BaseSocket (Entry point)
 	this->_baseSocket 	= socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_baseSocket < 0)
@@ -256,12 +264,13 @@ void	Server::initServ()
 //	SERVER EXIT POINT
 void	Server::clearServ(void)
 {
-	std::map<int, User*>::iterator	it = this->_clients.begin();
+	this->_it = this->_clients.begin();
 	std::map<int, User*>::iterator ite = this->_clients.end();
-	while (it != ite)
+
+	while (this->_it != ite)
 	{
-		delete it->second;
-		it++;
+		delete this->_it->second;
+		this->_it++;
 	}
 	this->_clients.clear();
 	close(this->_baseSocket);
@@ -271,7 +280,6 @@ void	Server::clearServ(void)
 //	SERVER ENTRY POINT
 void	Server::start(void)
 {
-	std::map<int, User*>::iterator	it;
 	struct sockaddr_in				client_addr;
 	socklen_t 						client_len = sizeof(client_addr);
 
@@ -286,16 +294,27 @@ void	Server::start(void)
 //			If CTRL-C at select, it's not an error.
 			if (EINTR)
 				break ;
+
 			throw std::invalid_argument(" > Error at select(): ");
 		}
-		else if (this->_socketCount) { for (int i = 0; i < FD_SETSIZE; ++i) { if (FD_ISSET(i, &this->_targetFds))
+		else if (this->_socketCount)
 		{
-//			A Valid FD have been Found.
-			if (i == this->_baseSocket)
-				this->newClient(&client_addr, &client_len, &it);
-			else
-				this->knownClient(it, &i);
-		}}}
+//			If socket is connected
+			for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
+			{
+//				Check if the bit in the Fd is setted.
+				if (FD_ISSET(clientFd, &this->_targetFds))
+				{
+//					A Valid FD have been Found.
+					if (clientFd == this->_baseSocket)
+						this->newClient(&client_addr, &client_len);
+					else
+						this->knownClient(&clientFd);
+				}
+				else
+					throw std::invalid_argument(" > Error at start(), FD_ISSET()");
+			}
+		}
 	}
 	clearServ();
 }

@@ -7,6 +7,12 @@
 # include "Utils.hpp"
 # include <map>
 
+# define CONSTR_SERV "0========= PARAM-CONSTR(SERVER) ======0"
+# define DEST_SERV "0======== DESTRUCT-(SERVER) ========0"
+
+# define LAUNCH "\n0========== SERVER LAUNCHED ==========0"
+# define DISCONNECTED "\n0========= CONNECTION DENIED =========0"
+
 //ENTRY CODE
 # define RPL_WELCOME " 001"
 
@@ -40,6 +46,8 @@ class Server
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
 			struct sockaddr_in				_serverAddr;
+//		Utils
+			std::map<int, User*>::iterator	_it;
 
 
 	public:
@@ -60,9 +68,10 @@ class Server
 			void	start(void);
 			void	clearServ(void);
 //		FT_CLIENT
-			void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len, std::map<int, User*>::iterator *it);
-			void	knownClient(std::map<int, User*>::iterator it, int *i);
-			int		deleteClient(int fd, char *buff);
+		void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len);
+		void	knownClient(int *clientFd);
+		int		deleteClient(int fd, char *buff);
+		void	printClient(struct sockaddr_in *client_addr);
 //		FT_I/O
 			int		readFromClient(User *user, int fd, std::string *message);
 			void	sendToClient(User *user, int fd, std::string message);
@@ -73,6 +82,7 @@ class Server
 		void	manageJoinCmd(std::string *args, User *user, int fd);
 		void	welcomeMsg(User *user, int fd);
 		void 	debugPrint(std::string color, std::string message);
+
 
 };
 

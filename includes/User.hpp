@@ -9,6 +9,11 @@
 # include <netinet/in.h>
 # include "Message.hpp"
 
+# define CONSTR_PARAM 	"0======== PARAM-CONSTR(USER) ========0"
+# define DESTRUCT 		"\n0======== DESTRUCT-(USER) ========0"
+# define LAUNCH 		"\n0========== SERVER LAUNCHED ==========0"
+# define DISCONNECTED 	"\n0========= CONNECTION DENIED =========0"
+
 class Message;
 
 class User //								ADD FD INSIDE USER
@@ -44,7 +49,6 @@ class User //								ADD FD INSIDE USER
 		void		parseUserInfo(std::string *args);
 
 		void 	debugPrint(std::string color, std::string message);
-
 };
 
 
