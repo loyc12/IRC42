@@ -3,7 +3,11 @@
 
 # include "IRC.hpp"
 
-class Channel {
+# define CONSTR_CHAN 	"0======= PARAM-CONSTR(CHANNEL) ======0\n"
+# define DEST_CHAN 		"0======== DESTRUCT-(CHANNEL) ========0\n"
+
+class Channel
+{
 	private:
 		std::string _nameChan;
 		std::string _admin; //userName of the creator of channel

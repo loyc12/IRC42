@@ -59,7 +59,7 @@ int	Server::checkPassword(User* user, int fd, std::string pass)
 
 int	Server::badPassword(User* user, int fd)
 {
-	std::cout << std::endl << RED << "0========= CONNECTION DENIED =========0" << DEFCOL << std::endl;
+	std::cout << std::endl << RED << DENIED << DEFCOL;
 	std::string errMsg = "Incorrect password";
 	respondToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
 	return (-1);
@@ -176,8 +176,8 @@ int	Server::readFromClient(User *user, int fd, std::string *message)
 //	DEBUG PRINT
 void	Server::printClient(struct sockaddr_in *client_addr)
 {
-		std::cout << CYAN << "\n0========== CLIENT CONNECTED =========0\n" <<
-		" > on socket(" << this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
+		std::cout << CYAN << CONNECTED << " > on socket(" << this->_newSocket <<
+		") " << inet_ntoa(client_addr->sin_addr) <<
 		":" << ntohs(client_addr->sin_port) << DEFCOL << "\n\n" << std::endl;
 }
 

@@ -3,10 +3,12 @@
 
 # include "IRC.hpp"
 
-# define CONSTR_SERV 		"0========= PARAM-CONSTR(SERVER) ======0"
-# define DEST_SERV 			"0======== DESTRUCT-(SERVER) ========0"
-# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0"
-# define DISCONNECTED 		"\n0========= CONNECTION DENIED =========0"
+# define CONSTR_SERV 		"0========= PARAM-CONSTR(SERVER) ======0\n"
+# define DEST_SERV 			"0========== DESTRUCT-(SERVER) ========0\n"
+# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n"
+# define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
+# define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n"
+# define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 
 //ENTRY CODE
 # define RPL_WELCOME		" 001"

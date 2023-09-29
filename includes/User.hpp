@@ -3,8 +3,8 @@
 
 # include "IRC.hpp"
 
-# define CONSTR_USER 	"0======== PARAM-CONSTR(USER) ========0"
-# define DEST_USER 		"\n0======== DESTRUCT-(USER) ========0"
+# define CONSTR_USER 	"0========= PARAM-CONSTR(USER) =======0\n"
+# define DEST_USER 		"0========== DESTRUCT-(USER) =========0\n"
 
 class Message;
 
