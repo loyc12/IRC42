@@ -38,7 +38,7 @@ class User //								ADD FD INSIDE USER
 		void		setUsername(std::string userName);
 		void		setMode(std::string mode);
 		void		setHostname(std::string hostname);
-		void		parseUserInfo(std::string *args);
+		void		setUserInfo(std::string *args);
 
 		void 	debugPrint(std::string color, std::string message);
 };

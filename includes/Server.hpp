@@ -7,7 +7,7 @@
 # define DEST_SERV 			"0========== DESTRUCT-(SERVER) ========0\n"
 # define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n"
 # define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
-# define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n"
+# define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 
 //ENTRY CODE
@@ -63,15 +63,23 @@ class Server
 			void	knownClient(int *clientFd);
 			int		deleteClient(int fd, char *buff);
 			void	printClient(struct sockaddr_in *client_addr);
+//		FT_CMD
+			int		getCmdID(std::string cmd);
+			int		execCommand(User *user, int fd, std::string *args);
+			int		checkPassword(User *user, int fd, std::string *args);
+			int		storeNickname(User *user, int fd, std::string *args);
+			int		storeUserInfo(User *user, int fd, std::string *args);
+			int		joinChannel(User *user, int fd, std::string *args);
+			int		kickUser(User *user, int fd, std::string *args);
+			int		inviteUser(User *user, int fd, std::string *args);
+			int		setChannelTopic(User *user, int fd, std::string *args);
+			int		setUserMode(User *user, int fd, std::string *args);
+			int		processMessage(User *user, int fd, std::string *args);
 //		FT_I/O
-			int		command(std::string	*args);
-			int		readFromClient(User *user, int fd, std::string *message);
+			int		readFromClient(User *user, int fd, std::string *last_msg);
 			void	sendToClient(User *user, int fd, std::string message);
 			void 	respondToClient(User* user, int fd, std::string code, std::string message);
-//		FT_STORAGE
-			void	storeNickname(User *user, int fd, std::string *args);
 //		UTIL
-			void	manageJoinCmd(std::string *args, User *user, int fd);
 			void	welcomeMsg(User *user, int fd);
 
 };

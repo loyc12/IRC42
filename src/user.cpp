@@ -22,7 +22,7 @@ sockaddr_in	User::getClientAddr(void) const 					{ return (this->_client_addr); 
 
 // 0================ OTHER FUNCTIONS ================0
 
-void	User::parseUserInfo(std::string *args)
+void	User::setUserInfo(std::string *args)
 {
 	this->setUsername(args[1]);
 	this->setMode(args[2]);
