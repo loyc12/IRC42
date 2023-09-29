@@ -73,6 +73,7 @@ class Server
 		int		deleteClient(int fd, char *buff);
 		void	printClient(struct sockaddr_in *client_addr);
 //		FT_I/O
+			int		command(std::string	*args);
 			int		readFromClient(User *user, int fd, std::string *message);
 			void	sendToClient(User *user, int fd, std::string message);
 			void 	responseToClient(User* user, int fd, std::string code, std::string message);

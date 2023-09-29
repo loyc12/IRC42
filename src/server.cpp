@@ -32,85 +32,7 @@ void	Server::manageJoinCmd(std::string *args, User *user, int fd){
 	}
 }
 
-int	Server::readFromClient(User *user, int fd, std::string *message)
-{
-	char 		buff[BUFFSIZE];
-	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	if (byteReceived <= 0)
-		return (deleteClient(fd, buff));
-	else if (byteReceived)
-	{
-		std::string	*args = splitString(buff, " \r\n");
 
-		/*--switch case implementation--*/
-		std::string cmdArray[8] = {
-			"PASS",
-			"NICK",
-			"USER",
-			"JOIN",
-			"KICK",
-			"INVITE",
-			"TOPIC",
-			"MODE"
-		};
-		int index = 0;
-		while (index < 8) {
-			if (!cmdArray[index].compare(args[0]))
-				break;
-			index++;
-		}
-		switch (index)
-		{
-//			Client is deleted if wrong password.
-			case 0:
-				if (this->checkPassword(user, fd, args[1]) < 0)
-					return (deleteClient(fd, buff));
-				break;
-			case 1:
-				this->storeNickname(user, fd, args);
-				break;
-			case 2:
-				user->parseUserInfo(args);
-				std::cout << user->getUsername() << " " << user->getMode() << std::endl; //
-				break;
-			case 3:
-				this->manageJoinCmd(args, user, fd);
-				//channel->joinCmd(args);
-				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
-				break;
-			case 4:
-				std::cout << "do stuff to be kick" << std::endl;
-				break;
-			case 5:
-				std::cout << "do stuff for invite" << std::endl;
-				break;
-			case 6:
-				std::cout << "do stuff to topic" << std::endl;
-				break;
-			case 7:
-				std::cout << "do stuff to mode" << std::endl;
-				break;
-//			default:
-//				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
-		}
-		message->assign(buff, 0, byteReceived);
-		std::cout << *message;
-
-//		will need send according to what was done as a command (above)
-		//ret = send(fd, message, message->length(), 0);
-		// if (ret == 0)
-		// {
-		// 	std::cout << "HERE" << std::endl;
-		// }
-		// else if (ret < 0)
-		// {
-		// 	std::cout << "ERROR" << std::endl;
-		// }
-		bzero(buff, BUFFSIZE);
-	}
-	return (0);
-}
 
 void	Server::sendToClient(User *user, int fd, std::string msg)
 {
@@ -157,13 +79,100 @@ void	Server::storeNickname(User *user, int fd, std::string *args) {
 	}
 }
 
-void	Server::welcomeMsg(User *user, int fd) {
+void	Server::welcomeMsg(User *user, int fd)
+{
 
 	std::ostringstream welcome;
 	welcome << ":" << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
 
 	sendToClient(user, fd, welcome.str());
 }
+// FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+int	Server::command(std::string	*args)
+{
+	int 		index = 0;
+	std::string cmdArray[8] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE" };
+
+	while (index < 8)
+	{
+//		If it's not a command, it's a normal message
+		if (!cmdArray[index].compare(args[0]))
+			break;
+		index++;
+	}
+	return (index);
+}
+
+int	Server::readFromClient(User *user, int fd, std::string *message)
+{
+
+	char 		buff[BUFFSIZE];
+
+	bzero(buff, BUFFSIZE);
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
+
+//	Check byte have been reveived = if error, delete client. NOTE -> do we really want that ?
+	if (byteReceived <= 0)
+		return (deleteClient(fd, buff));
+	else if (byteReceived)
+	{
+		std::string	*args = splitString(buff, " \r\n");
+
+//		Ce serait cool un pointeur sur fonction ici a la place
+		switch (command(args))
+		{
+//			Client is deleted if wrong password.
+			case 0:
+				if (this->checkPassword(user, fd, args[1]) < 0)
+					return (deleteClient(fd, buff));
+				std::cout << "HERE\n" << std::endl;
+				break;
+			case 1:
+				this->storeNickname(user, fd, args);
+				break;
+			case 2:
+				user->parseUserInfo(args);
+				//std::cout << user->getUsername() << " " << user->getMode() << std::endl;
+				break;
+			case 3:
+				this->manageJoinCmd(args, user, fd);
+				//channel->joinCmd(args);
+				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
+				break;
+			case 4:
+				std::cout << "do stuff to be kick" << std::endl;
+				break;
+			case 5:
+				std::cout << "do stuff for invite" << std::endl;
+				break;
+			case 6:
+				std::cout << "do stuff to topic" << std::endl;
+				break;
+			case 7:
+				std::cout << "do stuff to mode" << std::endl;
+				break;
+			default:
+				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
+		}
+		message->assign(buff, 0, byteReceived);
+		std::cout << *message;
+
+//		will need send according to what was done as a command (above)
+		//ret = send(fd, message, message->length(), 0);
+		// if (ret == 0)
+		// {
+		// 	std::cout << "HERE" << std::endl;
+		// }
+		// else if (ret < 0)
+		// {
+		// 	std::cout << "ERROR" << std::endl;
+		// }
+		bzero(buff, BUFFSIZE);
+	}
+	return (0);
+}
+
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -192,7 +201,7 @@ void	Server::knownClient(int *clientFd)
 		}
 	}
 }
-
+x
 //	DELETE TARGET CLIENT EXIT POINT
 int Server::deleteClient(int fd, char *buff)
 {
@@ -311,8 +320,8 @@ void	Server::start(void)
 					else
 						this->knownClient(&clientFd);
 				}
-				else
-					throw std::invalid_argument(" > Error at start(), FD_ISSET()");
+				// else
+				// 	throw std::invalid_argument(" > Error at start(), FD_ISSET()");
 			}
 		}
 	}
