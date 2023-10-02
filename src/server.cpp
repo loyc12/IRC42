@@ -14,6 +14,129 @@ std::ostream &operator<< (std::ostream &out, const Server &rhs)
 
 //	FT_CMD - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
+
+
+int	Server::storeUserInfo(User *user, int fd, std::string *args)
+{
+	(void)fd;
+	user->setUserInfo(args);
+
+	return (0);
+}
+
+int	Server::joinChannel(User *user, int fd, std::string *args) //							TODO : rework me?
+{
+	//first check if the chan already exists on server
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (it != this->_chanContainer.end()){ //channel exists
+		std::cout << "just join channel" << std::endl;
+		//ft to check if there is a password
+		it->second->joinChan(user, fd);
+	}
+	else { //channel does not exist
+		std::cout << "add new channel to container" << std::endl; //								DEBUG
+		Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+		newChannel->setNameChan(args[1]);
+		newChannel->setAdmin(user->getNick());
+		newChannel->joinChan(user, fd);
+	}
+
+	return (0);
+}
+
+//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
+int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
+	return (1);
+}
+
+int	Server::kickUser(User *user, int fd, std::string *args)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+int	Server::inviteUser(User *user, int fd, std::string *args)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+	std::cout << "TODO : invite user in" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+int	Server::setChannelTopic(User *user, int fd, std::string *args)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+	std::cout << "TODO : set channel topic" << std::endl; //			DEBUG
+
+	return (0);
+}
+
+int	Server::setUserMode(User *user, int fd, std::string *args)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+//	FT_ID - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//	EXIT POINT TO SET CLIENT ID
+int	Server::storeNickname(User *user, int fd, std::string *args)
+{
+	user->setNick(args[1]);
+	if (this->_welcomeFlag == 1 && this->_isSet == 0)
+	{
+		this->welcomeMsg(user, fd);
+		this->_isSet = 1;
+	}
+	return (0);
+}
+
+//	SET THE HEADER AND WILL SEND A WELCOME MESSAGE ON CLIENT 
+void	Server::welcomeMsg(User *user, int fd)//					WARNING : Header ne set pas, mais ceci n'est pas une priorité
+{
+	sendToClient(user, fd, RPL_WELCOME, "Welcome to this IRC server");
+}
+
+// ENTRE POINT : CHECK PASSWORD AND SEND AN ERROR CODE TO CLIENT IF WRONG
+int	Server::checkPassword(User *user, int fd, std::string *args)
+{
+	if (args[1].compare(this->getPass()) == 0)
+	{
+		this->_welcomeFlag = 1;
+		return (0);
+	}
+	debugPrint(RED, DENIED); //										DEBUG
+	std::string errMsg = "Invalid password";
+	sendToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+	return (-1);
+}
+
+//	FT_CMD - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
@@ -44,127 +167,11 @@ int	Server::execCommand(User *user, int fd, std::string *args)
 	return (this->*commands[getCmdID(args[0])])(user, fd, args);
 }
 
-//	THESE EXECUTE THEIR RELATED USER COMMANDCOMMAND
-int	Server::checkPassword(User *user, int fd, std::string *args)
-{
-	if (args[1].compare(this->getPass()) == 0)
-	{
-		this->_welcomeFlag = 1;
-//		std::cout << "Password valid ( " << args[1] <<" )" << std::endl; //					DEBUG
-		return (0);
-	}
-	debugPrint(RED, DENIED); //																DEBUG
-	std::string errMsg = "Invalid password";
-	respondToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
-
-	return (-1);
-}
-int	Server::storeNickname(User *user, int fd, std::string *args)
-{
-	user->setNick(args[1]);
-	if (this->_welcomeFlag == 1 && this->_isSet == 0){
-		this->welcomeMsg(user, fd);
-		this->_isSet = 1;
-//		std::cout << "Nickname stored ( " << args[1] <<" )" << std::endl; //				DEBUG
-	}
-
-	return (0);
-}
-int	Server::storeUserInfo(User *user, int fd, std::string *args)
-{
-	(void)fd;
-	user->setUserInfo(args);
-
-	return (0);
-}
-int	Server::joinChannel(User *user, int fd, std::string *args) //							TODO : rework me?
-{
-	//first check if the chan already exists on server
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (it != this->_chanContainer.end()){ //channel exists
-		std::cout << "just join channel" << std::endl;
-		//ft to check if there is a password
-		it->second->joinChan(user, fd);
-	}
-	else { //channel does not exist
-		std::cout << "add new channel to container" << std::endl; //								DEBUG
-		Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
-		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-		newChannel->setNameChan(args[1]);
-		newChannel->setAdmin(user->getNick());
-		newChannel->joinChan(user, fd);
-	}
-
-	return (0);
-}
-int	Server::kickUser(User *user, int fd, std::string *args)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
-
-	return (0);
-}
-int	Server::inviteUser(User *user, int fd, std::string *args)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-	std::cout << "TODO : invite user in" << std::endl; //				DEBUG
-
-	return (0);
-}
-int	Server::setChannelTopic(User *user, int fd, std::string *args)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-	std::cout << "TODO : set channel topic" << std::endl; //			DEBUG
-
-	return (0);
-}
-int	Server::setUserMode(User *user, int fd, std::string *args)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
-
-	return (0);
-}
-
-//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
-int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
-
-	return (1);
-}
-
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void	Server::sendToClient(User *user, int fd, std::string msg) //	TODO : make a sendToChannel that loops on all channel's clients
-{
-	(void)user;
 
-	std::ostringstream debug; //										DEBUG
-	debug << "OUTGOING MSG TO   : (" << fd << ")\t| " << msg; //		DEBUG
-	debugPrint(GREEN, debug.str()); //									DEBUG
-
-	if (send(fd, msg.c_str(), msg.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
-}
-
-void	Server::respondToClient(User* user, int fd, std::string code, std::string input)	// 		NOTE : alternate version of sendToClient() that uses codes
+//	TODO : make a sendToChannel that loops on all channel's clients
+void	Server::sendToClient(User* user, int fd, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
@@ -177,25 +184,7 @@ void	Server::respondToClient(User* user, int fd, std::string code, std::string i
 	debugPrint(GREEN, debug.str()); //									DEBUG
 
 	if (send(fd, result.c_str(), result.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at respondToClient() ");
-
-//	debugPrint(MAGENTA, "Code sent to Client\n");
-}
-/*
-void	Server::respondToClient(User* user, int fd, std::string code, std::string message) //	NOTE : obsolete now ???
-{
-	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
-	sendToClient(user, fd, response);
-
-//	std::cout << "Code sent to Client" << std::endl;
-
-	close(fd);
-}
-*/
-
-void	Server::welcomeMsg(User *user, int fd)
-{
-	respondToClient(user, fd, RPL_WELCOME, "Welcome to this IRC server");
+		throw std::invalid_argument(" > Error at sendToClient() ");
 }
 
 int	Server::readFromClient(User *user, int fd, std::string *last_msg)
@@ -205,7 +194,7 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
-//	Check byte have been reveived = if error, delete client.				WARNING : do we really want that ?
+//	Check byte have been received = if error, delete client.				WARNING : do we really want that ?
 	if (byteReceived <= 0)
 		return (deleteClient(fd, buff));
 	else if (byteReceived)
@@ -221,51 +210,8 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 			debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
 			debugPrint(GREEN, debug.str()); //										DEBUG
 
-			respondToClient(user, fd, "302", *last_msg);
+			sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 		}
-
-/*		switch (getCmdID(args[0])) //										NOTE : obsolete
-		{
-//			Client is deleted if wrong password.
-			case 0:
-				if (this->checkPassword(user, fd, args[1]) < 0)
-					return (deleteClient(fd, buff));
-				std::cout << "\nSTEP 1" << std::endl; //					DEBUG
-				break;
-			case 1:
-				this->storeNickname(user, fd, args);
-				std::cout << "\nSTEP 2" << std::endl; //					DEBUG
-				break;
-			case 2:
-				user->parseUserInfo(args);
-				std::cout << "\nSTEP 3" << std::endl; //					DEBUG
-				break;
-			case 3:
-				this->manageJoinCmd(args, user, fd);
-				//channel->joinCmd(args);
-				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
-				break;
-			case 4:
-				std::cout << "do stuff to be kick" << std::endl;
-				break;
-			case 5:
-				std::cout << "do stuff for invite" << std::endl;
-				break;
-			case 6:
-				std::cout << "do stuff to topic" << std::endl;
-				break;
-			case 7:
-				std::cout << "do stuff to mode" << std::endl;
-				break;
-			default:
-				this->_isMsg = 1;
-		}
-		message->assign(buff, 0, byteReceived);
-		if (this->_isMsg == 1)
-			sendToClient(user, fd, "302", *message);
-		this->_isMsg = 0;
-		debugPrint(GREEN, *message);
-*/
 		bzero(buff, BUFFSIZE);
 	}
 	return (0);

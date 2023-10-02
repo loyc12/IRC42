@@ -17,6 +17,8 @@
 # define RPL_NOTOPIC		"331" //no topic set for chan
 # define RPL_TOPIC			"332" //topic of the chan
 # define RPL_NAMREPLY		"353" //list of nicknames in channel
+# define RPL_REPLY			"302" //Reply Mode
+
 
 class Server
 {
@@ -74,8 +76,7 @@ class Server
 			int		setUserMode(User *user, int fd, std::string *args);
 			int		processMessage(User *user, int fd, std::string *args);
 //		FT_I/O
-			void	sendToClient(User *user, int fd, std::string message);
-			void	respondToClient(User* user, int fd, std::string code, std::string input);
+			void	sendToClient(User* user, int fd, std::string code, std::string input);
 			void	welcomeMsg(User *user, int fd);
 			int		readFromClient(User *user, int fd, std::string *last_msg);
 
