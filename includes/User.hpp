@@ -18,29 +18,28 @@ class User //								ADD FD INSIDE USER
 		std::string	_nick;
 		std::string _mode;
 		std::string _hostname;
-		sockaddr_in _client_addr; //when client is connected
+		sockaddr_in _clientAddr; //when client is connected
 
 	public:
+		bool wasWelcomed;
 // 		Constructors & Destructor
-		User(sockaddr_in client_addr);
+		User(sockaddr_in clientAddr);
 		~User();
 
 // 		Getters - Setters
-		std::string	getName(void) const;
-		std::string	getNick(void) const;
-		sockaddr_in	getClientAddr(void) const;
-		std::string getUsername(void) const;
-		std::string getMode(void) const;
-		std::string getHostname(void) const;
+		std::string	getName			(void) const;
+		std::string	getNick			(void) const;
+		std::string getUsername		(void) const;
+		std::string getMode			(void) const;
+		std::string getHostname		(void) const;
+		sockaddr_in	getClientAddr	(void) const;
 
-		void		setName(std::string name);
-		void		setNick(std::string nick);
-		void		setUsername(std::string userName);
-		void		setMode(std::string mode);
-		void		setHostname(std::string hostname);
-		void		setUserInfo(std::string *args);
-
-		void 	debugPrint(std::string color, std::string message);
+		void		setName			(std::string name);
+		void		setNick			(std::string nick);
+		void		setUsername		(std::string userName);
+		void		setMode			(std::string mode);
+		void		setHostname		(std::string hostname);
+		void		setUserInfo		(std::string *args);
 };
 
 

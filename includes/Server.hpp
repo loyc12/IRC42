@@ -33,8 +33,7 @@ class Server
 			fd_set 		_baseFds;
 			fd_set 		_targetFds;
 //		Flag
-			bool		_welcomeFlag;
-			bool		_isSet;
+//			bool		_isSet;
 //			bool		_isMsg;
 //		Storage
 			std::map<int, User*> 			_clients;
@@ -48,40 +47,35 @@ class Server
 //		Constructor - Destructor
 			Server(int port);
 			~Server();
-
 // 		Getters - Setters
 			const int 			& getPort(void) const;
 			const std::string 	& getPass(void) const;
-
-
-//		FT_SERVER
-			void	initServ(void);
-			void	start(void);
-			void	clearServ(void);
-//		FT_CLIENT
-			void	newClient(struct sockaddr_in *client_addr, socklen_t *client_len);
-			void	knownClient(int *clientFd);
-			int		deleteClient(int fd, char *buff);
-			void	printClient(struct sockaddr_in *client_addr);
 //		FT_CMD
-			int		getCmdID(std::string cmd);
-			int		execCommand(User *user, int fd, std::string *args);
-			int		checkPassword(User *user, int fd, std::string *args);
-			int		storeNickname(User *user, int fd, std::string *args);
-			int		storeUserInfo(User *user, int fd, std::string *args);
-			int		joinChannel(User *user, int fd, std::string *args);
-			int		kickUser(User *user, int fd, std::string *args);
-			int		inviteUser(User *user, int fd, std::string *args);
-			int		setChannelTopic(User *user, int fd, std::string *args);
-			int		setUserMode(User *user, int fd, std::string *args);
-			int		processMessage(User *user, int fd, std::string *args);
+			int		checkPassword	(User *user, int fd, std::string *args);
+			int		storeNickname	(User *user, int fd, std::string *args);
+			int		storeUserInfo	(User *user, int fd, std::string *args);
+			int		joinChannel		(User *user, int fd, std::string *args);
+			int		kickUser		(User *user, int fd, std::string *args);
+			int		inviteUser		(User *user, int fd, std::string *args);
+			int		setChannelTopic	(User *user, int fd, std::string *args);
+			int		setUserMode		(User *user, int fd, std::string *args);
+			int		processMessage	(User *user, int fd, std::string *args);
+			int		getCmdID		(std::string cmd);
+			int		execCommand		(User *user, int fd, std::string *args);
 //		FT_I/O
-			void	sendToClient(User* user, int fd, std::string code, std::string input);
-			void	welcomeMsg(User *user, int fd);
-			int		readFromClient(User *user, int fd, std::string *last_msg);
+			void	welcomeUser		(User *user, int fd);
+			void	sendToClient	(User* user, int fd, std::string code, std::string input);
+			int		readFromClient	(User *user, int fd, std::string *last_msg);
+//		FT_CLIENT
+			void	printClient		(struct sockaddr_in *client_addr);
+			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
+			void	knownClient		(int *clientFd);
+			int		deleteClient	(int fd, char *buff);
+//		FT_SERVER
+			void	init	(void);
+			void	start	(void);
+			void	clear	(void);
 
 };
-
-std::ostream &operator<< (std::ostream &out, const Server &rhs);
 
 #endif // SERVER_HPP
