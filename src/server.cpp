@@ -193,9 +193,16 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles NULL and NON-NULL byte value (disconnects if NULL).				NOTE : do we really want that ?
-	if (byteReceived <= 0)
-		return (deleteClient(fd, buff));
-	else if (byteReceived)
+	if (byteReceived == 0)
+	{
+		deleteClient(fd, buff);
+//		Deletes the client, loses its FD and removes it from the baseFds
+		std::cerr << "\n HERE \n";
+		close(fd);
+		FD_CLR(fd, &(this->_baseFds));
+		return (-1); //														NOTE : this makes the server clear the client data
+	}
+	else if (byteReceived > 0)
 	{
 		std::string	*args = splitString(buff, " \r\n");
 
@@ -211,8 +218,10 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 			sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 		}
 		bzero(buff, BUFFSIZE);
+		return (0);
 	}
-	return (0);
+	else
+		return (1);
 }
 
 
@@ -253,18 +262,20 @@ void	Server::knownClient(int *clientFd)
 	if (this->_it != this->_clients.end()) //								NOTE : what does this do???
 	{
 //		Takes the user inside the map element
-		User* userPtr = this->_it->second;
-		if (readFromClient(userPtr, *clientFd, &last_msg) < 0)
-		{
+		User* user = this->_it->second;
+		readFromClient(user, *clientFd, &last_msg);
+
+//		if (readFromClient(userPtr, *clientFd, &last_msg) < 0)
+//		{
 //			Closes the client Fd and clears it in baseFds
-			close(*clientFd);
-			FD_CLR(*clientFd, &this->_baseFds);
-		}
+//			close(*clientFd);
+//			FD_CLR(*clientFd, &this->_baseFds);
+//		}
 	}
 }
 
 //	DELETES A GIVEN CLIENT
-int Server::deleteClient(int fd, char *buff)
+void Server::deleteClient(int fd, char *buff)
 {
 //	Sets iterator to the client's Fd
 	this->_it = this->_clients.find(fd);
@@ -272,14 +283,11 @@ int Server::deleteClient(int fd, char *buff)
 //	Deletes all data from client's struct
 	bzero(buff, BUFFSIZE);
 	if (this->_it != this->_clients.end())
-			delete this->_it->second;
+		delete this->_it->second;
 
 //	Clears the fd from this client
 	this->_clients.erase(fd);
 	debugPrint(CYAN, DISCONNECTED);
-
-//	-1 will trigger to close and clear fd from base socket in known client
-	return (-1);
 }
 
 
@@ -360,6 +368,7 @@ void	Server::start(void)
 //	CLOSES THE SERVER SAFELY
 void	Server::clear(void)
 {
+	debugPrint(MAGENTA, CLOSING); //								DEBUG
 	this->_it = this->_clients.begin();
 	std::map<int, User*>::iterator ite = this->_clients.end();
 

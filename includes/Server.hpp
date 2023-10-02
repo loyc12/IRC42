@@ -9,6 +9,7 @@
 # define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
 # define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
+# define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n"
 
 //ENTRY CODE
 # define RPL_WELCOME		" 001"
@@ -70,7 +71,7 @@ class Server
 			void	printClient		(struct sockaddr_in *client_addr);
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int *clientFd);
-			int		deleteClient	(int fd, char *buff);
+			void	deleteClient	(int fd, char *buff);
 //		FT_SERVER
 			void	init	(void);
 			void	start	(void);
