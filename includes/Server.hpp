@@ -5,11 +5,12 @@
 
 # define CONSTR_SERV 		"0========= PARAM-CONSTR(SERVER) ======0\n"
 # define DEST_SERV 			"0========== DESTRUCT-(SERVER) ========0\n"
-# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n"
+# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n\n"
 # define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
 # define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
-# define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n"
+# define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
+# define WELCOME_HEADER 	"AVJLO IRC"
 
 //ENTRY CODE
 # define RPL_WELCOME		" 001"
@@ -66,7 +67,7 @@ class Server
 //		FT_I/O
 			void	welcomeUser		(User *user, int fd);
 			void	sendToClient	(User* user, int fd, std::string code, std::string input);
-			int		readFromClient	(User *user, int fd, std::string *last_msg);
+			void	readFromClient	(User *user, int fd, std::string *last_msg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);

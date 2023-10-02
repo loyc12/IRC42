@@ -71,17 +71,6 @@ int	Server::joinChannel(User *user, int fd, std::string *args) //								TODO : 
 	return (0);
 }
 
-//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
-int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
-{
-	(void)user;
-	(void)fd;
-	(void)args;
-
-//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
-	return (1);
-}
-
 int	Server::kickUser(User *user, int fd, std::string *args)
 {
 	(void)user;
@@ -126,6 +115,17 @@ int	Server::setUserMode(User *user, int fd, std::string *args)
 	return (0);
 }
 
+//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
+int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
+{
+	(void)user;
+	(void)fd;
+	(void)args;
+
+//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
+	return (1);
+}
+
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
@@ -163,7 +163,7 @@ int	Server::execCommand(User *user, int fd, std::string *args)
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
 void	Server::welcomeUser(User *user, int fd)//					WARNING : Header ne set pas, mais ceci n'est pas une priorité
 {
-	sendToClient(user, fd, RPL_WELCOME, "Welcome to this IRC server");
+	sendToClient(user, fd, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
 }
 
@@ -185,22 +185,22 @@ void	Server::sendToClient(User* user, int fd, std::string code, std::string inpu
 		throw std::invalid_argument(" > Error at sendToClient() ");
 }
 
-int	Server::readFromClient(User *user, int fd, std::string *last_msg)
+void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 {
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0); //
 
-//	Handles NULL and NON-NULL byte value (disconnects if NULL).				NOTE : do we really want that ?
-	if (byteReceived == 0)
+//	Handles what to do depending on the byte value (error, null or message)
+	if (byteReceived < 0)
+		throw std::invalid_argument(" > Error at rcv(): ");
+	else if (byteReceived == 0)
 	{
-		deleteClient(fd, buff);
 //		Deletes the client, loses its FD and removes it from the baseFds
-		std::cerr << "\n HERE \n";
+		deleteClient(fd, buff);
 		close(fd);
-		FD_CLR(fd, &(this->_baseFds));
-		return (-1); //														NOTE : this makes the server clear the client data
+		FD_CLR(fd, &(this->_baseFds)); //									NOTE : this makes the server clear the client data
 	}
 	else if (byteReceived > 0)
 	{
@@ -218,10 +218,7 @@ int	Server::readFromClient(User *user, int fd, std::string *last_msg)
 			sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 		}
 		bzero(buff, BUFFSIZE);
-		return (0);
 	}
-	else
-		return (1);
 }
 
 
@@ -357,7 +354,10 @@ void	Server::start(void)
 					if (clientFd == this->_baseSocket)
 						this->newClient(&client_addr, &client_len);
 					else
+					{
 						this->knownClient(&clientFd);
+						std::cerr << "\n > HERE\n\n"; //									DEBUG
+					}
 				}
 			}
 		}
