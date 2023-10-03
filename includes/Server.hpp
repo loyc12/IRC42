@@ -21,6 +21,9 @@
 # define RPL_NAMREPLY		"353" //list of nicknames in channel
 # define RPL_REPLY			"302" //Reply Mode
 # define IGNORE				"0"	//Pour les messages 
+# define JOIN				"JOIN"
+# define REQUEST			0
+# define CHAN				1				
 
 
 class Server
@@ -67,7 +70,7 @@ class Server
 			int		execCommand		(User *user, int fd, std::string *args);
 //		FT_I/O
 			void	welcomeUser		(User *user, int fd);
-			void	sendToClient	(User* user, int fd, std::string code, std::string input);
+			void	replyTo			(int target, User* user, int fd, std::string code, std::string input);
 			void	readFromClient	(User *user, int fd, std::string *last_msg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
