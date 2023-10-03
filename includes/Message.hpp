@@ -1,6 +1,7 @@
 #ifndef MESSAGE_HPP
 # define MESSAGE_HPP
 
+//								OBSOLETE (?)
 
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
@@ -29,5 +30,6 @@ class Message
 		User		*getSender(void) const;
 };
 
+//	SUPERFLUOUS
 
 #endif // MESSAGE_HPP
