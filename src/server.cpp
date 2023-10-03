@@ -190,7 +190,7 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0); //
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles what to do depending on the byte value (error, null or message)
 	if (byteReceived < 0)
@@ -200,7 +200,7 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 //		Deletes the client, loses its FD and removes it from the baseFds
 		deleteClient(fd, buff);
 		close(fd);
-		FD_CLR(fd, &(this->_baseFds)); //									NOTE : this makes the server clear the client data
+		FD_CLR(fd, &(this->_baseFds)); //									//TODO : EXPLICATION NOTE : this makes the server clear the client data
 	}
 	else if (byteReceived > 0)
 	{
@@ -256,18 +256,11 @@ void	Server::knownClient(int *clientFd)
 {
 	std::string	last_msg;
 //	Finds target client
-	if (this->_it != this->_clients.end()) //								NOTE : found client in container
+	if (this->_it != this->_clients.end())
 	{
-//		Takes the user inside the map element
+//		map<key, value>; second = value (value = User*)
 		User* user = this->_it->second;
 		readFromClient(user, *clientFd, &last_msg);
-
-//		if (readFromClient(userPtr, *clientFd, &last_msg) < 0)
-//		{
-//			Closes the client Fd and clears it in baseFds
-//			close(*clientFd);
-//			FD_CLR(*clientFd, &this->_baseFds);
-//		}
 	}
 }
 
@@ -286,7 +279,6 @@ void Server::deleteClient(int fd, char *buff)
 	this->_clients.erase(fd);
 	debugPrint(CYAN, DISCONNECTED);
 }
-
 
 
 //	FT_SERVER - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -356,7 +348,7 @@ void	Server::start(void)
 					else
 					{
 						this->knownClient(&clientFd);
-						std::cerr << "\n > HERE\n\n"; //									DEBUG
+						std::cerr << "\n > HERE\n\n"; //			DEBUG
 					}
 				}
 			}
