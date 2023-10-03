@@ -256,7 +256,7 @@ void	Server::knownClient(int *clientFd)
 {
 	std::string	last_msg;
 //	Finds target client
-	if (this->_it != this->_clients.end()) //								NOTE : what does this do???
+	if (this->_it != this->_clients.end()) //								NOTE : found client in container
 	{
 //		Takes the user inside the map element
 		User* user = this->_it->second;
