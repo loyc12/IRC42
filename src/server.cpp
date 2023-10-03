@@ -22,11 +22,6 @@ int	Server::checkPassword(User *user, int fd, std::string *args)
 		sendToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
 		return (-1);
 	}
-
-//	Welcomes as user if this is their first password check (aka first connection)
-	if (!user->wasWelcomed)
-		this->welcomeUser(user, fd);
-
 	return (0);
 }
 
@@ -39,8 +34,12 @@ int	Server::storeNickname(User *user, int fd, std::string *args)
 
 int	Server::storeUserInfo(User *user, int fd, std::string *args)
 {
-	(void)fd;
+	//(void)fd;
 	user->setUserInfo(args);
+
+//	Welcomes as user if this is their first password check (aka first connection)
+	if (!user->wasWelcomed)
+		this->welcomeUser(user, fd);
 
 	return (0);
 }
@@ -122,6 +121,17 @@ int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : impl
 	(void)fd;
 	(void)args;
 
+ 			// for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
+			// {
+        	// 	last_msg->assign(buff, 0, byteReceived);
+        
+        	// 	std::ostringstream debug; //											DEBUG
+        	// 	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+        	// 	debugPrint(GREEN, debug.str()); //										DEBUG
+    
+        	// 	sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+			// }
+
 //	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
 	return (1);
 }
@@ -161,7 +171,7 @@ int	Server::execCommand(User *user, int fd, std::string *args)
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
-void	Server::welcomeUser(User *user, int fd)//					WARNING : Header ne set pas, mais ceci n'est pas une priorité
+void	Server::welcomeUser(User *user, int fd)
 {
 	sendToClient(user, fd, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
@@ -174,7 +184,8 @@ void	Server::sendToClient(User* user, int fd, std::string code, std::string inpu
 	std::ostringstream 	message;
 	std::string 		result;
 
-	message << ":irc.example.com " << code << " " << user->getNick() << " :" << input << "\r\n";
+//	Fixed struct to send all messages (template)
+	message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
 	result = message.str();
 
 	std::ostringstream debug; //											DEBUG
@@ -206,22 +217,21 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	{
 		std::string	*args = splitString(buff, " \r\n");
 
-//		Check if the message is a command, else manages it as a message //		TODO : move the message management to processMEssage() instead
+//		Check if the message is a command, else manages it as a message
 		if (execCommand(user, fd, args) == 1)
 		{
-			last_msg->assign(buff, 0, byteReceived);
-
-			std::ostringstream debug; //											DEBUG
-			debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
-			debugPrint(GREEN, debug.str()); //										DEBUG
-
-			sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+			//processMessage(); < --- Déplacer là
+        	last_msg->assign(buff, 0, byteReceived);
+        
+        	std::ostringstream debug; //											DEBUG
+        	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+        	debugPrint(GREEN, debug.str()); //								DEBUG
+        	sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 		}
-		bzero(buff, BUFFSIZE);
+
 	}
+	bzero(buff, BUFFSIZE);
 }
-
-
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
