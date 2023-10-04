@@ -19,7 +19,7 @@ int	Server::checkPassword(User *user, int fd, std::string *args)
 		debugPrint(RED, DENIED); //													DEBUG
 		std::string errMsg = "Invalid password";
 
-		sendToClient(user, fd, ERR_NOSUCHCHANNEL, errMsg);
+		replyTo(REQUEST, user, fd, ERR_NOSUCHCHANNEL, errMsg);
 		return (-1);
 	}
 	return (0);
@@ -44,7 +44,7 @@ int	Server::storeUserInfo(User *user, int fd, std::string *args)
 	return (0);
 }
 
-int	Server::joinChannel(User *user, int fd, std::string *args) //								TODO : rework me?
+int	Server::joinChannel(User *user, int fd, std::string *args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
@@ -53,7 +53,7 @@ int	Server::joinChannel(User *user, int fd, std::string *args) //								TODO : 
 	{
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); //									DEBUG
 
-		it->second->joinChan(user, fd);
+		it->second->joinChan(user, fd, JOIN, it->second->getChanName());
 	}
 //	Else channel does not exist
 	else
@@ -65,8 +65,10 @@ int	Server::joinChannel(User *user, int fd, std::string *args) //								TODO : 
 
 		newChannel->setChanName(args[1]);
 		newChannel->setAdminName(user->getNick());
-		newChannel->joinChan(user, fd);
+		//newChannel->joinChan(user, fd, JOIN, newChannel->getChanName());
+		replyTo(CHAN, user, fd, JOIN, newChannel->getChanName());
 	}
+
 	return (0);
 }
 
@@ -129,7 +131,7 @@ int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : impl
         	// 	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
         	// 	debugPrint(GREEN, debug.str()); //										DEBUG
     
-        	// 	sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+        	// 	replyTo(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 			// }
 
 //	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
@@ -166,34 +168,38 @@ int	Server::execCommand(User *user, int fd, std::string *args)
 	return (this->*commands[getCmdID(args[0])])(user, fd, args);
 }
 
-
-
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
 void	Server::welcomeUser(User *user, int fd)
 {
-	sendToClient(user, fd, RPL_WELCOME, WELCOME_HEADER);
+	replyTo(REQUEST, user, fd, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
+	// TODO : You can :  PASS, NICK, JOIN
+	// TODO:  You can't : MESSAGE, USER?, KICK, INVITE, TOPIC, MODE
+	// TODO:  TRIGGER : Command ID
 }
 
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //						TODO : create sendToChannel() and sendToAll()
-void	Server::sendToClient(User* user, int fd, std::string code, std::string input)
+void	Server::replyTo(int target, User* user, int fd, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
-//	Fixed struct to send all messages (template)
-	message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
-	result = message.str();
+//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
+	if (target == REQUEST)
+		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+	else if (target == CHAN)
+		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
 
+	result = message.str();
 	std::ostringstream debug; //											DEBUG
 	debug << "OUTGOING C_MSG TO : (" << fd << ")\t| " << result; //			DEBUG
 	debugPrint(GREEN, debug.str()); //										DEBUG
 
 	if (send(fd, result.c_str(), result.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
+		throw std::invalid_argument(" > Error at replyTo() ");
 }
 
 void	Server::readFromClient(User *user, int fd, std::string *last_msg)
@@ -208,10 +214,10 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 		throw std::invalid_argument(" > Error at rcv(): ");
 	else if (byteReceived == 0)
 	{
-//		Deletes the client, loses its FD and removes it from the baseFds
+//		Deletes the client, loses its FD and clear and removes it from the baseFds
 		deleteClient(fd, buff);
 		close(fd);
-		FD_CLR(fd, &(this->_baseFds)); //									//TODO : EXPLICATION NOTE : this makes the server clear the client data
+		FD_CLR(fd, &(this->_baseFds));
 	}
 	else if (byteReceived > 0)
 	{
@@ -225,10 +231,11 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
         
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
-        	debugPrint(GREEN, debug.str()); //								DEBUG
-        	sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+        	debugPrint(GREEN, debug.str()); //										DEBUG
+			//replyTo(CHAN, user, fd, NULL, *last_msg);
+			//replyTo(REQUEST, user, )
+        	replyTo(REQUEST, user, fd, RPL_REPLY, *last_msg); //						WARNING : RPL_REPLY, temp solution
 		}
-
 	}
 	bzero(buff, BUFFSIZE);
 }
