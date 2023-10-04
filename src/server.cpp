@@ -1,175 +1,227 @@
 #include "Server.hpp"
 
-Server::Server(int port) : _port(port), _password("1234") 	{debugPrint(YELLOW, CONSTR_SERV); }
+Server::Server(int port) : _port(port), _password("1234") 	{debugPrint(YELLOW, CONSTR_SERV); } //		TODO : take the actual PASSWORD
 Server::~Server() 											{debugPrint(YELLOW, DEST_SERV); }
-const int & Server::getPort(void) const						{ return (this->_port);}
-const std::string & Server::getPass(void) const				{ return (this->_password);}
 
-std::ostream &operator<< (std::ostream &out, const Server &rhs)
+const int & Server::getPort			(void) const			{ return (this->_port);}
+const std::string & Server::getPass	(void) const			{ return (this->_password);}
+
+
+
+//	FT_CMD - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
+int	Server::checkPassword(User *user, std::string *args)
 {
-	out << "IRC Server port : " << rhs.getPort();
-	return (out);
-}
+//	If password is invalid
+	if (args[1].compare(this->getPass()) != 0)
+	{
+		debugPrint(RED, DENIED); //													DEBUG
+		std::string errMsg = "Invalid password";
 
-// 0================ OTHER FUNCTIONS ================0
-
-void	Server::manageJoinCmd(User *user, std::string *args)
-{
-	//first check if the chan already exists on server
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (it != this->_chanContainer.end()){ //channel exists //										DEBUG
-		std::cout << "just join channel" << std::endl;
-		//ft to check if there is a password
-		it->second->joinChan(user);
+		sendToClient(user, ERR_NOSUCHCHANNEL, errMsg);
+		return (-1);
 	}
-	else { //channel does not exist
-		std::cout << "add new channel to container" << std::endl; //								DEBUG
-		Channel *newChannel = new Channel(args[1]); //maybe need to deal with leaks
-		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-		newChannel->setNameChan(args[1]);
-		newChannel->setAdmin(user->getNick());
-		newChannel->joinChan(user);
-	}
+	return (0);
 }
 
-void	Server::sendToClient(User *user, std::string msg)
+int	Server::storeNickname(User *user, std::string *args)
 {
-	(void)user;
-
-	std::cout << "MSG SEND TO CL:\t" << msg << std::endl; //						DEBUG
-	if (send(user->getFD(), msg.c_str(), msg.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
+	user->setNick(args[1]);
+	return (0);
 }
 
-void	Server::respondToClient(User* user, std::string code, std::string message)
+int	Server::storeUserInfo(User *user, std::string *args)
 {
-	std::string response = ": " + code + " " + user->getNick() + " :" + message + "\r\n";
-	sendToClient(user, response);
-	std::cout << "Code sended to Client" << std::endl;
-	close(user->getFD()); //															WARNING : ?????
-}
+	user->setUserInfo(args);
 
-int	Server::checkPassword(User* user, std::string pass)
-{
-	if (pass.compare(this->getPass()) != 0)
-		return (badPassword(user));
-	else
-		this->_welcomeFlag = 1;
+//	Welcomes as user if this is their first password check (aka first connection)
+	if (!user->wasWelcomed)
+		this->welcomeUser(user);
 
 	return (0);
 }
 
-int	Server::badPassword(User* user)
+int	Server::joinChannel(User *user, std::string *args) //								TODO : rework me?
 {
-	std::cout << std::endl << RED << DENIED << DEFCOL << std::endl;
-	std::string errMsg = "Incorrect password";
-	respondToClient(user, ERR_NOSUCHCHANNEL, errMsg);
-	return (-1);
-}
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
-void	Server::storeNickname(User *user, std::string *args) {
-
-	user->setNick(args[1]);
-	std::cout << "nickname: " << user->getNick() << std::endl;
-	if (this->_welcomeFlag == 1 && this->_isSet == 0){
-		this->welcomeMsg(user);
-		this->_isSet = 1;
-		std::cout << "Pass && nickname done" << std::endl;
-	}
-}
-
-void	Server::welcomeMsg(User *user)
-{
-
-	std::ostringstream welcome;
-	welcome << ":" << RPL_WELCOME << user->getNick() << " :Welcome to this IRC server" << "\r\n";
-
-	sendToClient(user, welcome.str());
-}
-// FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-int	Server::command(std::string	*args)
-{
-	int 		index = 0;
-	std::string cmdArray[8] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE" };
-
-	while (index < 8)
+//	If the channel exists, try to join it (password managed in Channel class ?)
+	if (it != this->_chanContainer.end())
 	{
-//		If it's not a command, it's a normal message
-		if (!cmdArray[index].compare(args[0]))
-			break;
-		index++;
+		debugPrint(MAGENTA, "\n > joinning a channel\n"); //									DEBUG
+
+		it->second->joinChan(user);
 	}
-	return (index);
+//	Else channel does not exist
+	else
+	{
+		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
+
+		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+
+		newChannel->setChanName(args[1]);
+		newChannel->setAdminName(user->getNick());
+		newChannel->joinChan(user);
+	}
+	return (0);
 }
 
-int	Server::readFromClient(User *user, std::string *message)
+int	Server::kickUser(User *user, std::string *args)
 {
+	(void)user;
+	(void)args;
 
+	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+int	Server::inviteUser(User *user, std::string *args)
+{
+	(void)user;
+	(void)args;
+
+	std::cout << "TODO : invite user in" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+int	Server::setChannelTopic(User *user, std::string *args)
+{
+	(void)user;
+	(void)args;
+
+	std::cout << "TODO : set channel topic" << std::endl; //			DEBUG
+
+	return (0);
+}
+
+int	Server::setUserMode(User *user, std::string *args)
+{
+	(void)user;
+	(void)args;
+
+	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
+
+	return (0);
+}
+
+//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
+int	Server::processMessage(User *user, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
+{
+	(void)user;
+	(void)args;
+
+ 			// for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
+			// {
+        	// 	last_msg->assign(buff, 0, byteReceived);
+
+        	// 	std::ostringstream debug; //											DEBUG
+        	// 	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+        	// 	debugPrint(GREEN, debug.str()); //										DEBUG
+
+        	// 	sendToClient(user, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+			// }
+
+//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
+	return (1);
+}
+
+//	GETS THE SPECIFIC ID OF A USER COMMAND
+int Server::getCmdID(std::string cmd)
+{
+	std::string cmds[8] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE" };
+
+	int id = 0;
+	while (id < 8 && cmd.compare(cmds[id]))
+		id++;
+
+	return (id);
+}
+
+//	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
+int	Server::execCommand(User *user, std::string *args)
+{
+	int (Server::*commands[])(User*, int, std::string*) = {
+		&Server::checkPassword,
+		&Server::storeNickname,
+		&Server::storeUserInfo,
+		&Server::joinChannel,
+		&Server::kickUser,
+		&Server::inviteUser,
+		&Server::setChannelTopic,
+		&Server::setUserMode,
+		&Server::processMessage
+	};
+
+	return (this->*commands[getCmdID(args[0])])(user, fd, args);
+}
+
+
+
+//	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
+void	Server::welcomeUser(User *user, int fd)
+{
+	sendToClient(user, fd, RPL_WELCOME, WELCOME_HEADER);
+	user->wasWelcomed = true;
+}
+
+
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //						TODO : create sendToChannel() and sendToAll()
+void	Server::sendToClient(User* user, std::string code, std::string input)
+{
+	std::ostringstream 	message;
+	std::string 		result;
+
+//	Fixed struct to send all messages (template)
+	message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+	result = message.str();
+
+	std::ostringstream debug; //											DEBUG
+	debug << "OUTGOING C_MSG TO : (" << fd << ")\t| " << result; //			DEBUG
+	debugPrint(GREEN, debug.str()); //										DEBUG
+
+	if (send(fd, result.c_str(), result.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToClient() ");
+}
+
+void	Server::readFromClient(User *user, std::string *last_msg)
+{
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(user->getFD(), buff, BUFFSIZE - 1, 0);
 
-//	Check byte have been reveived = if error, delete client. NOTE -> do we really want that ?
-	if (byteReceived <= 0)
-		return (deleteClient(user->getFD(), buff));
-	else if (byteReceived)
+//	Handles what to do depending on the byte value (error, null or message)
+	if (byteReceived < 0)
+		throw std::invalid_argument(" > Error at rcv(): ");
+	else if (byteReceived == 0)
+	{
+//		Deletes the client, loses its FD and removes it from the baseFds
+		deleteClient(user->getFD(), buff);								//TODO : EXPLICATION NOTE : this makes the server clear the client data
+	}
+	else if (byteReceived > 0)
 	{
 		std::string	*args = splitString(buff, " \r\n");
 
-//		Ce serait cool un pointeur sur fonction ici a la place
-		switch (command(args))
+//		Check if the message is a command, else manages it as a message
+		if (execCommand(user, args) == 1)
 		{
-//			Client is deleted if wrong password.
-			case 0:
-				if (this->checkPassword(user, args[1]) < 0)
-					return (deleteClient(user->getFD(), buff));
-//				std::cout << "HERE\n" << std::endl; //									DEBUG
-				break;
-			case 1:
-				this->storeNickname(user, args);
-				break;
-			case 2:
-				user->parseUserInfo(args);
-				//std::cout << user->getUsername() << " " << user->getMode() << std::endl;
-				break;
-			case 3:
-				this->manageJoinCmd(user, args);
-				//channel->joinCmd(args);
-				std::cout << "do stuff for join" << std::endl; //check JOIN #nameOfChannel password
-				break;
-			case 4:
-				std::cout << "do stuff to be kick" << std::endl;
-				break;
-			case 5:
-				std::cout << "do stuff for invite" << std::endl;
-				break;
-			case 6:
-				std::cout << "do stuff to topic" << std::endl;
-				break;
-			case 7:
-				std::cout << "do stuff to mode" << std::endl;
-				break;
-			default:
-				std::cout << "Command does not exist" << std::endl; //msg to be send to client though..
-		}
-		message->assign(buff, 0, byteReceived);
-		std::cout << *message;
+			//processMessage(); < --- Déplacer là
+        	last_msg->assign(buff, 0, byteReceived);
 
-//		will need send according to what was done as a command (above)
-		//ret = send(user.getFD, message, message->length(), 0);
-		// if (ret == 0)
-		// {
-		// 	std::cout << "HERE" << std::endl;
-		// }
-		// else if (ret < 0)
-		// {
-		// 	std::cout << "ERROR" << std::endl;
-		// }
-		bzero(buff, BUFFSIZE);
+        	std::ostringstream debug; //											DEBUG
+        	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+        	debugPrint(GREEN, debug.str()); //								DEBUG
+        	sendToClient(user, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+		}
+
 	}
-	return (0);
+	bzero(buff, BUFFSIZE);
 }
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -177,103 +229,143 @@ int	Server::readFromClient(User *user, std::string *message)
 //	DEBUG PRINT
 void	Server::printClient(struct sockaddr_in *client_addr)
 {
-		std::cout << CYAN << CONNECTED << " > on socket(" <<
-		this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
-		":" << ntohs(client_addr->sin_port) << DEFCOL << std::endl;
+	std::cout << CYAN << CONNECTED << " > on socket(" <<
+	this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
+	":" << ntohs(client_addr->sin_port) << DEFCOL<< std::endl << std::endl;
 }
 
-//	ENTRY POINT TO DISPATCH MESSAGE
-void	Server::knownClient(int *clientFd)
-{
-	std::string	msg;
-//	Find target client
-	if (this->_it != this->_clients.end())
-	{
-//		This will need explanation from Val
-		User *user = this->_it->second;
-		if (readFromClient(user, &msg) < 0)
-		{
-//			Close the client Fd and clear it in baseFds
-			close(*clientFd);
-			FD_CLR(*clientFd, &this->_baseFds);
-		}
-	}
-}
-
-//	DELETE TARGET CLIENT EXIT POINT
-int Server::deleteClient(int fd, char *buff)
-{
-//	Set iterator to the client's Fd
-	this->_it = this->_clients.find(fd);
-
-//	Iterate to delete all data from client's struct
-	bzero(buff, BUFFSIZE);
-	if (this->_it != this->_clients.end())
-		delete this->_it->second;
-
-//	Clear the fd from this client
-	this->_clients.erase(fd);
-	debugPrint(CYAN, DISCONNECTED);
-
-//	-1 will trigger to close and clear fd from base socket in known client
-	return (-1);
-}
-
-// NEW CLIENT ENTRY POINT
+//	PARSE THE DATA FROM A NEW CLIENT'S FIRST MESSAGES
 void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 {
-//	Generate new socket connection to add to baseSocket
+//	Generates a new socket connection to adds to baseSocket
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *)&*client_addr, &*client_len);
 	if (this->_newSocket <= 0)
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
-//		Create a new container user for this new Socket, insert User container inside Server's data
+//		Creates a new user for this new Socket & stores User container inside the Server
 		printClient(client_addr);
 		User* user = new User(*client_addr);
-		std::cout << std::endl;
-		user->setFD(this->_newSocket);
-
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		this->_it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-//	BASE SOCKET OF SERVER (ENTRY POINT)
-void	Server::initServ()
+//	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
+void	Server::knownClient(int *clientFd)
 {
-//	Set BaseSocket (Entry point)
+	std::string	last_msg;
+//	Finds target client
+	if (this->_it != this->_clients.end())
+	{
+//		map<key, value>; second = value (value = User*)
+		User* user = this->_it->second;
+		readFromClient(user, *clientFd, &last_msg);
+	}
+}
+
+//	DELETES A GIVEN CLIENT
+void Server::deleteClient(int fd, char *buff)
+{
+//	Sets iterator to the client's Fd
+	this->_it = this->_clients.find(fd);
+
+//	Deletes all data from client's struct
+	bzero(buff, BUFFSIZE);
+	if (this->_it != this->_clients.end())
+		delete this->_it->second;
+
+//	Clears the fd from this client
+	this->_clients.erase(fd);
+	debugPrint(CYAN, DISCONNECTED);
+
+//	Removes fd from _baseFds
+	close(fd);
+	FD_CLR(fd, &(this->_baseFds)); //
+}
+
+
+//	FT_SERVER - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//	INITS THE SERVER PROCESSES
+void	Server::init()
+{
+//	Sets BaseSocket (Entry point)
 	this->_baseSocket 	= socket(AF_INET, SOCK_STREAM, 0);
 	if (this->_baseSocket < 0)
 		throw std::invalid_argument(" > Error at socket(): ");
 
-//	Set Options for BaseSocket
+//	Sets Options for BaseSocket
 	const int reuse = 1;
 	if (setsockopt(this->_baseSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0)
 		throw std::invalid_argument(" > Error at setsocketopt(): ");
 
-//	Set Server Adress
+//	Sets Server Adress
 	bzero(&this->_serverAddr, sizeof(this->_serverAddr));
-	this->_serverAddr.sin_family = AF_INET;					//	bind call
-	this->_serverAddr.sin_port = htons(this->getPort());	//	Ip Adress
-	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; 		//	localhost
+	this->_serverAddr.sin_family = AF_INET; //					bind call
+	this->_serverAddr.sin_port = htons(this->getPort()); //		Ip Adress
+	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; //			localhost
 
-//	Connect server's port
+//	Connects server's port
 	if (bind(this->_baseSocket, (struct sockaddr *) &this->_serverAddr, sizeof(this->_serverAddr)) < 0)
 		throw std::invalid_argument(" > Error at bind(): ");
 
-//	Set to receive all conections
+//	Sets to receive all conections
 	listen(this->_baseSocket, SOMAXCONN);
 	FD_ZERO(&this->_baseFds);
 	FD_SET(this->_baseSocket, &this->_baseFds);
+
+	debugPrint(GREEN, LAUNCH); //								DEBUG
 }
 
-//	SERVER EXIT POINT
-void	Server::clearServ(void)
+//	LAUNCHES THE SERVER AND ITS PROCESSES
+void	Server::start(void)
 {
+	struct sockaddr_in				client_addr;
+	socklen_t 						client_len = sizeof(client_addr);
+
+	this->init();
+
+	while (!shutServ)
+	{
+		this->_targetFds = this->_baseFds;
+		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
+
+//		Checks validity of received socket fd (if error, break / throw)
+		if (this->_socketCount == -1)
+		{
+//			If CTRL-C at select, treat as not an error.
+			if (errno == EINTR)
+				break ;
+			throw std::invalid_argument(" > Error at select(): ");
+		}
+		else if (this->_socketCount > 0)
+		{
+			for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
+			{
+//				Check if the bit in the Fd is setted.
+				if (FD_ISSET(clientFd, &this->_targetFds))
+				{
+//					Manages the client either as a new or old one, depending on its FD
+					if (clientFd == this->_baseSocket)
+						this->newClient(&client_addr, &client_len);
+					else
+					{
+						this->knownClient(&clientFd);
+						std::cerr << "\n > HERE\n\n"; //			DEBUG
+					}
+				}
+			}
+		}
+	}
+	this->clear();
+}
+
+//	CLOSES THE SERVER SAFELY
+void	Server::clear(void)
+{
+	debugPrint(MAGENTA, CLOSING); //								DEBUG
 	this->_it = this->_clients.begin();
 	std::map<int, User*>::iterator ite = this->_clients.end();
 
@@ -285,46 +377,4 @@ void	Server::clearServ(void)
 	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
-}
-
-//	SERVER ENTRY POINT
-void	Server::start(void)
-{
-	struct sockaddr_in				client_addr;
-	socklen_t 						client_len = sizeof(client_addr);
-
-	this->initServ();
-	debugPrint(GREEN, LAUNCH);
-	while (!shutServ)
-	{
-		this->_targetFds = this->_baseFds;
-		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
-		if (this->_socketCount == -1)
-		{
-//			If CTRL-C at select, it's not an error.
-			if (EINTR)
-				break ;
-
-			throw std::invalid_argument(" > Error at select(): ");
-		}
-		else if (this->_socketCount)
-		{
-//			If socket is connected
-			for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
-			{
-//				Check if the bit in the Fd is setted.
-				if (FD_ISSET(clientFd, &this->_targetFds))
-				{
-//					A Valid FD have been Found.
-					if (clientFd == this->_baseSocket)
-						this->newClient(&client_addr, &client_len);
-					else
-						this->knownClient(&clientFd);
-				}
-				// else
-				// 	throw std::invalid_argument(" > Error at start(), FD_ISSET()");
-			}
-		}
-	}
-	clearServ();
 }

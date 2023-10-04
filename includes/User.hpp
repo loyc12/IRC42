@@ -3,10 +3,10 @@
 
 # include "IRC.hpp"
 
-# define CONSTR_USER	"0========= PARAM-CONSTR(USER) ========0"
-# define DEST_USER		"0========== DESTRUCT-(USER) ==========0"
+# define CONSTR_USER 	"0========= PARAM-CONSTR(USER) =======0\n"
+# define DEST_USER 		"0========== DESTRUCT-(USER) =========0\n"
 
-//class Message;
+class Message;
 
 class User //								ADD FD INSIDE USER
 {
@@ -18,29 +18,30 @@ class User //								ADD FD INSIDE USER
 		std::string	_nick;
 		std::string _mode;
 		std::string _hostname;
-		sockaddr_in _client_addr; //when client is connected
+		sockaddr_in _clientAddr; //when client is connected
 
 	public:
+		bool wasWelcomed;
 // 		Constructors & Destructor
-		User(sockaddr_in client_addr);
+		User(sockaddr_in clientAddr);
 		~User();
 
 // 		Getters - Setters
-		int			getFD(void) const;
-		std::string	getName(void) const;
-		std::string	getNick(void) const;
-		sockaddr_in	getClientAddr(void) const;
-		std::string getUsername(void) const;
-		std::string getMode(void) const;
-		std::string getHostname(void) const;
+		int			getFD			(void) const;
+		std::string	getName			(void) const;
+		std::string	getNick			(void) const;
+		std::string getUsername		(void) const;
+		std::string getMode			(void) const;
+		std::string getHostname		(void) const;
+		sockaddr_in	getClientAddr	(void) const;
 
-		void		setFD(int fd);
-		void		setName(std::string name);
-		void		setNick(std::string nick);
-		void		setUsername(std::string userName);
-		void		setMode(std::string mode);
-		void		setHostname(std::string hostname);
-		void		parseUserInfo(std::string *args);
+		void		setFD			(int fd);
+		void		setName			(std::string name);
+		void		setNick			(std::string nick);
+		void		setUsername		(std::string userName);
+		void		setMode			(std::string mode);
+		void		setHostname		(std::string hostname);
+		void		setUserInfo		(std::string *args);
 };
 
 

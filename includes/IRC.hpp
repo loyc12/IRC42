@@ -1,7 +1,6 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
-//test.cpp
 # include <iostream>
 # include <sstream>
 # include <fcntl.h> //		fds
@@ -18,16 +17,15 @@
 # include <sys/select.h> //	select
 
 class Server;
-class User;
 class Channel;
+class User;
 //class Message;
 
 # include "Colours.hpp"
-# include "Utils.hpp"
-
-# include "User.hpp"
 # include "Server.hpp"
 # include "Channel.hpp"
+# include "User.hpp"
+# include "Utils.hpp"
 //# include "Message.hpp"
 
 // PUT NON_CODE DEFINES HERE
@@ -43,7 +41,6 @@ class Channel;
 //	put defines here
 static bool	shutServ = false;
 
-//test.cpp
 void irc(Server *server);
 int parseArg(int ac, char **av);
 

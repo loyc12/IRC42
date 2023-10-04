@@ -43,3 +43,4 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 		std::string welcome = ss.str();
 
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
+
