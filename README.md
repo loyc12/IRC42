@@ -44,3 +44,5 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 		ret = send(fd, welcome.c_str(), welcome.size(), 0);
 
+## Problem:
+* Dans Netcat, quand je fais CTRL-C, error at rcv() Connection reset by peer -> Est-ce qu'il faut faire un peu comme on a fait quand on avait un prob at select()??
