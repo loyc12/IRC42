@@ -322,7 +322,7 @@ void	Server::knownClient(int *clientFd)
 	if (this->_it != this->_clients.end())
 	{
 //		map<key, value>; second = value (value = User*)
-		User* user = this->_it->second;
+		User* user = this->_it->second; //											WARNING : this takes a random user, not the one associated with clientFD
 		readFromClient(user, *clientFd, &last_msg);
 	}
 }
