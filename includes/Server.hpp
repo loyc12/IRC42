@@ -73,7 +73,7 @@ class Server
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
-			void	knownClient		(int *clientFd);
+			void	knownClient		(int fd);
 			void	deleteClient	(int fd, char *buff);
 //		FT_SERVER
 			void	init	(void);

@@ -154,62 +154,62 @@ void	Server::welcomeUser(User *user)
 {
 	replyTo(REQUEST, user, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
-/*
-	TODO : You can :
-						PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
-						NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
-						JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
-							exemple : password channel false - > retourne BAD CHANNEL KEY 475))
-							(limit -l) Limite utilisateurs par canal
+// /*
+// 	TODO : You can :
+// 						PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
+// 						NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
+// 						JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
+// 							exemple : password channel false - > retourne BAD CHANNEL KEY 475))
+// 							(limit -l) Limite utilisateurs par canal
 
-	TODO:  You can't :
-						MESSAGE (du channel, trigger participants du channel (QT)),
-							KICK(CHAN, MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
-							MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
-							INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
-							TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
+// 	TODO:  You can't :
+// 						MESSAGE (du channel, trigger participants du channel (QT)),
+// 							KICK(CHAN, MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
+// 							MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
+// 							INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
+// 							TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
 
-		std::string	ftMessage(std::string code)
-		{
-			//pointeur sur element de string (message a envoyer)
-		}
+// 		std::string	ftMessage(std::string code)
+// 		{
+// 			//pointeur sur element de string (message a envoyer)
+// 		}
 
-		command(int target, User *user, std::string condition)
-		{
-			std::string *code;
-			int	ret;
+// 		command(int target, User *user, std::string condition)
+// 		{
+// 			std::string *code;
+// 			int	ret;
 
-			if (target == CHAN)
-			{
-				if (conditon == MODE)
-				{
-					ret = attributMode(user, &code)
-					//On veut regarder les attributs mode du channel
-					if (ret < 0)
-						replyTo(REQUEST, user, *code, ftMessage(*code));
-					else
-					{
-					// WE ARE HERE
-						ftAction();
-						reply(REQUEST, );
-						replyTo(CHAN, user, *code, ftMessage(*code));
-					}
-				}
-				else if (condition == USER)
-				{
-					//On veut regarder les attributs mode du channel
-					if (attributUser(user, &code) < 0)
-						replyTo(REQUEST, user, *code, ftMessage(*code));
-				}
-			}
-			else if (target == REQUEST)
-			{
+// 			if (target == CHAN)
+// 			{
+// 				if (conditon == MODE)
+// 				{
+// 					ret = attributMode(user, &code)
+// 					//On veut regarder les attributs mode du channel
+// 					if (ret < 0)
+// 						replyTo(REQUEST, user, *code, ftMessage(*code));
+// 					else
+// 					{
+// 					// WE ARE HERE
+// 						ftAction();
+// 						reply(REQUEST, );
+// 						replyTo(CHAN, user, *code, ftMessage(*code));
+// 					}
+// 				}
+// 				else if (condition == USER)
+// 				{
+// 					//On veut regarder les attributs mode du channel
+// 					if (attributUser(user, &code) < 0)
+// 						replyTo(REQUEST, user, *code, ftMessage(*code));
+// 				}
+// 			}
+// 			else if (target == REQUEST)
+// 			{
 
-			}
-		}
+// 			}
+// 		}
 
-	 TODO:  TRIGGER : Command ID
-*/
+// 	 TODO:  TRIGGER : Command ID
+// */
 }
 
 
@@ -263,7 +263,6 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 			//replyTo(REQUEST, user, )
 
         	replyTo(REQUEST, user, RPL_REPLY, *last_msg); //					WARNING : RPL_REPLY, temp solution
-
 		}
 
 	}
@@ -301,21 +300,17 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 }
 
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
-void	Server::knownClient(int *clientFd)//						NOTE : how does it know user matches fd ???
+void	Server::knownClient(int fd) // 										TODO : give user from map instead of fd ??
 {
 	std::string	last_msg;
-	std::map<int, User*>::iterator it = this->_clients.find(*clientFd);
+	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 //	Finds target client
 	if (it != this->_clients.end())
 	{
 //		map<key, value>; second = value (value = User*)
-<<<<<<< HEAD
-		User *user = it->second; //							WARNING : this doesn't select the user associated with the clientFD. takes the last connected one instead
-=======
-		User* user = this->_it->second; //											WARNING : this takes a random user, not the one associated with clientFD
->>>>>>> alpha
-		readFromClient(user, *clientFd, &last_msg);
+		User *user = it->second;
+		readFromClient(user, fd, &last_msg);
 	}
 }
 
@@ -406,7 +401,7 @@ void	Server::start(void)
 						this->newClient(&client_addr, &client_len);
 					else
 					{
-						this->knownClient(&clientFd);
+						this->knownClient(clientFd);
 //						std::cerr << "\n > HERE\n\n"; //			DEBUG
 					}
 				}
