@@ -12,15 +12,17 @@
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
-//ENTRY CODE 
-# define RPL_WELCOME		"001" //space is needed
+//ENTRY CODE
+# define RPL_WELCOME		"001"
 //CHANNEL CODE
 # define ERR_NOSUCHCHANNEL	"403" //chan does not exist
 # define RPL_NOTOPIC		"331" //no topic set for chan
 # define RPL_TOPIC			"332" //topic of the chan
 # define RPL_NAMREPLY		"353" //list of nicknames in channel
 # define RPL_REPLY			"302" //Reply Mode
-# define IGNORE				"0"	//Pour les messages 
+# define JOIN				"JOIN"
+# define REQUEST			0
+# define CHAN				1
 
 
 class Server
@@ -35,9 +37,6 @@ class Server
 			int			_socketCount;
 			fd_set 		_baseFds;
 			fd_set 		_targetFds;
-//		Flag
-//			bool		_isSet;
-//			bool		_isMsg;
 //		Storage
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
@@ -67,7 +66,7 @@ class Server
 			int		execCommand		(User *user, int fd, std::string *args);
 //		FT_I/O
 			void	welcomeUser		(User *user, int fd);
-			void	sendToClient	(User* user, int fd, std::string code, std::string input);
+			void	replyTo			(int target, User* user, int fd, std::string code, std::string input);
 			void	readFromClient	(User *user, int fd, std::string *last_msg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
