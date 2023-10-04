@@ -19,7 +19,7 @@ int	Server::checkPassword(User *user, std::string *args)
 		debugPrint(RED, DENIED); //													DEBUG
 		std::string errMsg = "Invalid password";
 
-		sendToClient(user, ERR_NOSUCHCHANNEL, errMsg);
+		replyTo(REQUEST, user, ERR_NOSUCHCHANNEL, errMsg);
 		return (-1);
 	}
 	return (0);
@@ -42,7 +42,7 @@ int	Server::storeUserInfo(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::joinChannel(User *user, std::string *args) //								TODO : rework me?
+int	Server::joinChannel(User *user, std::string *args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
@@ -50,8 +50,7 @@ int	Server::joinChannel(User *user, std::string *args) //								TODO : rework m
 	if (it != this->_chanContainer.end())
 	{
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); //									DEBUG
-
-		it->second->joinChan(user);
+		replyTo(CHAN, user, JOIN, it->second->getChanName());
 	}
 //	Else channel does not exist
 	else
@@ -63,8 +62,9 @@ int	Server::joinChannel(User *user, std::string *args) //								TODO : rework m
 
 		newChannel->setChanName(args[1]);
 		newChannel->setAdminName(user->getNick());
-		newChannel->joinChan(user);
+		replyTo(CHAN, user, JOIN, newChannel->getChanName());
 	}
+
 	return (0);
 }
 
@@ -108,25 +108,13 @@ int	Server::setUserMode(User *user, std::string *args)
 	return (0);
 }
 
-//	PROCESSES A MESSAGE THAT NEEDS TO BE BROADCASTED
-int	Server::processMessage(User *user, std::string *args) //	TODO : implement me properly (sendToChannel() ?)
+//	TELLS readFromClient that this is a message
+int	Server::processMessage(User *user, std::string *args)
 {
 	(void)user;
 	(void)args;
 
- 			// for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
-			// {
-        	// 	last_msg->assign(buff, 0, byteReceived);
-
-        	// 	std::ostringstream debug; //											DEBUG
-        	// 	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
-        	// 	debugPrint(GREEN, debug.str()); //										DEBUG
-
-        	// 	sendToClient(user, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
-			// }
-
-//	std::cout << "TODO : proccess incoming message" << std::endl; //	DEBUG
-	return (1);
+	return (-1);
 }
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND
@@ -144,7 +132,7 @@ int Server::getCmdID(std::string cmd)
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::string *args)
 {
-	int (Server::*commands[])(User*, int, std::string*) = {
+	int (Server::*commands[])(User*, std::string*) = {
 		&Server::checkPassword,
 		&Server::storeNickname,
 		&Server::storeUserInfo,
@@ -156,45 +144,102 @@ int	Server::execCommand(User *user, std::string *args)
 		&Server::processMessage
 	};
 
-	return (this->*commands[getCmdID(args[0])])(user, fd, args);
+	return (this->*commands[getCmdID(args[0])])(user, args);
 }
-
-
 
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
-void	Server::welcomeUser(User *user, int fd)
+void	Server::welcomeUser(User *user)
 {
-	sendToClient(user, fd, RPL_WELCOME, WELCOME_HEADER);
+	replyTo(REQUEST, user, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
+/*
+	TODO : You can :
+						PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
+						NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
+						JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
+							exemple : password channel false - > retourne BAD CHANNEL KEY 475))
+							(limit -l) Limite utilisateurs par canal
+
+	TODO:  You can't :
+						MESSAGE (du channel, trigger participants du channel (QT)),
+							KICK(CHAN, MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
+							MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
+							INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
+							TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
+
+		std::string	ftMessage(std::string code)
+		{
+			//pointeur sur element de string (message a envoyer)
+		}
+
+		command(int target, User *user, std::string condition)
+		{
+			std::string *code;
+			int	ret;
+
+			if (target == CHAN)
+			{
+				if (conditon == MODE)
+				{
+					ret = attributMode(user, &code)
+					//On veut regarder les attributs mode du channel
+					if (ret < 0)
+						replyTo(REQUEST, user, *code, ftMessage(*code));
+					else
+					{
+					// WE ARE HERE
+						ftAction();
+						reply(REQUEST, );
+						replyTo(CHAN, user, *code, ftMessage(*code));
+					}
+				}
+				else if (condition == USER)
+				{
+					//On veut regarder les attributs mode du channel
+					if (attributUser(user, &code) < 0)
+						replyTo(REQUEST, user, *code, ftMessage(*code));
+				}
+			}
+			else if (target == REQUEST)
+			{
+
+			}
+		}
+
+	 TODO:  TRIGGER : Command ID
+*/
 }
 
 
-//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //						TODO : create sendToChannel() and sendToAll()
-void	Server::sendToClient(User* user, std::string code, std::string input)
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
+void	Server::replyTo(int target, User* user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
-//	Fixed struct to send all messages (template)
-	message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
+	if (target == REQUEST)
+		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+	else if (target == CHAN)
+		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+
 	result = message.str();
+	std::ostringstream debug; //												DEBUG
+	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
+	debugPrint(GREEN, debug.str()); //											DEBUG
 
-	std::ostringstream debug; //											DEBUG
-	debug << "OUTGOING C_MSG TO : (" << fd << ")\t| " << result; //			DEBUG
-	debugPrint(GREEN, debug.str()); //										DEBUG
-
-	if (send(fd, result.c_str(), result.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToClient() ");
+	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at replyTo() ");
 }
 
-void	Server::readFromClient(User *user, std::string *last_msg)
+void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 {
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
-	int byteReceived = recv(user->getFD(), buff, BUFFSIZE - 1, 0);
+	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles what to do depending on the byte value (error, null or message)
 	if (byteReceived < 0)
@@ -202,22 +247,23 @@ void	Server::readFromClient(User *user, std::string *last_msg)
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(user->getFD(), buff);								//TODO : EXPLICATION NOTE : this makes the server clear the client data
+		deleteClient(fd, buff);								//TODO : EXPLICATION NOTE : this makes the server clear the client data
 	}
 	else if (byteReceived > 0)
 	{
-		std::string	*args = splitString(buff, " \r\n");
-
-//		Check if the message is a command, else manages it as a message
-		if (execCommand(user, args) == 1)
+		if (execCommand(user, splitString(buff, " \r\n")) == -1)
 		{
-			//processMessage(); < --- Déplacer là
         	last_msg->assign(buff, 0, byteReceived);
 
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
-        	debugPrint(GREEN, debug.str()); //								DEBUG
-        	sendToClient(user, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
+        	debugPrint(GREEN, debug.str()); //										DEBUG
+
+			//replyTo(CHAN, user, NULL, *last_msg);
+			//replyTo(REQUEST, user, )
+
+        	replyTo(REQUEST, user, RPL_REPLY, *last_msg); //					WARNING : RPL_REPLY, temp solution
+
 		}
 
 	}
@@ -246,6 +292,8 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 //		Creates a new user for this new Socket & stores User container inside the Server
 		printClient(client_addr);
 		User* user = new User(*client_addr);
+		user->setFD(this->_newSocket);
+
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		this->_it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
@@ -253,14 +301,14 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 }
 
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
-void	Server::knownClient(int *clientFd)
+void	Server::knownClient(int *clientFd)//						NOTE : how does it know user matches fd ???
 {
 	std::string	last_msg;
 //	Finds target client
 	if (this->_it != this->_clients.end())
 	{
 //		map<key, value>; second = value (value = User*)
-		User* user = this->_it->second;
+		User* user = this->_it->second; //							WARNING : this doesn't select the user associated with the clientFD. takes the last connected one instead
 		readFromClient(user, *clientFd, &last_msg);
 	}
 }
@@ -353,7 +401,7 @@ void	Server::start(void)
 					else
 					{
 						this->knownClient(&clientFd);
-						std::cerr << "\n > HERE\n\n"; //			DEBUG
+//						std::cerr << "\n > HERE\n\n"; //			DEBUG
 					}
 				}
 			}
