@@ -310,7 +310,11 @@ void	Server::knownClient(int *clientFd)//						NOTE : how does it know user matc
 	if (it != this->_clients.end())
 	{
 //		map<key, value>; second = value (value = User*)
+<<<<<<< HEAD
 		User *user = it->second; //							WARNING : this doesn't select the user associated with the clientFD. takes the last connected one instead
+=======
+		User* user = this->_it->second; //											WARNING : this takes a random user, not the one associated with clientFD
+>>>>>>> alpha
 		readFromClient(user, *clientFd, &last_msg);
 	}
 }
