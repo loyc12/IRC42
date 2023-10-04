@@ -25,7 +25,7 @@ class Channel
 		void			  setChanName	(std::string const &chan);
 		void			  setAdminName	(std::string const &admin);
 
-		void			  joinChan		(User *user, int fd, std::string code, std::string input);
+		// void			  joinChan		(User *user, int fd, std::string code, std::string input);
 };
 
 #endif

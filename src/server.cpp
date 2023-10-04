@@ -34,7 +34,6 @@ int	Server::storeNickname(User *user, int fd, std::string *args)
 
 int	Server::storeUserInfo(User *user, int fd, std::string *args)
 {
-	//(void)fd;
 	user->setUserInfo(args);
 
 //	Welcomes as user if this is their first password check (aka first connection)
@@ -52,8 +51,7 @@ int	Server::joinChannel(User *user, int fd, std::string *args)
 	if (it != this->_chanContainer.end())
 	{
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); //									DEBUG
-
-		it->second->joinChan(user, fd, JOIN, it->second->getChanName());
+		replyTo(CHAN, user, fd, JOIN, it->second->getChanName());
 	}
 //	Else channel does not exist
 	else
@@ -65,7 +63,6 @@ int	Server::joinChannel(User *user, int fd, std::string *args)
 
 		newChannel->setChanName(args[1]);
 		newChannel->setAdminName(user->getNick());
-		//newChannel->joinChan(user, fd, JOIN, newChannel->getChanName());
 		replyTo(CHAN, user, fd, JOIN, newChannel->getChanName());
 	}
 
@@ -175,13 +172,62 @@ void	Server::welcomeUser(User *user, int fd)
 {
 	replyTo(REQUEST, user, fd, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
-	// TODO : You can :  PASS, NICK, JOIN
-	// TODO:  You can't : MESSAGE, USER?, KICK, INVITE, TOPIC, MODE
-	// TODO:  TRIGGER : Command ID
+	// TODO : You can :  
+						//PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
+						//NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
+						//JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
+							// exemple : password channel false - > retourne BAD CHANNEL KEY 475))
+							// (limit -l) Limite utilisateurs par canal
+
+	// TODO:  You can't : 
+							//MESSAGE (du channel, trigger participants du channel (QT)),
+								//KICK(CHAN, MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
+ 								//MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
+								//INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
+								//TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
+
+	// 						std::string	ftMessage(std::string code)
+	// 						{
+	// 							//pointeur sur element de string (message a envoyer)
+	// 						}
+
+	// 						command(int target, std::string condition, user, fd)
+	// 						{
+	// 							std::string *code;
+	// 							int	ret;
+
+	// 							if (target == CHAN)
+	// 							{
+	// 								if (conditon == MODE)
+	// 								{
+	// 									ret = attributMode(user, fd, &code)
+	// 									//On veut regarder les attributs mode du channel
+	// 									if (ret < 0)
+	// 										replyTo(REQUEST, user, fd, *code, ftMessage(*code));
+	// 									else
+	// 									// WE ARE HERE 
+	// 										ftAction()
+	// 										reply(REQUEST, )
+	// 										replyTo(CHAN, user, fd, *code, ftMessage(*code));
+										
+	// 								}
+	// 								else if (condition == USER)
+	// 								{
+	// 									//On veut regarder les attributs mode du channel
+	// 									if (attributUser(user, fd, &code) < 0)
+	// 										replyTo(REQUEST, user, fd, *code, ftMessage(*code))
+	// 								}
+	// 							}
+	// 							else if (target == REQUEST)
+	// 							{
+
+	// 							}
+	// 						}
+	// // TODO:  TRIGGER : Command ID
 }
 
 
-//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //						TODO : create sendToChannel() and sendToAll()
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
 void	Server::replyTo(int target, User* user, int fd, std::string code, std::string input)
 {
 	std::ostringstream 	message;
@@ -234,7 +280,7 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
         	debugPrint(GREEN, debug.str()); //										DEBUG
 			//replyTo(CHAN, user, fd, NULL, *last_msg);
 			//replyTo(REQUEST, user, )
-        	replyTo(REQUEST, user, fd, RPL_REPLY, *last_msg); //						WARNING : RPL_REPLY, temp solution
+        	replyTo(REQUEST, user, fd, RPL_REPLY, *last_msg); //					WARNING : RPL_REPLY, temp solution
 		}
 	}
 	bzero(buff, BUFFSIZE);
