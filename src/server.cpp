@@ -124,11 +124,11 @@ int	Server::processMessage(User *user, int fd, std::string *args) //	TODO : impl
  			// for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
 			// {
         	// 	last_msg->assign(buff, 0, byteReceived);
-        
+
         	// 	std::ostringstream debug; //											DEBUG
         	// 	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
         	// 	debugPrint(GREEN, debug.str()); //										DEBUG
-    
+
         	// 	sendToClient(user, fd, RPL_REPLY, *last_msg); //		WARNING : RPL_REPLY, temp solution
 			// }
 
@@ -222,7 +222,7 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 		{
 			//processMessage(); < --- Déplacer là
         	last_msg->assign(buff, 0, byteReceived);
-        
+
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
         	debugPrint(GREEN, debug.str()); //								DEBUG
