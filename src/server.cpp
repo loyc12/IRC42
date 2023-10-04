@@ -295,7 +295,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 		user->setFD(this->_newSocket);
 
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
-		this->_it = this->_clients.find(this->_newSocket);
+//		std::map<int, User*>::iterator it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
@@ -304,11 +304,13 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 void	Server::knownClient(int *clientFd)//						NOTE : how does it know user matches fd ???
 {
 	std::string	last_msg;
+	std::map<int, User*>::iterator it = this->_clients.find(*clientFd);
+
 //	Finds target client
-	if (this->_it != this->_clients.end())
+	if (it != this->_clients.end())
 	{
 //		map<key, value>; second = value (value = User*)
-		User* user = this->_it->second; //							WARNING : this doesn't select the user associated with the clientFD. takes the last connected one instead
+		User *user = it->second; //							WARNING : this doesn't select the user associated with the clientFD. takes the last connected one instead
 		readFromClient(user, *clientFd, &last_msg);
 	}
 }
@@ -317,12 +319,12 @@ void	Server::knownClient(int *clientFd)//						NOTE : how does it know user matc
 void Server::deleteClient(int fd, char *buff)
 {
 //	Sets iterator to the client's Fd
-	this->_it = this->_clients.find(fd);
+	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 //	Deletes all data from client's struct
 	bzero(buff, BUFFSIZE);
-	if (this->_it != this->_clients.end())
-		delete this->_it->second;
+	if (it != this->_clients.end())
+		delete it->second;
 
 //	Clears the fd from this client
 	this->_clients.erase(fd);
@@ -414,13 +416,13 @@ void	Server::start(void)
 void	Server::clear(void)
 {
 	debugPrint(MAGENTA, CLOSING); //								DEBUG
-	this->_it = this->_clients.begin();
+	std::map<int, User*>::iterator it = this->_clients.begin();
 	std::map<int, User*>::iterator ite = this->_clients.end();
 
-	while (this->_it != ite)
+	while (it != ite)
 	{
-		delete this->_it->second;
-		this->_it++;
+		delete it->second;
+		it++;
 	}
 	this->_clients.clear();
 	close(this->_baseSocket);

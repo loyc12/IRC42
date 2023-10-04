@@ -42,7 +42,7 @@ class Server
 			std::map<std::string, Channel*> _chanContainer;
 			struct sockaddr_in				_serverAddr;
 //		Utils
-			std::map<int, User*>::iterator	_it;
+//			std::map<int, User*>::iterator	_it;
 
 
 	public:
