@@ -68,7 +68,7 @@ int	Server::joinChannel(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::kickUser(User *user, std::string *args)
+int	Server::kickUser(User *user, std::string *args) // , Channel *chan)
 {
 	(void)user;
 	(void)args;
@@ -76,6 +76,28 @@ int	Server::kickUser(User *user, std::string *args)
 	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
 
 	return (0);
+
+//KICK(CHAN, conditon : MODE,  false -> message to Requesr (482), if true -> kick  + MESSAGE)
+/*
+
+
+*/
+
+/*
+
+	BEFORE CALLING FUNCTIONS : cheks if channel and users exist
+
+	if (chann == NULL)
+		send deny message (not on channel)
+	else if (functionLacksParams(user, args))
+		send deny message (not enough params)
+	else if (functionIsNotAllowed(user, chan))
+		send deny message (not allowed)
+	else
+		send aprove message (success)
+		kick
+
+*/
 }
 
 int	Server::inviteUser(User *user, std::string *args)
@@ -154,63 +176,68 @@ void	Server::welcomeUser(User *user)
 {
 	replyTo(REQUEST, user, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
-// /*
-// 	TODO : You can :
-// 						PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
-// 						NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
-// 						JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
-// 							exemple : password channel false - > retourne BAD CHANNEL KEY 475))
-// 							(limit -l) Limite utilisateurs par canal
-
-// 	TODO:  You can't :
-// 						MESSAGE (du channel, trigger participants du channel (QT)),
-// 							KICK(CHAN, MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
-// 							MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
-// 							INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
-// 							TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
-
-// 		std::string	ftMessage(std::string code)
-// 		{
-// 			//pointeur sur element de string (message a envoyer)
-// 		}
-
-// 		command(int target, User *user, std::string condition)
-// 		{
-// 			std::string *code;
-// 			int	ret;
-
-// 			if (target == CHAN)
-// 			{
-// 				if (conditon == MODE)
-// 				{
-// 					ret = attributMode(user, &code)
-// 					//On veut regarder les attributs mode du channel
-// 					if (ret < 0)
-// 						replyTo(REQUEST, user, *code, ftMessage(*code));
-// 					else
-// 					{
-// 					// WE ARE HERE
-// 						ftAction();
-// 						reply(REQUEST, );
-// 						replyTo(CHAN, user, *code, ftMessage(*code));
-// 					}
-// 				}
-// 				else if (condition == USER)
-// 				{
-// 					//On veut regarder les attributs mode du channel
-// 					if (attributUser(user, &code) < 0)
-// 						replyTo(REQUEST, user, *code, ftMessage(*code));
-// 				}
-// 			}
-// 			else if (target == REQUEST)
-// 			{
-
-// 			}
-// 		}
-
-// 	 TODO:  TRIGGER : Command ID
-// */
 }
+
+/*
+	IN REQUEST :
+		You can :
+				PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
+				NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
+				JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
+					exemple : password channel false - > retourne BAD CHANNEL KEY 475))
+					(limit -l) Limite utilisateurs par canal
+		You can't :
+				MESSAGE (du channel, trigger participants du channel (QT)),
+					command(KICK, CHAN, conditon : MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
+					MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
+					INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
+					TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
+	IN CHAN :
+		You can :
+		You can't :
+*/
+
+/*
+std::string	ftMessage(std::string code)
+{
+	//pointeur sur element de string (message a envoyer)
+}
+command(int target, User *user, std::string condition)
+{
+	std::string *code;
+	int	ret;
+
+	if (target == CHAN)
+	{
+		if (conditon == MODE)
+		{
+			//fonction qui regarde attributMode et retourne une valeur positive ou negative selon le mode mit en place && cette fonction effectue une modification sur le code.
+			ret = attributMode(user, &code);
+			//On veut regarder les attributs mode du channel
+			if (ret < 0)
+				replyTo(REQUEST, user, *code, ftMessage(*code));
+			else
+			{
+			// WE ARE HERE
+				ftAction();
+				reply(REQUEST, );
+				replyTo(CHAN, user, *code, ftMessage(*code));
+			}
+		}
+		else if (condition == USER)
+		{
+			//On veut regarder les attributs mode du channel
+			if (attributUser(user, &code) < 0)
+				replyTo(REQUEST, user, *code, ftMessage(*code));
+		}
+	}
+	else if (target == REQUEST)
+	{
+
+	}
+	//	TODO:  TRIGGER : Command ID
+}
+*/
 
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
