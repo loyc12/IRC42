@@ -54,3 +54,6 @@ For example, if the join operation is successful, the server may respond with a 
 If the join operation fails, the server may respond with a numeric code 403 (ERR_NOSUCHCHANNEL) indicating that the channel does not exist or a numeric code 471 (ERR_CHANNELISFULL) indicating that the channel is full.
 
 You would need to handle these response codes in your server code to appropriately handle the join operation.
+
+## Problem:
+* Dans Netcat, quand je fais CTRL-C, error at rcv() Connection reset by peer -> Est-ce qu'il faut faire un peu comme on a fait quand on avait un prob at select()??

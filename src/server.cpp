@@ -353,7 +353,7 @@ void	Server::init()
 //	Sets Server Adress
 	bzero(&this->_serverAddr, sizeof(this->_serverAddr));
 	this->_serverAddr.sin_family = AF_INET; //					bind call
-	this->_serverAddr.sin_port = htons(this->getPort()); //		Ip Adress
+	this->_serverAddr.sin_port = htons(this->getPort()); //		IP Adress
 	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; //			localhost
 
 //	Connects server's port
