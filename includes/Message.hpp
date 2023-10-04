@@ -1,13 +1,13 @@
 #ifndef MESSAGE_HPP
 # define MESSAGE_HPP
 
+//								OBSOLETE (?)
 
 # include <iostream>
 # include <stdlib.h>		// for which functions ??
 # include <fcntl.h>			// for file descriptors (?)
-# include "User.hpp"
 
-class User;
+# include "IRC.hpp"
 
 class Message
 {
@@ -29,5 +29,6 @@ class Message
 		User		*getSender(void) const;
 };
 
+//	SUPERFLUOUS
 
 #endif // MESSAGE_HPP

@@ -1,4 +1,8 @@
+#include "Message.hpp"
+<<<<<<< HEAD
+=======
 #include "IRC.hpp"
+>>>>>>> beta
 
 // 0================ BASE FUNCTIONS ================0
 

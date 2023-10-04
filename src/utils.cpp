@@ -1,15 +1,17 @@
-#include "Utils.hpp"
+#include "IRC.hpp"
+
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL;}
 
 std::string	*splitStringPrivate(const char *str, const char *chrs)
 {
-//	std::cout << "buff : \'" << str << "\'" << std::endl;
-//	std::cout << "chars : \'" << chrs << "\'" << std::endl;
+//	std::cout << "buff : \'" << str << "\'" << std::endl; //							DEBUG
+//	std::cout << "chars : \'" << chrs << "\'" << std::endl; //							DEBUG
 
 	int		i = 0;
-	char	*ptr = strtok(strdup(str), chrs); //	strtok works kinda like readline (iterative) ...
+	char	*ptr = strtok(strdup(str), chrs); //	strtok works iteratively ..
 	while (ptr != NULL)
 	{
-		ptr = strtok(NULL, chrs); //				... so you need to recall it for each token
+		ptr = strtok(NULL, chrs); //			... so it needs to be once per token
 		i++;
 	}
 
@@ -20,7 +22,7 @@ std::string	*splitStringPrivate(const char *str, const char *chrs)
 	while (ptr != NULL)
 	{
 		args[i] = strdup(ptr);
-//		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl;
+//		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl; //		DEBUG
 		ptr = strtok(NULL, chrs);
 		i++;
 	}
