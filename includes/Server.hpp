@@ -87,8 +87,8 @@ class Server
 			void	replyTo			(int target, User *user, std::string code, std::string input);
 //			void	reply			(User *user, std::string code, std::string input);
 			Channel	*findChannel	(std::string str);
-			void	sendToChan		(std::string last_msg, std::vector<std::string> args);
-			void	readFromClient	(User *user, int fd, std::string *last_msg);
+			void	sendToChan		(std::string message, std::vector<std::string> args);
+			void	readFromClient	(User *user, int fd, std::string *lastMsg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);

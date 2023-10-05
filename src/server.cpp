@@ -190,9 +190,10 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 	{
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
+		chan->addMember(user);
 //		replyTo(REQUEST, user, ??, chan->getChanName()); // send info message to request
 		replyTo(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
-//		sendToChan(*last_msg, args); // send code (alert ou prv msg) to all membres of chan
+//		sendToChan(*lastMsg, args); // send code (alert ou prv msg) to all membres of chan
 	}
 }
 
@@ -210,11 +211,14 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 		newChannel->setChanName(args[1]);
+
+		newChannel->addMember(user);
 		newChannel->setAdminName(user->getNick());
+
 		replyTo(CHAN, user, JOIN, newChannel->getChanName());
 }
 
-int	Server::cmdJoin(User *user, std::vector<std::string> args)
+int	Server::cmdJoin(User *user, std::vector<std::string> args) //								DEBUG NOTE THINGIES : this doesn't really work rn. seems like it doesn't join the same channel despite the name
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	if (args[1].compare("#") == 0)
@@ -232,7 +236,7 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
 void	Server::replyTo(int target, User* user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
@@ -253,7 +257,36 @@ void	Server::replyTo(int target, User* user, std::string code, std::string input
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
 
-void	Server::readFromClient(User *user, int fd, std::string *last_msg)
+
+Channel	*Server::findChannel(std::string str)
+{
+	str.erase(0, 1);
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
+
+	//if (it != this->_chanContainer.end())
+	{
+		std::cerr << "HERE" << std::endl; //									DEBUG
+		return (it->second);
+	}
+	//else
+		return (NULL);
+}
+
+//	SENDS A SINGLE MESSAGE TO ALL MEMBERS OF A CHANNEL
+void	Server::sendToChan(std::string message, std::vector<std::string> args)
+{
+	Channel *chan = findChannel(args[1]);
+
+//	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
+	if (chan != NULL) // && args.size() > 2)
+	{
+		std::cerr << "HERE" << std::endl; //									DEBUG
+		for (int i = 0; i < chan->getMemberCnt(); i++)
+			replyTo(CHAN, chan->getMember(i), "", message);
+	}
+}
+
+void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 {
 	char 		buff[BUFFSIZE];
 
@@ -270,7 +303,7 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	}
 	else if (byteReceived > 0)
 	{
-        last_msg->assign(buff, 0, byteReceived);
+        lastMsg->assign(buff, 0, byteReceived);
 
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
@@ -280,45 +313,21 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 
 
         	std::ostringstream debug; //											DEBUG
-        	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
+        	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *lastMsg; //		DEBUG
         	debugPrint(GREEN, debug.str()); //										DEBUG
 
-			//replyTo(CHAN, user, NULL, *last_msg);
+			//replyTo(CHAN, user, NULL, *lastMsg);
 			//replyTo(REQUEST, user, )
 
+			std::cerr << args[0] << std::endl; //									DEBUG
+
 			if (args[0].compare("PRIVMSG") != 0)
-        		replyTo(CHAN, user, "", *last_msg);
+        		replyTo(CHAN, user, "", *lastMsg);
 			else
-				sendToChan(*last_msg, args);
+				sendToChan(*lastMsg, args);
 		}
 	}
 	bzero(buff, BUFFSIZE);
-}
-
-
-Channel	*Server::findChannel(std::string str)
-{
-	str.erase(0, 1);
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
-
-	std::cerr<< std::endl << ':' << str << ':'  << std::endl; //									DEBUG
-
-	if (it != this->_chanContainer.end())
-		return (it->second);
-	else
-		return (NULL);
-}
-
-void	Server::sendToChan(std::string last_msg, std::vector<std::string> args)
-{
-	Channel *chan = findChannel(args[1]);
-
-//	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan && args.size() > 2)
-	{
-		for (int i = 0; i < chan->getMemberCnt(); i++)
-			replyTo(CHAN, chan->getMember(i), "", last_msg);
-	}
 }
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -353,14 +362,14 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
 void	Server::knownClient(int fd)
 {
-	std::string	last_msg;
+	std::string	lastMsg;
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 //	Finds target client
 	if (it != this->_clients.end())
 	{
 		User *user = it->second;
-		readFromClient(user, fd, &last_msg);
+		readFromClient(user, fd, &lastMsg);
 	}
 }
 
