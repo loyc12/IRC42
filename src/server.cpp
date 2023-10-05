@@ -42,32 +42,6 @@ int	Server::storeUserInfo(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::joinChannel(User *user, std::string *args)
-{
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-
-//	If the channel exists, try to join it (password managed in Channel class ?)
-	if (it != this->_chanContainer.end())
-	{
-		debugPrint(MAGENTA, "\n > joinning a channel\n"); //									DEBUG
-		replyTo(CHAN, user, JOIN, it->second->getChanName());
-	}
-//	Else channel does not exist
-	else
-	{
-		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
-
-		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
-		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-
-		newChannel->setChanName(args[1]);
-		newChannel->setAdminName(user->getNick());
-		replyTo(CHAN, user, JOIN, newChannel->getChanName());
-	}
-
-	return (0);
-}
-
 int	Server::kickUser(User *user, std::string *args) // , Channel *chan)
 {
 	(void)user;
@@ -76,28 +50,6 @@ int	Server::kickUser(User *user, std::string *args) // , Channel *chan)
 	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
 
 	return (0);
-
-//KICK(CHAN, conditon : MODE,  false -> message to Requesr (482), if true -> kick  + MESSAGE)
-/*
-
-
-*/
-
-/*
-
-	BEFORE CALLING FUNCTIONS : cheks if channel and users exist
-
-	if (chann == NULL)
-		send deny message (not on channel)
-	else if (functionLacksParams(user, args))
-		send deny message (not enough params)
-	else if (functionIsNotAllowed(user, chan))
-		send deny message (not allowed)
-	else
-		send aprove message (success)
-		kick
-
-*/
 }
 
 int	Server::inviteUser(User *user, std::string *args)
@@ -158,7 +110,7 @@ int	Server::execCommand(User *user, std::string *args)
 		&Server::checkPassword,
 		&Server::storeNickname,
 		&Server::storeUserInfo,
-		&Server::joinChannel,
+		&Server::cmdJoin,
 		&Server::kickUser,
 		&Server::inviteUser,
 		&Server::setChannelTopic,
@@ -198,46 +150,122 @@ void	Server::welcomeUser(User *user)
 */
 
 /*
-std::string	ftMessage(std::string code)
-{
-	//pointeur sur element de string (message a envoyer)
-}
-command(int target, User *user, std::string condition)
-{
-	std::string *code;
-	int	ret;
-
-	if (target == CHAN)
-	{
-		if (conditon == MODE)
-		{
-			//fonction qui regarde attributMode et retourne une valeur positive ou negative selon le mode mit en place && cette fonction effectue une modification sur le code.
-			ret = attributMode(user, &code);
-			//On veut regarder les attributs mode du channel
-			if (ret < 0)
-				replyTo(REQUEST, user, *code, ftMessage(*code));
-			else
-			{
-			// WE ARE HERE
-				ftAction();
-				reply(REQUEST, );
-				replyTo(CHAN, user, *code, ftMessage(*code));
-			}
-		}
-		else if (condition == USER)
-		{
-			//On veut regarder les attributs mode du channel
-			if (attributUser(user, &code) < 0)
-				replyTo(REQUEST, user, *code, ftMessage(*code));
-		}
-	}
-	else if (target == REQUEST)
-	{
-
-	}
-	//	TODO:  TRIGGER : Command ID
-}
+arg 0 = cmd
+arg 1 = param nom du channel
+arg 2 = param mot de passe s'il y a lieu
 */
+
+// si join -> returne erreur
+//si join + channame = ok
+
+"itklo"
+
+/*
+	inviteOnly
+	pass		if NULL no pass to check
+	maxMembe
+
+*/
+
+bool	Server::checkInvitePerm(Channel *chan)
+{
+	if (chan->getInviteOnly())
+	{
+		replyTo(REQUEST, user, "473", "The channel is invite only");
+		return (false);
+	}
+	return (true)
+}
+
+bool	Server::checkPass(Channel *chan, std::string pass)
+{
+	if (chan->getPass() != NULL)
+	{
+		if (pass.compare(chan->getPass()) != 0) //				NOTE : comparePassword to be implemented?
+			replyTo(REQUEST, user, CODE, MESSAGE)
+		else
+		
+	}
+}
+
+
+bool	Server::checkMaxMbr(Channel *chan)
+{
+	if (chan->get())
+		replyTo(REQUEST, user, CODE, MESSAGE)
+}
+
+int	Server::cmdJoin(User *user, std::string *args)
+{
+//	If join have no channel name, it return "#". We use "#" to return an error code.
+	if (args[1].compare("#") == 0)
+	{
+		replyTo(REQUEST, user, "461", "Need more params");
+		return (0);
+	}
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	
+//	If the channel exists, try to join it (password managed in Channel class ?)
+	if (it != this->_chanContainer.end())
+	{
+		if (checkInvitePerm(it->second) && checkPass(it->second, args[2]) && checkMaxMbr(it->second)) //	throws error if check fails
+		{
+//			the client can enter the channel 
+			debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
+			//replyTo(REQUEST, user, ??, it->second->getChanName()); // send info message to request
+			replyTo(CHAN, user, JOIN, it->second->getChanName()); 	// send code to trigger the chan invite
+			//sendToChan(); // looper de message (alerte ou all)    // send code (alert ou prv msg) to all membres of chan
+		}
+		return (0);
+	}
+//	Else channel does not exist
+	else
+	{
+		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
+
+		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
+		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+
+		newChannel->setChanName(args[1]);
+		newChannel->setAdminName(user->getNick());
+		replyTo(CHAN, user, JOIN, newChannel->getChanName());
+	}
+
+	return (0);
+}
+
+
+//KICK(CHAN, conditon : MODE,  false -> message to Requesr (482), if true -> kick  + MESSAGE)
+
+// void	kick(int fd)//client user :
+// {
+// 	//not in a channel
+// 	if (this->_baseFds == fd)
+// 		sendTo(REQUEST, CODE_PAS_A_BONNE_PLACE); // Envoie le message dans Request pour dire que tu peux pas faire la commande la
+// 	else
+// 	{
+// 			// fd est un chan, pour l'instant on ne sait pas lequel
+// 			/*
+// 			loop a travers 
+// 			*/
+// 	}
+// 	//kick dans quel channel
+
+// }
+
+// BEFORE CALLING FUNCTIONS : cheks if channel and users exist
+
+// 	if (chann == NULL)
+// 		send deny message (not on channel)
+// 	else if (functionLacksParams(user, args))
+// 		send deny message (not enough params)
+// 	else if (functionIsNotAllowed(user, chan))
+// 		send deny message (not allowed)
+// 	else
+// 		send aprove message (success)
+// 		kick
+
+
 
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
@@ -291,7 +319,6 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 
         	replyTo(REQUEST, user, RPL_REPLY, *last_msg); //					WARNING : RPL_REPLY, temp solution
 		}
-
 	}
 	bzero(buff, BUFFSIZE);
 }

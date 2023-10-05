@@ -52,11 +52,16 @@ class Server
 // 		Getters - Setters
 			const int 			& getPort(void) const;
 			const std::string 	& getPass(void) const;
+
+			bool	checkInvitePerm	(Channel *chan);
+			bool	checkPass		(Channel *chan, std::string pass);
+			bool	checkMaxMbr		(Channel *chan);
+
 //		FT_CMD
 			int		checkPassword	(User *user, std::string *args);
 			int		storeNickname	(User *user, std::string *args);
 			int		storeUserInfo	(User *user, std::string *args);
-			int		joinChannel		(User *user, std::string *args);
+			int		cmdJoin			(User *user, std::string *args);
 			int		kickUser		(User *user, std::string *args);
 			int		inviteUser		(User *user, std::string *args);
 			int		setChannelTopic	(User *user, std::string *args);

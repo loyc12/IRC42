@@ -57,3 +57,46 @@ You would need to handle these response codes in your server code to appropriate
 
 ## Problem:
 * Dans Netcat, quand je fais CTRL-C, error at rcv() Connection reset by peer -> Est-ce qu'il faut faire un peu comme on a fait quand on avait un prob at select()??
+
+
+
+
+std::string	ftMessage(std::string code)
+{
+	//pointeur sur element de string (message a envoyer)
+}
+command(int target, User *user, std::string condition)
+{
+	std::string *code;
+	int	ret;
+
+	if (target == CHAN)
+	{
+		if (conditon == MODE)
+		{
+			//fonction qui regarde attributMode et retourne une valeur positive ou negative selon le mode mit en place && cette fonction effectue une modification sur le code.
+			ret = attributMode(user, &code);
+			//On veut regarder les attributs mode du channel
+			if (ret < 0)
+				replyTo(REQUEST, user, *code, ftMessage(*code));
+			else
+			{
+			// WE ARE HERE
+				ftAction();
+				reply(REQUEST, );
+				replyTo(CHAN, user, *code, ftMessage(*code));
+			}
+		}
+		else if (condition == USER)
+		{
+			//On veut regarder les attributs mode du channel
+			if (attributUser(user, &code) < 0)
+				replyTo(REQUEST, user, *code, ftMessage(*code));
+		}
+	}
+	else if (target == REQUEST)
+	{
+
+	}
+	//	TODO:  TRIGGER : Command ID
+}
