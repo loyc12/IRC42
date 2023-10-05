@@ -13,16 +13,24 @@
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
 //ENTRY CODE
-# define RPL_WELCOME		"001"
+# define RPL_WELCOME			"001"
 //CHANNEL CODE
-# define ERR_NOSUCHCHANNEL	"403" //chan does not exist
-# define RPL_NOTOPIC		"331" //no topic set for chan
-# define RPL_TOPIC			"332" //topic of the chan
-# define RPL_NAMREPLY		"353" //list of nicknames in channel
-# define RPL_REPLY			"302" //Reply Mode
-# define JOIN				"JOIN"
-# define REQUEST			0
-# define CHAN				1
+# define ERR_NOSUCHCHANNEL		"403"
+# define ERR_NEEDMOREPARAMS		"461"
+# define ERR_ALREADYREGISTRED	"462"
+# define ERR_PASSWDMISMATCH		"464"
+# define ERR_CHANNELISFULL		"471"
+# define ERR_INVITEONLYCHAN		"473"
+
+
+
+# define RPL_NOTOPIC			"331" //no topic set for chan
+# define RPL_TOPIC				"332" //topic of the chan
+# define RPL_NAMREPLY			"353" //list of nicknames in channel
+# define RPL_REPLY				"302" //Reply Mode
+# define JOIN					"JOIN"
+# define REQUEST				0 //					NOTE : split replyTo() into two functions instead?
+# define CHAN					1
 
 
 class Server
@@ -30,7 +38,7 @@ class Server
 	private:
 //		Parsing
 			int			_port;
-			std::string	_password; //					UNUSED ???
+			std::string	_password;
 //		Start
 			int			_baseSocket;
 			int 		_newSocket;
@@ -53,27 +61,33 @@ class Server
 			const int 			& getPort(void) const;
 			const std::string 	& getPass(void) const;
 
-			bool	checkInvitePerm	(Channel *chan);
-			bool	checkPass		(Channel *chan, std::string pass);
-			bool	checkMaxMbr		(Channel *chan);
+
+//		FT_CHECK
+			bool	isUserInChan	(User *user, Channel *chan);
+			bool	checkInvitePerm	(User *user, Channel *chan);
+			bool	checkPass		(User *user, Channel *chan, std::string pass);
+			bool	checkMaxMbr		(User *user, Channel *chan);
+			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
+			void	newChannel		(User *user, std::vector<std::string> args);
 
 //		FT_CMD
-			int		checkPassword	(User *user, std::string *args);
-			int		storeNickname	(User *user, std::string *args);
-			int		storeUserInfo	(User *user, std::string *args);
-			int		cmdJoin			(User *user, std::string *args);
-			int		kickUser		(User *user, std::string *args);
-			int		inviteUser		(User *user, std::string *args);
-			int		setChannelTopic	(User *user, std::string *args);
-			int		setUserMode		(User *user, std::string *args);
-			int		processMessage	(User *user, std::string *args);
+			int		checkPassword	(User *user, std::vector<std::string> args);
+			int		storeNickname	(User *user, std::vector<std::string> args);
+			int		storeUserInfo	(User *user, std::vector<std::string> args);
+			int		cmdJoin			(User *user, std::vector<std::string> args);
+			int		kickUser		(User *user, std::vector<std::string> args);
+			int		inviteUser		(User *user, std::vector<std::string> args);
+			int		setChannelTopic	(User *user, std::vector<std::string> args);
+			int		setUserMode		(User *user, std::vector<std::string> args);
+			int		processMessage	(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
-			int		execCommand		(User *user, std::string *args);
+			int		execCommand		(User *user, std::vector<std::string> args);
 //		FT_I/O
 			void	welcomeUser		(User *user);
 			void	replyTo			(int target, User *user, std::string code, std::string input);
 //			void	reply			(User *user, std::string code, std::string input);
-//			void	sendToChannel	(User *user, std::string code, std::string input, Channel *chan);
+			Channel	*findChannel	(std::string str);
+			void	sendToChan		(std::string last_msg, std::vector<std::string> args);
 			void	readFromClient	(User *user, int fd, std::string *last_msg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);

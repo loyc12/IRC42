@@ -2,26 +2,30 @@
 
 void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL;}
 
-std::string	*splitStringPrivate(const char *str, const char *chrs)
+std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs) //					NOTE : make all splitStrings return a vector of strings instead
 {
 //	std::cout << "buff : \'" << str << "\'" << std::endl; //							DEBUG
 //	std::cout << "chars : \'" << chrs << "\'" << std::endl; //							DEBUG
 
-	int		i = 0;
-	char	*ptr = strtok(strdup(str), chrs); //	strtok works iteratively ..
+/*
 	while (ptr != NULL)
+	
 	{
 		ptr = strtok(NULL, chrs); //			... so it needs to be once per token
 		i++;
 	}
+*/
 
-	std::string *args = new std::string[i];
+//	std::string *args = new std::string[i]; //container vector
 
-	i = 0;
+	std::vector<std::string> args;
+
+	int		i = 0;
+	char	*ptr = strtok(strdup(str), chrs); //	strtok works iteratively ..
 	ptr = strtok(strdup(str), chrs);
 	while (ptr != NULL)
 	{
-		args[i] = strdup(ptr);
+		args.push_back(std::string(strdup(ptr)));
 //		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl; //		DEBUG
 		ptr = strtok(NULL, chrs);
 		i++;
@@ -29,19 +33,19 @@ std::string	*splitStringPrivate(const char *str, const char *chrs)
 
 	return args;
 }
-std::string	*splitString(const char *str, const char *chrs)
+std::vector<std::string>	splitString(const char *str, const char *chrs)
 {
 	return splitStringPrivate(str, chrs);
 }
-std::string	*splitString(const char *str, const std::string chrs)
+std::vector<std::string>	splitString(const char *str, const std::string chrs)
 {
 	return splitStringPrivate(str, chrs.c_str());
 }
-std::string	*splitString(const std::string str, const char *chrs)
+std::vector<std::string>	splitString(const std::string str, const char *chrs)
 {
 	return splitStringPrivate(str.c_str(), chrs);
 }
-std::string	*splitString(const std::string str, std::string const chrs)
+std::vector<std::string>	splitString(const std::string str, std::string const chrs)
 {
 	return splitStringPrivate(str.c_str(), chrs.c_str());
 }

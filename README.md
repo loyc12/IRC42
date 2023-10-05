@@ -100,3 +100,54 @@ command(int target, User *user, std::string condition)
 	}
 	//	TODO:  TRIGGER : Command ID
 }
+
+/*
+	IN REQUEST :
+		You can :
+				PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
+				NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
+				JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
+					exemple : password channel false - > retourne BAD CHANNEL KEY 475))
+					(limit -l) Limite utilisateurs par canal
+		You can't :
+				MESSAGE (du channel, trigger participants du channel (QT)),
+					command(KICK, CHAN, conditon : MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
+					MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
+					INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
+					TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
+	IN CHAN :
+		You can :
+		You can't :
+*/
+
+
+//KICK(CHAN, conditon : MODE,  false -> message to Requesr (482), if true -> kick  + MESSAGE)
+
+// void	kick(int fd)//client user :
+// {
+// 	//not in a channel
+// 	if (this->_baseFds == fd)
+// 		sendTo(REQUEST, CODE_PAS_A_BONNE_PLACE); // Envoie le message dans Request pour dire que tu peux pas faire la commande la
+// 	else
+// 	{
+// 			// fd est un chan, pour l'instant on ne sait pas lequel
+// 			/*
+// 			loop a travers
+// 			*/
+// 	}
+// 	//kick dans quel channel
+
+// }
+
+// BEFORE CALLING FUNCTIONS : cheks if channel and users exist
+
+// 	if (chann == NULL)
+// 		send deny message (not on channel)
+// 	else if (functionLacksParams(user, args))
+// 		send deny message (not enough params)
+// 	else if (functionIsNotAllowed(user, chan))
+// 		send deny message (not allowed)
+// 	else
+// 		send aprove message (success)
+// 		kick
+

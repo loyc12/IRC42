@@ -24,7 +24,7 @@ void 		User::setHostname(std::string hostname) 	{ this->_hostname = hostname; }
 
 // 0================ OTHER FUNCTIONS ================0
 
-void	User::setUserInfo(std::string *args)
+void	User::setUserInfo(std::vector<std::string> args)
 {
 	this->setUsername(args[1]);
 	this->setMode(args[2]);

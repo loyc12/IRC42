@@ -11,12 +11,12 @@ const std::string & Server::getPass	(void) const			{ return (this->_password);}
 //	FT_CMD - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
-int	Server::checkPassword(User *user, std::string *args)
+int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 //	If password is invalid
 	if (args[1].compare(this->getPass()) != 0)
 	{
-		debugPrint(RED, DENIED); //													DEBUG
+		debugPrint(RED, DENIED); //										DEBUG
 		std::string errMsg = "Invalid password";
 
 		replyTo(REQUEST, user, ERR_NOSUCHCHANNEL, errMsg);
@@ -25,13 +25,13 @@ int	Server::checkPassword(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::storeNickname(User *user, std::string *args)
+int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	user->setNick(args[1]);
 	return (0);
 }
 
-int	Server::storeUserInfo(User *user, std::string *args)
+int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 {
 	user->setUserInfo(args);
 
@@ -42,7 +42,7 @@ int	Server::storeUserInfo(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::kickUser(User *user, std::string *args) // , Channel *chan)
+int	Server::kickUser(User *user, std::vector<std::string> args) // , Channel *chan)
 {
 	(void)user;
 	(void)args;
@@ -52,7 +52,7 @@ int	Server::kickUser(User *user, std::string *args) // , Channel *chan)
 	return (0);
 }
 
-int	Server::inviteUser(User *user, std::string *args)
+int	Server::inviteUser(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
@@ -62,7 +62,7 @@ int	Server::inviteUser(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::setChannelTopic(User *user, std::string *args)
+int	Server::setChannelTopic(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
@@ -72,7 +72,7 @@ int	Server::setChannelTopic(User *user, std::string *args)
 	return (0);
 }
 
-int	Server::setUserMode(User *user, std::string *args)
+int	Server::setUserMode(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
@@ -83,7 +83,7 @@ int	Server::setUserMode(User *user, std::string *args)
 }
 
 //	TELLS readFromClient that this is a message
-int	Server::processMessage(User *user, std::string *args)
+int	Server::processMessage(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
@@ -104,9 +104,9 @@ int Server::getCmdID(std::string cmd)
 }
 
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
-int	Server::execCommand(User *user, std::string *args)
+int	Server::execCommand(User *user, std::vector<std::string> args)
 {
-	int (Server::*commands[])(User*, std::string*) = {
+	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,
 		&Server::storeNickname,
 		&Server::storeUserInfo,
@@ -130,143 +130,107 @@ void	Server::welcomeUser(User *user)
 	user->wasWelcomed = true;
 }
 
-/*
-	IN REQUEST :
-		You can :
-				PASS (si commande pass : envoyer un erreur ERR_ALREADYREGISTRE....),
-				NICK (CHAN ET REQUEST (if true && CHAN = envoyer message a tous) if false ( channel meme nickname ) = ERR_432, refus (il doit changer son username avant)) message a tous si dans chan
-				JOIN (trigger : VERIF NICKNAME, ATTRIBUTMODE -> if false = retourner un message d'erreur a base socket) Si new chan = createur = -o (operateur)
-					exemple : password channel false - > retourne BAD CHANNEL KEY 475))
-					(limit -l) Limite utilisateurs par canal
-		You can't :
-				MESSAGE (du channel, trigger participants du channel (QT)),
-					command(KICK, CHAN, conditon : MODE,  false -> message to baseSocket (482), if true -> kick  + MESSAGE),
-					MODE(CHAN, condition : USER (operateur), false -> message to baseSocket (-i, -t, -k, -l), -o), if true ->action + MESSAGE),
-					INVITE(CHAN, condition : mode, if false ---> message to baseSocket, (-i), if true -> action + message),
-					TOPIC(CHAN, condition : mode, if false--> message to baseSocket (-t), , if true -> action + message)
-	IN CHAN :
-		You can :
-		You can't :
-*/
-
-/*
-arg 0 = cmd
-arg 1 = param nom du channel
-arg 2 = param mot de passe s'il y a lieu
-*/
-
-// si join -> returne erreur
-//si join + channame = ok
-
-"itklo"
-
-/*
-	inviteOnly
-	pass		if NULL no pass to check
-	maxMembe
-
-*/
-
-bool	Server::checkInvitePerm(Channel *chan)
+bool	Server::isUserInChan(User *user, Channel *chan)
 {
+	if (chan->hasMember(user))
+	{
+		replyTo(REQUEST, user, ERR_ALREADYREGISTRED, "Already registered");
+	 	return (true);
+	}
+	return (false);
+}
+
+bool	Server::checkInvitePerm(User *user, Channel *chan)
+{
+//	Check if the mode of the chan is in Invitation only
 	if (chan->getInviteOnly())
 	{
-		replyTo(REQUEST, user, "473", "The channel is invite only");
+		replyTo(REQUEST, user, ERR_INVITEONLYCHAN, "The channel is invite only");
 		return (false);
 	}
-	return (true)
+	return (true);
 }
 
-bool	Server::checkPass(Channel *chan, std::string pass)
+bool	Server::checkPass(User *user, Channel *chan, std::string pass)
 {
-	if (chan->getPass() != NULL)
+//	Check password of channel (if they are one)
+	if (chan->getPass().length() != 0)
 	{
-		if (pass.compare(chan->getPass()) != 0) //				NOTE : comparePassword to be implemented?
-			replyTo(REQUEST, user, CODE, MESSAGE)
-		else
-		
-	}
-}
-
-
-bool	Server::checkMaxMbr(Channel *chan)
-{
-	if (chan->get())
-		replyTo(REQUEST, user, CODE, MESSAGE)
-}
-
-int	Server::cmdJoin(User *user, std::string *args)
-{
-//	If join have no channel name, it return "#". We use "#" to return an error code.
-	if (args[1].compare("#") == 0)
-	{
-		replyTo(REQUEST, user, "461", "Need more params");
-		return (0);
-	}
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	
-//	If the channel exists, try to join it (password managed in Channel class ?)
-	if (it != this->_chanContainer.end())
-	{
-		if (checkInvitePerm(it->second) && checkPass(it->second, args[2]) && checkMaxMbr(it->second)) //	throws error if check fails
+//		Check password provided, return error if no or bad password
+		if (pass.length() == 0)
 		{
-//			the client can enter the channel 
-			debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
-			//replyTo(REQUEST, user, ??, it->second->getChanName()); // send info message to request
-			replyTo(CHAN, user, JOIN, it->second->getChanName()); 	// send code to trigger the chan invite
-			//sendToChan(); // looper de message (alerte ou all)    // send code (alert ou prv msg) to all membres of chan
+			replyTo(REQUEST, user, ERR_NEEDMOREPARAMS, "Not password provided");
+			return (false);
 		}
-		return (0);
+		else if (pass.compare(chan->getPass()) != 0)
+		{
+			replyTo(REQUEST, user, ERR_PASSWDMISMATCH, "Password incorrect");
+			return (false);
+		}
 	}
-//	Else channel does not exist
-	else
-	{
-		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
+	return (true);
+}
 
+bool	Server::checkMaxMbr(User *user, Channel *chan)
+{
+//	Check if we can add a member to the channel list
+	if (chan->getMaxMbrCnt() > 0 && chan->getMemberCnt() >= chan->getMaxMbrCnt())
+	{
+		replyTo(REQUEST, user, ERR_CHANNELISFULL, "Cannot join channel");
+		return (false);
+	}
+	return (true);
+}
+
+void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> args)
+{
+//	Check all conditions in mode if we can add the member to this channel
+	if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
+		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //		NOTE : these send their own error messages
+	{
+//		the client can enter the channel
+		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
+//		replyTo(REQUEST, user, ??, chan->getChanName()); // send info message to request
+		replyTo(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
+//		sendToChan(*last_msg, args); // send code (alert ou prv msg) to all membres of chan
+	}
+}
+
+void	Server::newChannel(User *user, std::vector<std::string> args)
+{
+//		check if only 1 arg (chanName) provided, else error
+// 		if (args[2].length() != 0) //															NOTE : can't check for missing arg like this (?)
+// 		{
+// 			If more information is added, we assume the client wanted to join a channel, so we block the creation
+// 			replyTo(REQUEST, user, "403", "No Such Channel");//ERR_NOSUCHCHANNEL
+// 			return (0);
+// 		}
+		//	else, create the channel
+		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
 		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-
 		newChannel->setChanName(args[1]);
 		newChannel->setAdminName(user->getNick());
 		replyTo(CHAN, user, JOIN, newChannel->getChanName());
-	}
-
-	return (0);
 }
 
+int	Server::cmdJoin(User *user, std::vector<std::string> args)
+{
+//	If join have no channel name, it return "#". We use "#" to return an error code.
+	if (args[1].compare("#") == 0)
+		replyTo(REQUEST, user, ERR_NEEDMOREPARAMS, "Need more params");
+	else
+	{
+		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
-//KICK(CHAN, conditon : MODE,  false -> message to Requesr (482), if true -> kick  + MESSAGE)
-
-// void	kick(int fd)//client user :
-// {
-// 	//not in a channel
-// 	if (this->_baseFds == fd)
-// 		sendTo(REQUEST, CODE_PAS_A_BONNE_PLACE); // Envoie le message dans Request pour dire que tu peux pas faire la commande la
-// 	else
-// 	{
-// 			// fd est un chan, pour l'instant on ne sait pas lequel
-// 			/*
-// 			loop a travers 
-// 			*/
-// 	}
-// 	//kick dans quel channel
-
-// }
-
-// BEFORE CALLING FUNCTIONS : cheks if channel and users exist
-
-// 	if (chann == NULL)
-// 		send deny message (not on channel)
-// 	else if (functionLacksParams(user, args))
-// 		send deny message (not enough params)
-// 	else if (functionIsNotAllowed(user, chan))
-// 		send deny message (not allowed)
-// 	else
-// 		send aprove message (success)
-// 		kick
-
-
-
+	//	if the channel exists, try to join it. else create it
+		if (it != this->_chanContainer.end())
+			knownChannel(user, it->second, args);
+		else
+			newChannel(user, args);
+	}
+	return (0);
+}
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT //	TODO : create sendToChannel()
 void	Server::replyTo(int target, User* user, std::string code, std::string input)
@@ -306,9 +270,14 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 	}
 	else if (byteReceived > 0)
 	{
-		if (execCommand(user, splitString(buff, " \r\n")) == -1)
+        last_msg->assign(buff, 0, byteReceived);
+
+		std::vector<std::string> args = splitString(buff, " \r\n");
+
+		if (execCommand(user, args) == -1)
 		{
-        	last_msg->assign(buff, 0, byteReceived);
+//			//Send message to all in the chan
+
 
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *last_msg; //		DEBUG
@@ -317,10 +286,39 @@ void	Server::readFromClient(User *user, int fd, std::string *last_msg)
 			//replyTo(CHAN, user, NULL, *last_msg);
 			//replyTo(REQUEST, user, )
 
-        	replyTo(REQUEST, user, RPL_REPLY, *last_msg); //					WARNING : RPL_REPLY, temp solution
+			if (args[0].compare("PRIVMSG") != 0)
+        		replyTo(CHAN, user, "", *last_msg);
+			else
+				sendToChan(*last_msg, args);
 		}
 	}
 	bzero(buff, BUFFSIZE);
+}
+
+
+Channel	*Server::findChannel(std::string str)
+{
+	str.erase(0, 1);
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
+
+	std::cerr<< std::endl << ':' << str << ':'  << std::endl; //									DEBUG
+
+	if (it != this->_chanContainer.end())
+		return (it->second);
+	else
+		return (NULL);
+}
+
+void	Server::sendToChan(std::string last_msg, std::vector<std::string> args)
+{
+	Channel *chan = findChannel(args[1]);
+
+//	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
+	if (chan && args.size() > 2)
+	{
+		for (int i = 0; i < chan->getMemberCnt(); i++)
+			replyTo(CHAN, chan->getMember(i), "", last_msg);
+	}
 }
 
 // FT_CLIENT - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -338,23 +336,22 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 {
 //	Generates a new socket connection to adds to baseSocket
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *)&*client_addr, &*client_len);
+
 	if (this->_newSocket <= 0)
 		throw std::invalid_argument(" > Error at accept(): ");
 	else
 	{
 //		Creates a new user for this new Socket & stores User container inside the Server
-		printClient(client_addr);
+		printClient(client_addr); //										DEBUG
 		User* user = new User(*client_addr);
 		user->setFD(this->_newSocket);
-
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
-//		std::map<int, User*>::iterator it = this->_clients.find(this->_newSocket);
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
 
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
-void	Server::knownClient(int fd) // 										TODO : give user from map instead of fd ??
+void	Server::knownClient(int fd)
 {
 	std::string	last_msg;
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
@@ -362,7 +359,6 @@ void	Server::knownClient(int fd) // 										TODO : give user from map instead 
 //	Finds target client
 	if (it != this->_clients.end())
 	{
-//		map<key, value>; second = value (value = User*)
 		User *user = it->second;
 		readFromClient(user, fd, &last_msg);
 	}
@@ -385,7 +381,7 @@ void Server::deleteClient(int fd, char *buff)
 
 //	Removes fd from _baseFds
 	close(fd);
-	FD_CLR(fd, &(this->_baseFds)); //
+	FD_CLR(fd, &(this->_baseFds));
 }
 
 

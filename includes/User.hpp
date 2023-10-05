@@ -41,7 +41,7 @@ class User //								ADD FD INSIDE USER
 		void		setUsername		(std::string userName);
 		void		setMode			(std::string mode);
 		void		setHostname		(std::string hostname);
-		void		setUserInfo		(std::string *args);
+		void		setUserInfo		(std::vector<std::string> args);
 };
 
 
