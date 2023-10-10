@@ -56,11 +56,14 @@ If the join operation fails, the server may respond with a numeric code 403 (ERR
 You would need to handle these response codes in your server code to appropriately handle the join operation.
 
 ## Problem:
+* Quand on crée un channel -> on devient OWNER du channel
+* Quand le owner revient dans son channel, il doit récupérer chanop.
+* Quand on est un chanop et on quitte le channel -> il faut laisser les privilèges de op à un membre qui est le plus ancien dans le channel **à tester
+* pour la liste des membres actifs d'un channel; peut-être mieux d'avoir une map ou pair, en User* et son code (membre régulier, OWNER, chanop)
 
+* Join newChannel et Join knownChannel fonctionnent bien. Les participants s'ajoutent bien au container. PROB: dans Limechat semble pas le même channel, mais il faut peut-être implémenter la replyTo pour que Limechat ajoute l'info et que ça donne que ce soit le même chan.
 
-
-
-
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 std::string	ftMessage(std::string code)
 {
 	//pointeur sur element de string (message a envoyer)

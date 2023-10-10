@@ -57,9 +57,14 @@ void	Channel::addMember(User *user)
 	{
 //		add user to list here
 		this->_chanMembers.push_back(user);
-		return ;
+		//return ;
 	}
-//	error : already present ???
+//	error : already present ??? **I say, if already there, do nothing. Just print the list of members
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		std::cout << (*it)->getNick() << std::endl; //							DEBUG; eventually needs to be send to the newly join members
+	}
+
 }
 
 
@@ -83,6 +88,10 @@ void	Channel::removeMember(User *user) //					NOTE : when deleting a client, rem
 			}
 		}
 		*/
+	}
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		std::cout << (*it)->getNick() << std::endl; //							DEBUG; eventually needs to be send to the newly join members
 	}
 	//else send error message (?)
 }

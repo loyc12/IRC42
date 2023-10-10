@@ -12,6 +12,7 @@ class Channel
 		std::string _chanName;
 		std::string _adminName; //						userName of the creator of channel
 		std::vector<User*> _chanMembers; //				THIS IS A LIST NOW
+		//std::list<User*>	_chanMembers;
 
 		bool		_isInviteOnly;
 		std::string _password;

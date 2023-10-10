@@ -11,6 +11,7 @@
 # include <string.h> //		string (why not <string> instead ??)
 # include <string> //		string (why not <string.h> instead ??)
 # include <map>
+# include <list>
 # include <vector> //		container of users found in a channel
 
 # include <sys/time.h> //	select
