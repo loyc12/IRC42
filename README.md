@@ -63,6 +63,12 @@ You would need to handle these response codes in your server code to appropriate
 
 * Join newChannel et Join knownChannel fonctionnent bien. Les participants s'ajoutent bien au container. PROB: dans Limechat semble pas le même channel, mais il faut peut-être implémenter la replyTo pour que Limechat ajoute l'info et que ça donne que ce soit le même chan.
 
+
+
+
+
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 std::string	ftMessage(std::string code)
 {
