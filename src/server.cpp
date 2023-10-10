@@ -164,7 +164,7 @@ bool	Server::checkPass(User *user, Channel *chan, std::string pass)
 		}
 		else if (pass.compare(chan->getPass()) != 0)
 		{
-			replyTo(REQUEST, user, ERR_PASSWDMISMATCH, "Password incorrect");
+			replyTo(REQUEST, user, ERR_PASSWDMISMATCH, "Invalid password");
 			return (false);
 		}
 	}
@@ -190,7 +190,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 	{
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
-		chan->addMember(user); 
+		chan->addMember(user);
 //		replyTo(REQUEST, user, ??, chan->getChanName()); // send info message to request
 		replyTo(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
 //		sendToChan(*lastMsg, args); // send code (alert ou prv msg) to all membres of chan
@@ -305,7 +305,7 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(fd, buff);								//NOTE : this function makes the server clear the client data
+		deleteClient(fd, buff);									//NOTE : this function makes the server clear the client data
 	}
 	else if (byteReceived > 0)
 	{
