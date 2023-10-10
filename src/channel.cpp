@@ -91,7 +91,7 @@ void	Channel::removeMember(User *user) //					NOTE : when deleting a client, rem
 	}
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
-		std::cout << (*it)->getNick() << std::endl; //							DEBUG; eventually needs to be send to the newly join members
+		std::cout << (*it)->getNick() << std::endl; //							DEBUG;
 	}
 	//else send error message (?)
 }

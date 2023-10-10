@@ -199,7 +199,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
-//		check if only 1 arg (chanName) provided, else error
+//		TODO: can we delete what's below?? check if only 1 arg (chanName) provided, else error
 // 		if (args[2].length() != 0) //															NOTE : can't check for missing arg like this (?)
 // 		{
 // 			If more information is added, we assume the client wanted to join a channel, so we block the creation
@@ -278,7 +278,7 @@ void	Server::sendToChan(std::string message, std::vector<std::string> args)
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // && args.size() > 2)
+	if (chan != NULL) // TODO: delete or not -> && args.size() > 2)
 	{
 		std::cerr << "HERE" << std::endl; //									DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
@@ -305,7 +305,7 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(fd, buff);								//TODO : EXPLICATION NOTE : this makes the server clear the client data
+		deleteClient(fd, buff);								//NOTE : this function makes the server clear the client data
 	}
 	else if (byteReceived > 0)
 	{

@@ -7,7 +7,7 @@ std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs) /
 //	std::cout << "buff : \'" << str << "\'" << std::endl; //							DEBUG
 //	std::cout << "chars : \'" << chrs << "\'" << std::endl; //							DEBUG
 
-/*
+/* //TODO can it be deleted?? below?
 	while (ptr != NULL)
 	
 	{
