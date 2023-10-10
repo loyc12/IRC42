@@ -278,7 +278,7 @@ void	Server::sendToChan(std::string message, std::vector<std::string> args)
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // TODO: delete or not -> && args.size() > 2)
+	if (chan != NULL) // && args.size() > 2)
 	{
 		std::cerr << "HERE" << std::endl; //									DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
@@ -299,7 +299,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	{
 //		If CTRL-C at recv, treat as not an error; in Netcat
 		if (errno == EINTR)
-			//break;
 			throw std::invalid_argument(" > Error at select(): ");
 	}
 	else if (byteReceived == 0)
@@ -327,7 +326,7 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 			std::cerr << args[0] << std::endl; //									DEBUG
 
-			if (args[0].compare("PRIVMSG") != 0)
+			if (args[0].compare("PRIVMSG") != 0) //TODO check WEDNESDAY morning start here
         		replyTo(CHAN, user, "", *lastMsg);
 			else
 				sendToChan(*lastMsg, args);
