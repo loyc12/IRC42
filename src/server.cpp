@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server(int port) : _port(port), _password("1234") 	{debugPrint(YELLOW, CONSTR_SERV); } //		TODO : take the actual PASSWORD
+Server::Server(int port, std::string pass) : _port(port), _password(pass) 	{debugPrint(YELLOW, CONSTR_SERV); }
 Server::~Server() 											{debugPrint(YELLOW, DEST_SERV); }
 
 const int & Server::getPort			(void) const			{ return (this->_port);}

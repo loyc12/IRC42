@@ -45,7 +45,7 @@ int main(int ac, char **av)
         port 		= parseArg(ac, av);
 		password 	= av[2];
 //		Create object server
-		Server server(port);
+		Server server(port, password);
 		if (password.compare(server.getPass()) != 0)
 			throw std::invalid_argument(PASSWORD);
 

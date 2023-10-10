@@ -55,7 +55,7 @@ class Server
 
 	public:
 //		Constructor - Destructor
-			Server(int port); //					TAKE PASS AS ARG (?)
+			Server(int port, std::string pass); //					TAKE PASS AS ARG (?)
 			~Server();
 // 		Getters - Setters
 			const int 			& getPort(void) const;
