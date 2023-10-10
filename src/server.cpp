@@ -292,10 +292,16 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
+	std::cout << "byteReceived" << byteReceived << std::endl;
 
 //	Handles what to do depending on the byte value (error, null or message)
-	if (byteReceived < 0)
-		throw std::invalid_argument(" > Error at rcv(): ");
+	if (byteReceived == -1)
+	{
+//		If CTRL-C at recv, treat as not an error; in Netcat
+		if (errno == EINTR)
+			//break;
+			throw std::invalid_argument(" > Error at select(): ");
+	}
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
