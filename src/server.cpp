@@ -143,7 +143,7 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 bool	Server::checkInvitePerm(User *user, Channel *chan)
 {
 //	Check if the mode of the chan is in Invitation only
-	if (chan->getInviteOnly())
+	if (chan->getInviteFlag())
 	{
 		replyTo(REQUEST, user, ERR_INVITEONLYCHAN, "The channel is invite only");
 		return (false);
@@ -265,7 +265,7 @@ Channel	*Server::findChannel(std::string str)
 
 	//if (it != this->_chanContainer.end())
 	{
-		std::cerr << "HERE" << std::endl; //									DEBUG
+		std::cerr << "FindChannel" << std::endl; //									DEBUG
 		return (it->second);
 	}
 	//else
@@ -280,9 +280,12 @@ void	Server::sendToChan(std::string message, std::vector<std::string> args)
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
 	if (chan != NULL) // TODO: delete or not -> && args.size() > 2)
 	{
-		std::cerr << "HERE" << std::endl; //									DEBUG
+		std::cerr << "SendToChan" << std::endl; //									DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
+		{
+			std::cerr << std::endl << chan->getMember(i)->getFD() << std::endl;
 			replyTo(CHAN, chan->getMember(i), "", message);
+		}
 	}
 }
 
@@ -327,10 +330,10 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 			std::cerr << args[0] << std::endl; //									DEBUG
 
-			if (args[0].compare("PRIVMSG") != 0)
-        		replyTo(CHAN, user, "", *lastMsg);
-			else
+			if (args[0].compare("PRIVMSG") == 0)
 				sendToChan(*lastMsg, args);
+			else
+        		replyTo(CHAN, user, "", *lastMsg);
 		}
 	}
 	bzero(buff, BUFFSIZE);

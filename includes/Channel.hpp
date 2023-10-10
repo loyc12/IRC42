@@ -27,13 +27,13 @@ class Channel
 		std::string const &getPass				(void) const;
 		int			const &getMaxMbrCnt			(void) const;
 		int			getMemberCnt				(void) const;
-		bool		const &getInviteOnly 		(void) const;
+		bool		const &getInviteFlag 		(void) const;
 
 		void	setChanName						(std::string const &chan);
 		void	setAdminName					(std::string const &admin);
 		void	setPass							(std::string const &password);
 		void	setMaxMemberCount				(int const &count);
-		void	setInviteOnly					(bool const &boolean);
+		void	setInviteFlag					(bool const &boolean);
 
 		bool	isSameUser						(User* user1, User* user2);
 		bool	hasMember						(User *user);

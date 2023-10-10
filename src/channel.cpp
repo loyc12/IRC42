@@ -10,21 +10,21 @@ Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 std::string const & Channel::getChanName(void) const			{ return (this->_chanName); }
 std::string const & Channel::getAdminName(void) const 			{ return (this->_adminName); }
 std::string const & Channel::getPass(void) const 				{ return (this->_password); }
-int const & Channel::getMaxMbrCnt(void) const					{ return (this->_maxMemberCount); }
-int Channel::getMemberCnt(void) const							{ return (this->_chanMembers.size()); }
-bool const & Channel::getInviteOnly(void)const					{ return (this->_isInviteOnly); }
+int const & 		Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
+int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
+bool const & 		Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
 
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
 void	Channel::setPass(std::string const &password)			{ this->_password = password; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
-void	Channel::setInviteOnly(bool const &boolean)				{ this->_isInviteOnly = boolean; }
+void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 
 //	0================ OTHER FUNCTIONS ================0
 
 bool Channel::isSameUser(User* user1, User* user2)
 {
-	if ((void *)user1 == (void *)user2) //									WARNING : does that even work?
+	if ((void *)user1 == (void *)user2) //							WARNING : does that even work?
 	{
 		std::cerr << std::endl << "HALLO" << std::endl;
 		return (true);
@@ -67,8 +67,7 @@ void	Channel::addMember(User *user)
 
 }
 
-
-void	Channel::removeMember(User *user) //					NOTE : when deleting a client, remove it from all channel first
+void	Channel::removeMember(User *user) //									NOTE : when deleting a client, remove it from all channel first
 {
 	if (hasMember(user))
 	{
