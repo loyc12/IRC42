@@ -191,9 +191,9 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
 		chan->addMember(user);
-		//replyTo(REQUEST, user, user, , chan->getChanName()); // send info message to request
+
+//		NOTE : use sendToChan() instead so that every user knows someone new joined
 		replyTo(CHAN, user, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
-//		sendToChan(*lastMsg, args); // send code (alert ou prv msg) to all membres of chan
 	}
 }
 
@@ -299,16 +299,16 @@ void	Server::sendToChan(User *fromUser, std::string message, std::vector<std::st
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // TODO: delete or not -> && args.size() > 2)
+	if (chan != NULL && args.size() > 2)
 	{
 		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //		DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
 		{
+			std::cerr << "sending : " << message << std::endl; //						DEBUG
 			if (chan->getMember(i) != fromUser)
 			{
-				std::cout << "for member " << i << std::endl; //							DEBUG
+				std::cerr << "for member " << i << std::endl; //						DEBUG
 				replyTo(CHAN, fromUser, chan->getMember(i), "", message);
-				std::cout << "replyTo() done "<< std::endl; //								DEBUG
 			}
 		}
 	}
@@ -320,20 +320,18 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-//	std::cout << "byteReceived" << byteReceived << std::endl; //						DEBUG
 
 //	Handles what to do depending on the byte value (error, null or message)
 	if (byteReceived == -1)
 	{
 //		If CTRL-C at recv, treat as not an error; in Netcat
 		if (errno == EINTR)
-			//break;
 			throw std::invalid_argument(" > Error at select(): ");
 	}
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(fd, buff);									//NOTE : this function makes the server clear the client data
+		deleteClient(fd, buff);
 	}
 	else if (byteReceived > 0)
 	{
@@ -343,21 +341,12 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		if (execCommand(user, args) == -1)
 		{
-
         	std::ostringstream debug; //												DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *lastMsg; //			DEBUG
         	debugPrint(GREEN, debug.str()); //											DEBUG
 
-			//replyTo(CHAN, user, NULL, *lastMsg);
-			//replyTo(REQUEST, user, )
-
-			std::cerr << args[0] << std::endl; //										DEBUG
-
 			if (args[0].compare("PRIVMSG") != 0)
-			{       
-				std::cout << "(args[0].compare(PRIVMSG) != 0)" << std::endl; //			DEBUG	
 				replyTo(CHAN, user, user, "", *lastMsg);
-			}
 			else
 				sendToChan(user, *lastMsg, args);
 		}
