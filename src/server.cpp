@@ -19,7 +19,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 		debugPrint(RED, DENIED); //										DEBUG
 		std::string errMsg = "Invalid password";
 
-		replyTo(REQUEST, user, ERR_NOSUCHCHANNEL, errMsg);
+		replyTo(REQUEST, user, user, ERR_NOSUCHCHANNEL, errMsg);
 		return (-1);
 	}
 	return (0);
@@ -126,7 +126,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
 void	Server::welcomeUser(User *user)
 {
-	replyTo(REQUEST, user, RPL_WELCOME, WELCOME_HEADER);
+	replyTo(REQUEST, user, user, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
 }
 
@@ -134,7 +134,7 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 {
 	if (chan->hasMember(user))
 	{
-		replyTo(REQUEST, user, ERR_ALREADYREGISTRED, "Already registered");
+		replyTo(REQUEST, user, user, ERR_ALREADYREGISTRED, "Already registered");
 	 	return (true);
 	}
 	return (false);
@@ -143,9 +143,9 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 bool	Server::checkInvitePerm(User *user, Channel *chan)
 {
 //	Check if the mode of the chan is in Invitation only
-	if (chan->getInviteOnly())
+	if (chan->getInviteFlag())
 	{
-		replyTo(REQUEST, user, ERR_INVITEONLYCHAN, "The channel is invite only");
+		replyTo(REQUEST, user, user, ERR_INVITEONLYCHAN, "The channel is invite only");
 		return (false);
 	}
 	return (true);
@@ -159,12 +159,12 @@ bool	Server::checkPass(User *user, Channel *chan, std::string pass)
 //		Check password provided, return error if no or bad password
 		if (pass.length() == 0)
 		{
-			replyTo(REQUEST, user, ERR_NEEDMOREPARAMS, "No password provided");
+			replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "No password provided");
 			return (false);
 		}
 		else if (pass.compare(chan->getPass()) != 0)
 		{
-			replyTo(REQUEST, user, ERR_PASSWDMISMATCH, "Password incorrect");
+			replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, "Invalid password");
 			return (false);
 		}
 	}
@@ -176,7 +176,7 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 //	Check if we can add a member to the channel list
 	if (chan->getMaxMbrCnt() > 0 && chan->getMemberCnt() >= chan->getMaxMbrCnt())
 	{
-		replyTo(REQUEST, user, ERR_CHANNELISFULL, "Cannot join channel");
+		replyTo(REQUEST, user, user, ERR_CHANNELISFULL, "Cannot join channel");
 		return (false);
 	}
 	return (true);
@@ -190,10 +190,10 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 	{
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
-		chan->addMember(user); 
-//		replyTo(REQUEST, user, ??, chan->getChanName()); // send info message to request
-		chan->replyToChan(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
-//		sendToChan(*lastMsg, args); // send code (alert ou prv msg) to all membres of chan
+		chan->addMember(user);
+
+//		NOTE : use sendToChan() instead so that every user knows someone new joined
+		replyTo(CHAN, user, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
 	}
 }
 
@@ -215,14 +215,14 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->addMember(user);
 		newChannel->setAdminName(user->getNick());
 
-		replyTo(CHAN, user, JOIN, newChannel->getChanName());
+		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
 }
 
 int	Server::cmdJoin(User *user, std::vector<std::string> args) //								DEBUG NOTE THINGIES : this doesn't really work rn. seems like it doesn't join the same channel despite the name
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	if (args[1].compare("#") == 0)
-		replyTo(REQUEST, user, ERR_NEEDMOREPARAMS, "Need more params");
+		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
 	else
 	{
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -237,35 +237,56 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args) //								DEBUG N
 }
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
-void	Server::replyTo(int target, User* user, std::string code, std::string input)
+void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
 //	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
 	if (target == REQUEST)
-		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+		message << ":" << fromUser->getHostname() << " " << code << " " << fromUser->getNick() << " :" << input << "\r\n";
 	else if (target == CHAN)
-		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n";
 
 	result = message.str();
-	std::ostringstream debug; //												DEBUG
-	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
-	debugPrint(GREEN, debug.str()); //											DEBUG
+	std::ostringstream debug; //														DEBUG
+	debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
+	debugPrint(GREEN, debug.str()); //													DEBUG
 
-	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
+	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
+
+// void	Server::replyTo(int target, User* user, std::string code, std::string input)
+// {
+// 	std::ostringstream 	message;
+// 	std::string 		result;
+
+// //	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
+// 	if (target == REQUEST)
+// 		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+// 	else if (target == CHAN)
+// 		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+
+// 	result = message.str();
+// 	std::ostringstream debug; //														DEBUG
+// 	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //			DEBUG
+// 	debugPrint(GREEN, debug.str()); //													DEBUG
+
+// 	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
+// 		throw std::invalid_argument(" > Error at replyTo() ");
+// }
 
 
 Channel	*Server::findChannel(std::string str)
 {
-	//str.erase(0, 1);															NO NEED the name was store with #. SORRY forgot
+	//str.erase(0, 1);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
 
+	std::cerr << "findChannel()" << std::endl; //										DEBUG
 	if (it != this->_chanContainer.end())
 	{
-		std::cerr << "HERE" << std::endl; //									DEBUG
+		std::cerr << "channel found" << std::endl; //									DEBUG
 		return (it->second);
 	}
 	else
@@ -273,16 +294,24 @@ Channel	*Server::findChannel(std::string str)
 }
 
 //	SENDS A SINGLE MESSAGE TO ALL MEMBERS OF A CHANNEL
-void	Server::sendToChan(std::string message, std::vector<std::string> args)
+void	Server::sendToChan(User *fromUser, std::string message, std::vector<std::string> args)
 {
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // && args.size() > 2)
+	if (chan != NULL && args.size() > 2)
 	{
-		std::cerr << "HERE" << std::endl; //									DEBUG
+		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //		DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
-			replyTo(CHAN, chan->getMember(i), "", message);
+		{
+			std::cerr << "sending : " << message << std::endl; //						DEBUG
+			//	Prevents sending the message to the sender
+			if (chan->getMember(i) != fromUser)
+			{
+				std::cerr << "for member " << i << std::endl; //						DEBUG
+				replyTo(CHAN, fromUser, chan->getMember(i), "", message);
+			}
+		}
 	}
 }
 
@@ -292,7 +321,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 	bzero(buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
-	std::cout << "byteReceived" << byteReceived << std::endl;
 
 //	Handles what to do depending on the byte value (error, null or message)
 	if (byteReceived == -1)
@@ -304,7 +332,7 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(fd, buff);								//NOTE : this function makes the server clear the client data
+		deleteClient(fd, buff);
 	}
 	else if (byteReceived > 0)
 	{
@@ -314,22 +342,15 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		if (execCommand(user, args) == -1)
 		{
-//			//Send message to all in the chan
-
-
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *lastMsg; //		DEBUG
         	debugPrint(GREEN, debug.str()); //										DEBUG
 
-			//replyTo(CHAN, user, NULL, *lastMsg);
-			//replyTo(REQUEST, user, )
-
-			std::cerr << "args[0]: " << args[0] << std::endl; //									DEBUG
-
-			if (args[0].compare("PRIVMSG") != 0) //													NOTE: compare works well. Prob NOT here
-				replyTo(CHAN, user, "", *lastMsg);
+			//	if is a channel message : send to channel users
+			if (args[0].compare("PRIVMSG") == 0)
+				sendToChan(user, *lastMsg, args);
 			else
-				sendToChan(*lastMsg, args);
+        		replyTo(CHAN, user, user, "", *lastMsg);
 		}
 	}
 	bzero(buff, BUFFSIZE);
@@ -464,10 +485,7 @@ void	Server::start(void)
 					if (clientFd == this->_baseSocket)
 						this->newClient(&client_addr, &client_len);
 					else
-					{
 						this->knownClient(clientFd);
-//						std::cerr << "\n > HERE\n\n"; //			DEBUG
-					}
 				}
 			}
 		}
