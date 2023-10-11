@@ -65,6 +65,7 @@ You would need to handle these response codes in your server code to appropriate
 * Netcat: quand un client envoie un message. Sur Limechat, le message arrive seulement avec le premier arg
 * Dans Netcat, il peut rejoindre un channel "vide". ligne de commande: JOIN
 suivi de rien d'autre. Il devient un channel
+* il faut que la liste des participants soient mis à jour pour ceux qui sont déjà dedans le channel. Pour le moment, non mis à jour.
 
 
 ## VAL:

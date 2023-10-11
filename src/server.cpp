@@ -193,7 +193,8 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		chan->addMember(user);
 
 //		NOTE : use sendToChan() instead so that every user knows someone new joined
-		replyTo(CHAN, user, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
+		chan->replyToChan(CHAN, user, JOIN, chan->getChanName());
+		//replyTo(CHAN, user, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
 	}
 }
 
@@ -215,7 +216,8 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->addMember(user);
 		newChannel->setAdminName(user->getNick()); //											NOTE: will need to change it to owner or do you think just a technicality?
 
-		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
+		newChannel->replyToChan(CHAN, user, JOIN, newChannel->getChanName());
+		//replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
 }
 
 int	Server::cmdJoin(User *user, std::vector<std::string> args)
