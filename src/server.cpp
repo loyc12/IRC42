@@ -192,7 +192,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
 		chan->addMember(user); 
 //		replyTo(REQUEST, user, ??, chan->getChanName()); // send info message to request
-		replyTo(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
+		chan->replyToChan(CHAN, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
 //		sendToChan(*lastMsg, args); // send code (alert ou prv msg) to all membres of chan
 	}
 }

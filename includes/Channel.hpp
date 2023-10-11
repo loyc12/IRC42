@@ -36,6 +36,7 @@ class Channel
 		void	setTopic						(std::string const &topic);
 		void	setMaxMemberCount				(int const &count);
 		void	setInviteOnly					(bool const &boolean);
+		void	replyToChan						(int target, User* user, std::string code, std::string input);
 
 		bool	isSameUser						(User* user1, User* user2);
 		bool	hasMember						(User *user);

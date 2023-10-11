@@ -107,3 +107,34 @@ User 	*Channel::getMember(int i)
 	else
 		throw std::invalid_argument(" > Error at Channel::getMember() ");
 }
+
+
+void	Channel::replyToChan(int target, User* user, std::string code, std::string input)
+{
+	std::ostringstream 	message;
+	std::string 		result;
+
+//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
+	if (target == REQUEST)
+		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+	else if (target == CHAN)
+		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+	
+	std::string listMembers;
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		listMembers += (*it)->getNick() + " ";
+	}
+
+//not send to people; info print in terminal
+	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << listMembers << "\r\n";
+	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+	result = message.str();
+	std::ostringstream debug; //												DEBUG
+	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
+	debugPrint(GREEN, debug.str()); //											DEBUG
+
+	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at replyTo() ");
+}
