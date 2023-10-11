@@ -260,15 +260,15 @@ void	Server::replyTo(int target, User* user, std::string code, std::string input
 
 Channel	*Server::findChannel(std::string str)
 {
-	str.erase(0, 1);
+	//str.erase(0, 1);															NO NEED the name was store with #. SORRY forgot
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
 
-	//if (it != this->_chanContainer.end())
+	if (it != this->_chanContainer.end())
 	{
 		std::cerr << "HERE" << std::endl; //									DEBUG
 		return (it->second);
 	}
-	//else
+	else
 		return (NULL);
 }
 
@@ -324,10 +324,10 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 			//replyTo(CHAN, user, NULL, *lastMsg);
 			//replyTo(REQUEST, user, )
 
-			std::cerr << args[0] << std::endl; //									DEBUG
+			std::cerr << "args[0]: " << args[0] << std::endl; //									DEBUG
 
-			if (args[0].compare("PRIVMSG") != 0) //TODO check WEDNESDAY morning start here
-        		replyTo(CHAN, user, "", *lastMsg);
+			if (args[0].compare("PRIVMSG") != 0) //													NOTE: compare works well. Prob NOT here
+				replyTo(CHAN, user, "", *lastMsg);
 			else
 				sendToChan(*lastMsg, args);
 		}
