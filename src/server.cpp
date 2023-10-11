@@ -260,15 +260,15 @@ void	Server::replyTo(int target, User* user, std::string code, std::string input
 
 Channel	*Server::findChannel(std::string str)
 {
-	str.erase(0, 1);
+	//str.erase(0, 1);															NO NEED the name was store with #. SORRY forgot
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
 
-	//if (it != this->_chanContainer.end())
+	if (it != this->_chanContainer.end())
 	{
 		std::cerr << "FindChannel" << std::endl; //									DEBUG
 		return (it->second);
 	}
-	//else
+	else
 		return (NULL);
 }
 
@@ -278,7 +278,7 @@ void	Server::sendToChan(std::string message, std::vector<std::string> args)
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // TODO: delete or not -> && args.size() > 2)
+	if (chan != NULL) // && args.size() > 2)
 	{
 		std::cerr << "SendToChan" << std::endl; //									DEBUG
 		for (int i = 0; i < chan->getMemberCnt(); i++)
@@ -302,7 +302,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	{
 //		If CTRL-C at recv, treat as not an error; in Netcat
 		if (errno == EINTR)
-			//break;
 			throw std::invalid_argument(" > Error at select(): ");
 	}
 	else if (byteReceived == 0)
@@ -318,18 +317,11 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		if (execCommand(user, args) == -1)
 		{
-//			//Send message to all in the chan
-
-
         	std::ostringstream debug; //											DEBUG
         	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *lastMsg; //		DEBUG
         	debugPrint(GREEN, debug.str()); //										DEBUG
 
-			//replyTo(CHAN, user, NULL, *lastMsg);
-			//replyTo(REQUEST, user, )
-
-			std::cerr << args[0] << std::endl; //									DEBUG
-
+			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
 				sendToChan(*lastMsg, args);
 			else

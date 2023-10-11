@@ -12,7 +12,7 @@ class Channel
 		std::string _chanName;
 		std::string _adminName; //						userName of the creator of channel
 		std::vector<User*> _chanMembers; //				THIS IS A LIST NOW
-		//std::list<User*>	_chanMembers;
+		std::string	_topic;
 
 		bool		_isInviteOnly;
 		std::string _password;
@@ -25,13 +25,15 @@ class Channel
 		std::string const &getChanName			(void) const;
 		std::string const &getAdminName			(void) const;
 		std::string const &getPass				(void) const;
+		std::string const &getTopic				(void) const;
 		int			const &getMaxMbrCnt			(void) const;
-		int			getMemberCnt				(void) const;
+		int				   getMemberCnt			(void) const;
 		bool		const &getInviteFlag 		(void) const;
 
 		void	setChanName						(std::string const &chan);
 		void	setAdminName					(std::string const &admin);
 		void	setPass							(std::string const &password);
+		void	setTopic						(std::string const &topic);
 		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
 

@@ -2,7 +2,9 @@
 
 //	0================ BASE FUNCTIONS ================0
 
-Channel::Channel(std::string chanName): _chanName(chanName)		{ debugPrint(YELLOW, CONSTR_CHAN); }
+Channel::Channel(std::string chanName): _chanName(chanName)		{
+	debugPrint(YELLOW, CONSTR_CHAN);
+	this->_topic = "No topic set."; }
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
 //	0================ GETTERS - SETTERS ================0
@@ -10,6 +12,7 @@ Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 std::string const & Channel::getChanName(void) const			{ return (this->_chanName); }
 std::string const & Channel::getAdminName(void) const 			{ return (this->_adminName); }
 std::string const & Channel::getPass(void) const 				{ return (this->_password); }
+std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
 int const & 		Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 bool const & 		Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
@@ -17,6 +20,7 @@ bool const & 		Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
 void	Channel::setPass(std::string const &password)			{ this->_password = password; }
+void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 
