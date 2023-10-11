@@ -84,10 +84,10 @@ class Server
 			int		execCommand		(User *user, std::vector<std::string> args);
 //		FT_I/O
 			void	welcomeUser		(User *user);
-			void	replyTo			(int target, User *user, std::string code, std::string input);
+			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
 //			void	reply			(User *user, std::string code, std::string input);
 			Channel	*findChannel	(std::string str);
-			void	sendToChan		(std::string message, std::vector<std::string> args);
+			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
 //		FT_CLIENT
 			void	printClient		(struct sockaddr_in *client_addr);
