@@ -61,11 +61,10 @@ You would need to handle these response codes in your server code to appropriate
 * Quand on est un chanop et on quitte le channel -> il faut laisser les privilèges de op à un membre qui est le plus ancien dans le channel **à tester
 * pour la liste des membres actifs d'un channel; peut-être mieux d'avoir une map ou pair, en User* et son code (membre régulier, OWNER, chanop)
 
-* Join newChannel et Join knownChannel fonctionnent bien. Les participants s'ajoutent bien au container. PROB: dans Limechat semble pas le même channel, mais il faut peut-être implémenter la replyTo pour que Limechat ajoute l'info et que ça donne que ce soit le même chan.
 
-
-## Prob
-Netcat: quand un client envoie un message. Sur Limechat, le message arrive seulement avec le premier arg
+* Netcat: quand un client envoie un message. Sur Limechat, le message arrive seulement avec le premier arg
+* Dans Netcat, il peut rejoindre un channel "vide". ligne de commande: JOIN
+suivi de rien d'autre. Il devient un channel
 
 
 ## VAL:

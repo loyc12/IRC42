@@ -107,7 +107,7 @@ User 	*Channel::getMember(int i)
 		throw std::invalid_argument(" > Error at Channel::getMember() ");
 }
 
-
+/*
 void	Channel::replyToChan(int target, User* user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
@@ -136,4 +136,4 @@ void	Channel::replyToChan(int target, User* user, std::string code, std::string 
 
 	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
-}
+} */

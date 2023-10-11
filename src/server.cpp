@@ -199,7 +199,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
-//		TODO: can we delete what's below?? check if only 1 arg (chanName) provided, else error
+//		TODO: can we delete what's below?? Dans Netcat, il peut rejoindre un channel si on ne fournit pas de nom de chan.
 // 		if (args[2].length() != 0) //															NOTE : can't check for missing arg like this (?)
 // 		{
 // 			If more information is added, we assume the client wanted to join a channel, so we block the creation
@@ -213,12 +213,12 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setChanName(args[1]);
 
 		newChannel->addMember(user);
-		newChannel->setAdminName(user->getNick());
+		newChannel->setAdminName(user->getNick()); //											NOTE: will need to change it to owner or do you think just a technicality?
 
 		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
 }
 
-int	Server::cmdJoin(User *user, std::vector<std::string> args) //								DEBUG NOTE THINGIES : this doesn't really work rn. seems like it doesn't join the same channel despite the name
+int	Server::cmdJoin(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	if (args[1].compare("#") == 0)
@@ -256,27 +256,6 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
-
-// void	Server::replyTo(int target, User* user, std::string code, std::string input)
-// {
-// 	std::ostringstream 	message;
-// 	std::string 		result;
-
-// //	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
-// 	if (target == REQUEST)
-// 		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
-// 	else if (target == CHAN)
-// 		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-
-// 	result = message.str();
-// 	std::ostringstream debug; //														DEBUG
-// 	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //			DEBUG
-// 	debugPrint(GREEN, debug.str()); //													DEBUG
-
-// 	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
-// 		throw std::invalid_argument(" > Error at replyTo() ");
-// }
-
 
 Channel	*Server::findChannel(std::string str)
 {
