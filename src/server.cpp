@@ -223,6 +223,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 int	Server::cmdJoin(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
+	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl;
 	if (args[1].compare("#") == 0)
 		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
 	else
