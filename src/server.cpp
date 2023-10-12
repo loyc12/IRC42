@@ -14,13 +14,17 @@ const std::string & Server::getPass	(void) const			{ return (this->_password);}
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 //	If password is invalid
+	debugPrint(RED, args[1]); // 										DEBUG
+	debugPrint(RED, this->getPass()); // 								DEBUG
 	if (args[1].compare(this->getPass()) != 0)
 	{
 		debugPrint(RED, DENIED); //										DEBUG
 		std::string errMsg = "Invalid password";
+		user->setNick("");
+		replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, errMsg);
 
-		replyTo(REQUEST, user, user, ERR_NOSUCHCHANNEL, errMsg);
-		return (-1);
+//		Deletes the client, loses its FD and removes it from the baseFds
+		deleteClient(user->getFD());
 	}
 	return (0);
 }
@@ -82,6 +86,26 @@ int	Server::setUserMode(User *user, std::vector<std::string> args)
 	return (0);
 }
 
+// int	Server::setUserMode(User *user, std::vector<std::string> args, Channel *channel, std::string code)
+// {
+// 	(void)user;
+// 	(void)args;
+
+// 	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
+// 	//Setting operator for new channel (creation alex)
+// 	if (code.compare("NEW") == 0)
+// 	{
+// 		channel->setAdminName(user->getNick());
+// //		TODO: Unlock i, t, k ,l, o
+// 	}
+// 	else if (user->getNick().compare(channel->getAdminName()) == 0)//ptr the user
+// 	{
+// 		std::cout << "You got there, bro, you got there" << std::endl;
+// 	}
+
+// 	return (0);
+// }
+
 //	TELLS readFromClient that this is a message
 int	Server::processMessage(User *user, std::vector<std::string> args)
 {
@@ -106,6 +130,7 @@ int Server::getCmdID(std::string cmd)
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::vector<std::string> args)
 {
+
 	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,
 		&Server::storeNickname,
@@ -117,7 +142,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setUserMode,
 		&Server::processMessage
 	};
-
+	debugPrint(RED, args[0]);	// DEBUG
 	return (this->*commands[getCmdID(args[0])])(user, args);
 }
 
@@ -200,6 +225,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
+//		TODO: Automate set user here
 //		TODO: can we delete what's below?? Dans Netcat, il peut rejoindre un channel si on ne fournit pas de nom de chan.
 // 		if (args[2].length() != 0) //															NOTE : can't check for missing arg like this (?)
 // 		{
@@ -212,12 +238,11 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 		newChannel->setChanName(args[1]);
-
 		newChannel->addMember(user);
-		newChannel->setAdminName(user->getNick()); //											NOTE: will need to change it to owner or do you think just a technicality?
-
-		newChannel->replyToChan(CHAN, user, JOIN, newChannel->getChanName());
-		//replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
+		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
+//		Re-using setUsermode for automation
+ 		newChannel->setAdminName(user->getNick());// TO DELETE
+		//setUserMode(user, args, newChannel, "NEW");
 }
 
 int	Server::cmdJoin(User *user, std::vector<std::string> args)
@@ -240,7 +265,7 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args)
 }
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
-void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input)
+void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input) //		NOTE : LL : overload this so its not one spaghetti fct
 {
 	std::ostringstream 	message;
 	std::string 		result;
@@ -249,16 +274,28 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 	if (target == REQUEST)
 		message << ":" << fromUser->getHostname() << " " << code << " " << fromUser->getNick() << " :" << input << "\r\n";
 	else if (target == CHAN)
-		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n";
+		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n"; // FOR WELCOME ONLY ??
 
 	result = message.str();
-	std::ostringstream debug; //														DEBUG
-	debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
-	debugPrint(GREEN, debug.str()); //													DEBUG
+	//std::ostringstream debug; //														DEBUG
+	//debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
+	debugPrint(GREEN, result); //														DEBUG
 
 	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
+/*
+
+//	NOTE : need to overload for : (reason/info) (user + channel/reason/message) (user + channel/cmd + reason) (channel + reason/topic/info) (user_modes + u_m_params) (user/channel/target/service + reason)
+//	reason could be left empty to lower fct count
+
+//	maybe split into different functions instead? (one for welcome, one for errorRepliews, one for channelMessages, etc)
+
+void	Server::replyTo(int target, User* user, std::string code, std::string input)
+{
+	this->replyTo(target, user, code, input);
+}
+*/
 
 Channel	*Server::findChannel(std::string str)
 {
@@ -314,14 +351,13 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
-		deleteClient(fd, buff);
+		deleteClient(fd);
 	}
 	else if (byteReceived > 0)
 	{
         lastMsg->assign(buff, 0, byteReceived);
 
 		std::vector<std::string> args = splitString(buff, " \r\n");
-
 		if (execCommand(user, args) == -1)
 		{
         	std::ostringstream debug; //											DEBUG
@@ -382,13 +418,12 @@ void	Server::knownClient(int fd)
 }
 
 //	DELETES A GIVEN CLIENT
-void Server::deleteClient(int fd, char *buff)
+void Server::deleteClient(int fd)
 {
 //	Sets iterator to the client's Fd
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 //	Deletes all data from client's struct
-	bzero(buff, BUFFSIZE);
 	if (it != this->_clients.end())
 		delete it->second;
 

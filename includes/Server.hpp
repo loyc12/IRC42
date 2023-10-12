@@ -24,12 +24,13 @@
 
 
 
+
 # define RPL_NOTOPIC			"331" //no topic set for chan
 # define RPL_TOPIC				"332" //topic of the chan
 # define RPL_NAMREPLY			"353" //list of nicknames in channel
 # define RPL_REPLY				"302" //Reply Mode
 # define JOIN					"JOIN"
-# define REQUEST				0 //					NOTE : split replyTo() into two functions instead?
+# define REQUEST				0 //	NOTE : split replyTo() into two functions instead?
 # define CHAN					1
 
 
@@ -79,6 +80,7 @@ class Server
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChannelTopic	(User *user, std::vector<std::string> args);
 			int		setUserMode		(User *user, std::vector<std::string> args);
+//			int		setUserMode		(User *user, std::vector<std::string> args, Channel *channel, std::string code);
 			int		processMessage	(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
@@ -93,7 +95,7 @@ class Server
 			void	printClient		(struct sockaddr_in *client_addr);
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int fd);
-			void	deleteClient	(int fd, char *buff);
+			void	deleteClient	(int fd);
 //		FT_SERVER
 			void	init	(void);
 			void	start	(void);

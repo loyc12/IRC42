@@ -1,6 +1,6 @@
 #include "IRC.hpp"
 
-void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL;}
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
 
 std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs) //					NOTE : make all splitStrings return a vector of strings instead
 {
@@ -9,7 +9,7 @@ std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs) /
 
 /* //TODO can it be deleted?? below?
 	while (ptr != NULL)
-	
+
 	{
 		ptr = strtok(NULL, chrs); //			... so it needs to be once per token
 		i++;

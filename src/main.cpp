@@ -46,9 +46,6 @@ int main(int ac, char **av)
 		password 	= av[2];
 //		Create object server
 		Server server(port, password);
-		if (password.compare(server.getPass()) != 0)
-			throw std::invalid_argument(PASSWORD);
-
 		server.start();
 	}
 	catch (std::exception &e) //	DEBUG
