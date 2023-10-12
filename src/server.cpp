@@ -263,7 +263,7 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args)
 }
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
-void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input)
+void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input) //		NOTE : LL : overload this so its not one spaghetti fct
 {
 	std::ostringstream 	message;
 	std::string 		result;
@@ -272,15 +272,28 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 	if (target == REQUEST)
 		message << ":" << fromUser->getHostname() << " " << code << " " << fromUser->getNick() << " :" << input << "\r\n";
 	else if (target == CHAN)
-		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n";
+		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n"; // FOR WELCOME ONLY ??
 
 	result = message.str();
-	//std::ostringstream debug; //														DEBUG	debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
-	debugPrint(GREEN, result); //													DEBUG
+	//std::ostringstream debug; //														DEBUG
+	//debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
+	debugPrint(GREEN, result); //														DEBUG
 
 	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
+/*
+
+//	NOTE : need to overload for : (reason/info) (user + channel/reason/message) (user + channel/cmd + reason) (channel + reason/topic/info) (user_modes + u_m_params) (user/channel/target/service + reason)
+//	reason could be left empty to lower fct count
+
+//	maybe split into different functions instead? (one for welcome, one for errorRepliews, one for channelMessages, etc)
+
+void	Server::replyTo(int target, User* user, std::string code, std::string input)
+{
+	this->replyTo(target, user, code, input);
+}
+*/
 
 Channel	*Server::findChannel(std::string str)
 {
