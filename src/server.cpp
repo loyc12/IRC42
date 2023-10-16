@@ -76,17 +76,27 @@ int	Server::setChannelTopic(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-int	Server::setUserMode(User *user, std::vector<std::string> args)
+int	Server::Mode(User *user, std::vector<std::string> args)
 {
 	(void)user;
-	(void)args;
+	// MODE #channel_name +/- code_en_question
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (it != this->_chanContainer.end())
+	{
+		if (args[2].compare("+i") == 0)
+		{
+			it->second->setInviteFlag(1);
+			std::cout << "Yey" << std::endl;
 
+			std::string command = args[1] + " " + args[2] + " " + user->getNick();
+			replyTo(REQUEST, user, user, "MODE", command);
+		}
+	}
 	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
-
 	return (0);
 }
 
-// int	Server::setUserMode(User *user, std::vector<std::string> args, Channel *channel, std::string code)
+// int	Server::Mode(User *user, std::vector<std::string> args, Channel *channel, std::string code)
 // {
 // 	(void)user;
 // 	(void)args;
@@ -126,7 +136,7 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE", "QUIT" }; //		NOTE: ORDER super important -> impact execCommand below
+	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "MODE", "QUIT" }; //		NOTE: ORDER super important -> impact execCommand below
 
 	int id = 0;
 	while (id < 9 && cmd.compare(cmds[id]))
@@ -147,7 +157,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::kickUser,
 		&Server::inviteUser,
 		&Server::setChannelTopic,
-		&Server::setUserMode,
+		&Server::Mode,
 		&Server::quitServer,
 		&Server::processMessage
 	};
@@ -252,6 +262,10 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 //		Re-using setUsermode for automation
 		std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl;//	DEBUG
  		newChannel->setAdminName(user->getNick());// TO DELETE
+		newChannel->addChanOps(user);
+		std::string chanOp = "o " + user->getNick();
+		std::cout << "chanOP string: " << chanOp << std::endl;
+		replyTo(REQUEST, user, user, "MODE", chanOp);
 		//setUserMode(user, args, newChannel, "NEW");
 }
 

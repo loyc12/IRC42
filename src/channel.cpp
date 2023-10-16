@@ -4,7 +4,8 @@
 
 Channel::Channel(std::string chanName): _chanName(chanName)		{
 	debugPrint(YELLOW, CONSTR_CHAN);
-	this->_topic = "No topic set."; }
+	this->_topic = "No topic set."; 
+	this->_isInviteOnly = 0; }
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
 //	0================ GETTERS - SETTERS ================0
@@ -53,6 +54,11 @@ bool	Channel::hasMember(User *user)
 	}
 	return (false)
 */
+}
+
+void	Channel::addChanOps(User *user)
+{
+	this->_chanOps.push_back(user);
 }
 
 void	Channel::addMember(User *user)

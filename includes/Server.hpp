@@ -79,7 +79,7 @@ class Server
 			int		kickUser		(User *user, std::vector<std::string> args);
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChannelTopic	(User *user, std::vector<std::string> args);
-			int		setUserMode		(User *user, std::vector<std::string> args);
+			int		Mode			(User *user, std::vector<std::string> args);
 //			int		setUserMode		(User *user, std::vector<std::string> args, Channel *channel, std::string code);
 			int		processMessage	(User *user, std::vector<std::string> args);
 			int		quitServer		(User *user, std::vector<std::string> args);

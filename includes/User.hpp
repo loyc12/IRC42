@@ -16,7 +16,6 @@ class User //								ADD FD INSIDE USER
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
-		std::string _mode;
 		std::string _hostname;
 		sockaddr_in _clientAddr; //when client is connected
 
@@ -31,7 +30,6 @@ class User //								ADD FD INSIDE USER
 		std::string	getName			(void) const;
 		std::string	getNick			(void) const;
 		std::string getUsername		(void) const;
-		std::string getMode			(void) const;
 		std::string getHostname		(void) const;
 		sockaddr_in	getClientAddr	(void) const;
 
@@ -39,7 +37,6 @@ class User //								ADD FD INSIDE USER
 		void		setName			(std::string name);
 		void		setNick			(std::string nick);
 		void		setUsername		(std::string userName);
-		void		setMode			(std::string mode);
 		void		setHostname		(std::string hostname);
 		void		setUserInfo		(std::vector<std::string> args);
 };

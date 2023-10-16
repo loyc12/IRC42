@@ -194,3 +194,6 @@ command(int target, User *user, std::string condition)
 
 
  Pogner un asterix ? 
+
+
+//On fait un chan operator que son pouvoir, c'est d'autoriser ou refuser un invite only.
