@@ -4,7 +4,7 @@
 
 Channel::Channel(std::string chanName): _chanName(chanName)		{
 	debugPrint(YELLOW, CONSTR_CHAN);
-	this->_topic = "No topic set."; 
+	this->_topic = "No topic set.";
 	this->_isInviteOnly = 0; }
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
@@ -55,6 +55,8 @@ void	Channel::addMember(User *user)
 //	adds user to userlist if it is not in already
 	if (!hasMember(user))
 		this->_chanMembers.push_back(user);
+//	else
+//		error message
 }
 
 void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remove it from all channel first
@@ -68,12 +70,10 @@ void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remo
 		}
 	}
 //	else
-		err
-	err
-	{
-		std::cout << (*it)->getNick() << std::endl; //							DEBUG;
-	}
-	//else send error message (?)
+//		error message
+//	{
+//		std::cout << (*it)->getNick() << std::endl; //							DEBUG;
+//	}
 }
 
 User 	*Channel::getMember(int i)
@@ -91,7 +91,7 @@ void	Channel::replyToChan(User* user, std::string code, std::string input)
 	std::string 		result;
 
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-	
+
 	std::string listMembers;
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{

@@ -13,7 +13,7 @@ const std::string & Server::getPass	(void) const			{ return (this->_password);}
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
-//	if (user->isLoggedIn())
+//	if (user->isLoggedIn()) //															TODO : implementation
 //		replyTo(REQUEST, user, user, ERR_ALREADYREGISTRED, "Already registered");
 //	else if ...
 	if (args[1].compare(this->getPass()) != 0)
@@ -32,6 +32,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	user->setNick(args[1]);
+	//TODO : si la fonction nick a deja trouver un nickname pareil, fuck you
 	return (0);
 }
 
@@ -59,9 +60,45 @@ int	Server::kickUser(User *user, std::vector<std::string> args) // , Channel *ch
 int	Server::inviteUser(User *user, std::vector<std::string> args)
 {
 	(void)user;
-	(void)args;
+	// INVITE USER channel
 
-	std::cout << "TODO : invite user in" << std::endl; //				DEBUG
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
+	User *invitee = findUser(args[1]);
+
+/*
+	//	if channel and user exist
+	if (it != this->_chanContainer.end() && invitee != NULL)
+	{
+		if (it->second->hasMember(user))
+		{
+			if (!it->second->hasMember(invitee))
+				std::cerr << "add invitee to server and tell them" << std::endl;
+			else
+			{
+				std::cerr << "invitee is already in channel" << std::endl;
+			}
+		}
+		else
+		{
+			std::cerr << "user is not in channel (cannot invite)" << std::endl;
+		}
+	}
+	else if (invitee == NULL)
+		std::cerr << "invitee does not exist" << std::endl;
+	else
+		std::cerr << "channel does not exist" << std::endl;
+*/
+
+	if (it == this->_chanContainer.end())
+		std::cerr << "channel does not exist" << std::endl;
+	else if (invitee == NULL)
+		std::cerr << "invitee does not exist" << std::endl;
+	else if (!(it->second->hasMember(user)))
+		std::cerr << "invitee is already in channel" << std::endl;
+	else if (it->second->hasMember(invitee))
+		std::cerr << "user is not in channel (cannot invite)" << std::endl;
+	else
+		std::cerr << "add invitee to server and tell them" << std::endl;
 
 	return (0);
 }
@@ -260,7 +297,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 int	Server::cmdJoin(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
-	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl;
+	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
 		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
 	else
@@ -311,7 +348,6 @@ void	Server::replyTo(int target, User* user, std::string code, std::string input
 
 Channel	*Server::findChannel(std::string str)
 {
-	//str.erase(0, 1);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
 
 	std::cerr << "findChannel()" << std::endl; //										DEBUG
@@ -322,6 +358,20 @@ Channel	*Server::findChannel(std::string str)
 	}
 	else
 		return (NULL);
+}
+
+User	*Server::findUser(std::string str)
+{
+	std::cerr << "findUser()" << std::endl; //											DEBUG
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second->getNick().compare(str) == 0)
+		{
+			std::cerr << "user found : " << it->second->getNick() << std::endl; //		DEBUG
+			return (it->second);
+		}
+	}
+	return (NULL);
 }
 
 //	SENDS A SINGLE MESSAGE TO ALL MEMBERS OF A CHANNEL

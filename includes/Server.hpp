@@ -90,6 +90,7 @@ class Server
 			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
 //			void	reply			(User *user, std::string code, std::string input);
 			Channel	*findChannel	(std::string str);
+			User	*findUser		(std::string str);
 			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
 //		FT_CLIENT
