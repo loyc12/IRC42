@@ -85,39 +85,86 @@ User 	*Channel::getMember(int i)
 }
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER (EXCEPT USER ?)
-void	Channel::replyToChan(User *user, std::string code, std::string input)
+//TODO improve? split? Maybe chunk it?
+ void	Channel::replyToChan(User *user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
+//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
 
+// have a string with all the active members of the chan	
+	std::string listMembers;
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		listMembers += (*it)->getNick() + " ";
+	}
+
+// compose the output msg to be send to clients
+	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << listMembers << "\r\n";
+	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 	result = message.str();
 	std::ostringstream debug; //												DEBUG
 	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
-	debugPrint(GREEN, debug.str()); //											DEBUG
+	debugPrint(GREEN, debug.str()); //		
 
-	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at replyTo() ");
+//	loop to send out the info to EVERYONE in the chan and to update the list
+	for (int i = 0; i < this->getMemberCnt(); i++)
+	{
+		User *toUser = this->getMember(i);
+		if (toUser != NULL)
+		{
+			if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
+				throw std::invalid_argument(" > Error at replyToChan() ");
+		}
+	}
 }
 
-//		CREATES A NEW MEMBER LIST AND CALLS replyToChan(memberList)
-void	Channel::sendMemberList(User *user)
-{
-	std::string memberList;
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		memberList += (*it)->getNick() + " ";
-	}
 
-	this->replyToChan(user, "331", "topis");
-	this->replyToChan(user, "353", memberList);
-	this->replyToChan(user, "366", "end");
+// {
+// 	std::ostringstream 	message;
+// 	std::string 		result;
+
+// 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+
+// 	result = message.str();
+// 	std::ostringstream debug; //												DEBUG
+// 	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
+// 	debugPrint(GREEN, debug.str()); //											DEBUG
+
+// 	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
+// 		throw std::invalid_argument(" > Error at replyTo() ");
+// }
+
+// //		CREATES A NEW MEMBER LIST AND CALLS replyToChan(memberList)
+// void	Channel::sendMemberList(User *user)
+// {
+// 	std::string memberList;
+// 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+// 	{
+// 		memberList += (*it)->getNick() + " ";
+// 	}
+// 	std::ostringstream message;
+// 	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+// 	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
+// 	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+// 	std::string result = message.str();
+// 	for (int i = 0; i < this->getMemberCnt(); i++)
+// 	{
+// 		User *toUser = this->getMember(i);
+// 		if (toUser != NULL && toUser != user)
+// 		{
+// 			this->replyToChan(toUser, "JOIN", result);
+// 		}
+// 	}
+
+	// this->replyToChan(user, "331", this->getTopic());
+	// this->replyToChan(user, "353", memberList);
+	// this->replyToChan(user, "366", "End of NAMES list");
 
 
 //not send to people; info print in terminal
-//	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
-//	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << listMembers << "\r\n";
-//	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
-}
+//}
