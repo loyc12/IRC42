@@ -49,8 +49,11 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 suivi de rien d'autre. Il devient un channel
 * il faut que la liste des participants soient mis à jour pour ceux qui sont déjà dedans le channel. Pour le moment, non mis à jour.
 
+* Weird -> j'ai créé un chan sans ajouter quoique ce soit, il est devenu invite only... Not everytime
+* Need to update the list of participants in channel when people enter channel... Maybe everyone needs the notice when someone was added to the channel to update the list... ??
 
-## VAL:
+
+## VAL: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 Just for me to keep it in case:
 
 void	Server::sendToChan(std::string message, std::vector<std::string> args)
@@ -97,8 +100,8 @@ void	Server::replyToChan(int target, Channel *chan, User* user, std::string code
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
 
+## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 std::string	ftMessage(std::string code)
 {
 	//pointeur sur element de string (message a envoyer)

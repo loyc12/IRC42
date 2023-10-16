@@ -126,8 +126,6 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	
-	std::cout << "cmd: " << cmd << std::endl;//									DEBUG
 	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE", "QUIT" }; //		NOTE: ORDER super important -> impact execCommand below
 
 	int id = 0;
@@ -252,6 +250,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->addMember(user);
 		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
 //		Re-using setUsermode for automation
+		std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl;//	DEBUG
  		newChannel->setAdminName(user->getNick());// TO DELETE
 		//setUserMode(user, args, newChannel, "NEW");
 }
