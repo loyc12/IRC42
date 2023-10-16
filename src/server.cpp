@@ -62,41 +62,17 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	(void)user;
 	// INVITE USER channel
 
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 	User *invitee = findUser(args[1]);
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
-/*
-	//	if channel and user exist
-	if (it != this->_chanContainer.end() && invitee != NULL)
-	{
-		if (it->second->hasMember(user))
-		{
-			if (!it->second->hasMember(invitee))
-				std::cerr << "add invitee to server and tell them" << std::endl;
-			else
-			{
-				std::cerr << "invitee is already in channel" << std::endl;
-			}
-		}
-		else
-		{
-			std::cerr << "user is not in channel (cannot invite)" << std::endl;
-		}
-	}
-	else if (invitee == NULL)
+	if (invitee == NULL)
 		std::cerr << "invitee does not exist" << std::endl;
-	else
+	else if (it == this->_chanContainer.end())
 		std::cerr << "channel does not exist" << std::endl;
-*/
-
-	if (it == this->_chanContainer.end())
-		std::cerr << "channel does not exist" << std::endl;
-	else if (invitee == NULL)
-		std::cerr << "invitee does not exist" << std::endl;
 	else if (!(it->second->hasMember(user)))
-		std::cerr << "invitee is already in channel" << std::endl;
+		std::cerr << "user is not in channel (cannot invite others)" << std::endl;
 	else if (it->second->hasMember(invitee))
-		std::cerr << "user is not in channel (cannot invite)" << std::endl;
+		std::cerr << "invitee is already in channel" << std::endl;
 	else
 		std::cerr << "add invitee to server and tell them" << std::endl;
 
