@@ -207,4 +207,5 @@ TODO :
 	implmenet kickUser (message + deleteClient)
 	implement setChannelTopic
 	finish implementing inviteUser
-	finish implementing mode (setChanMode ?)
+	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)
+	

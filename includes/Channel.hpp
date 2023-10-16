@@ -38,13 +38,14 @@ class Channel
 		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
 
-		bool	isSameUser						(User* user1, User* user2);
+		bool	isSameUser						(User *user1, User *user2);
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);
 		void	addChanOps						(User *user);
 		void	removeMember					(User *user);
 		User 	*getMember						(int i);
-		void	replyToChan						(User* user, std::string code, std::string input);
+		void	replyToChan						(User *user, std::string code, std::string input);
+		void	sendMemberList					(User *user);
 };
 
 #endif

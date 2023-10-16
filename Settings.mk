@@ -6,7 +6,12 @@
 NAME		=	ircserv
 
 # Source file names (prefix their subdir if needed)
-FILES		=	server \
+FILES		=	server_core \
+				server_chan \
+				server_client \
+				server_cmds \
+				server_comm \
+				server_find \
 				main \
 				user \
 				utils \

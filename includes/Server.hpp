@@ -50,58 +50,52 @@ class Server
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
 			struct sockaddr_in				_serverAddr;
-//		Utils
-//			std::map<int, User*>::iterator	_it;
-
 
 	public:
 //		Constructor - Destructor
-			Server(int port, std::string pass); //					TAKE PASS AS ARG (?)
-			~Server();
+			Server					(int port, std::string pass);
+			~Server					();
 // 		Getters - Setters
-			const int 			& getPort(void) const;
-			const std::string 	& getPass(void) const;
-
-
-//		FT_CHECK
+			const int 				&getPort(void) const;
+			const std::string 		&getPass(void) const;
+//		CORE (has constructors)
+			void	init			(void);
+			void	start			(void);
+			void	clear			(void);
+//		FIND
 			bool	isUserInChan	(User *user, Channel *chan);
 			bool	checkInvitePerm	(User *user, Channel *chan);
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
+			Channel	*findChannel	(std::string str);
+			User	*findUser		(std::string str);
+//		CHAN
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
-
-//		FT_CMD
+			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
+//			void	printClient		(struct sockaddr_in *client_addr); //		DEBUG
+//		CLIENT
+			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
+			void	knownClient		(int fd);
+			void	deleteClient	(int fd);
+//		CMDS
 			int		checkPassword	(User *user, std::vector<std::string> args);
 			int		storeNickname	(User *user, std::vector<std::string> args);
 			int		storeUserInfo	(User *user, std::vector<std::string> args);
-			int		cmdJoin			(User *user, std::vector<std::string> args);
+			int		joinChan		(User *user, std::vector<std::string> args);
 			int		kickUser		(User *user, std::vector<std::string> args);
-			int		inviteUser		(User *user, std::vector<std::string> args);
-			int		setChannelTopic	(User *user, std::vector<std::string> args);
-			int		Mode			(User *user, std::vector<std::string> args);
-//			int		setUserMode		(User *user, std::vector<std::string> args, Channel *channel, std::string code);
-			int		notACommand		(User *user, std::vector<std::string> args);
 			int		quitServer		(User *user, std::vector<std::string> args);
+			int		inviteUser		(User *user, std::vector<std::string> args);
+			int		setChanTopic	(User *user, std::vector<std::string> args);
+			int		setChanMode		(User *user, std::vector<std::string> args);
+			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
 //		FT_I/O
 			void	welcomeUser		(User *user);
-			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
-//			void	reply			(User *user, std::string code, std::string input);
-			Channel	*findChannel	(std::string str);
-			User	*findUser		(std::string str);
-			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
-//		FT_CLIENT
-			void	printClient		(struct sockaddr_in *client_addr);
-			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
-			void	knownClient		(int fd);
-			void	deleteClient	(int fd);
-//		FT_SERVER
-			void	init	(void);
-			void	start	(void);
-			void	clear	(void);
+			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
+//			void	reply			(User *user, std::string code, std::string input); //	TODO ?
 
 };
 

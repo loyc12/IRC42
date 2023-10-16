@@ -20,7 +20,7 @@ class User //								ADD FD INSIDE USER
 		sockaddr_in _clientAddr; //when client is connected
 
 	public:
-		bool wasWelcomed;
+		bool wasWelcomed; //				TODO (LL) : use an accessor instead
 // 		Constructors & Destructor
 		User(sockaddr_in clientAddr);
 		~User();

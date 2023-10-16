@@ -37,9 +37,9 @@ bool Channel::isSameUser(User* user1, User* user2)
 bool	Channel::hasMember(User *user)
 {
 //	return true if user* already in list
-	for (int i = 0; i < this->getMemberCnt(); i++)
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
-		if (isSameUser(user, _chanMembers[i]))
+		if (isSameUser(user, *it))
 			return (true);
 	}
 	return (false);
@@ -54,7 +54,10 @@ void	Channel::addMember(User *user)
 {
 //	adds user to userlist if it is not in already
 	if (!hasMember(user))
+	{
 		this->_chanMembers.push_back(user);
+//		sendMemberList();
+	}
 //	else
 //		error message
 }
@@ -63,17 +66,14 @@ void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remo
 {
 	if (hasMember(user))
 	{
-		for (int i = 0; i < this->getMemberCnt(); i++)
+		for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 		{
-			if (isSameUser(user, _chanMembers[i]))
-				this->_chanMembers.erase(this->_chanMembers.begin() + i);
+			if (isSameUser(user, *it))
+				this->_chanMembers.erase(it);
 		}
 	}
 //	else
 //		error message
-//	{
-//		std::cout << (*it)->getNick() << std::endl; //							DEBUG;
-//	}
 }
 
 User 	*Channel::getMember(int i)
@@ -84,24 +84,14 @@ User 	*Channel::getMember(int i)
 		throw std::invalid_argument(" > Error at Channel::getMember() ");
 }
 
-
-void	Channel::replyToChan(User* user, std::string code, std::string input)
+//		SENDS A MESSAGE TO EVERYONE IN THE SERVER (EXCEPT USER ?)
+void	Channel::replyToChan(User *user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
 
-	std::string listMembers;
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		listMembers += (*it)->getNick() + " ";
-	}
-
-//not send to people; info print in terminal
-	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
-	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << listMembers << "\r\n";
-	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 	result = message.str();
 	std::ostringstream debug; //												DEBUG
 	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
@@ -109,4 +99,25 @@ void	Channel::replyToChan(User* user, std::string code, std::string input)
 
 	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
+}
+
+//		CREATES A NEW MEMBER LIST AND CALLS replyToChan(memberList)
+void	Channel::sendMemberList(User *user)
+{
+	std::string memberList;
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		memberList += (*it)->getNick() + " ";
+	}
+
+	this->replyToChan(user, "331", "topis");
+	this->replyToChan(user, "353", memberList);
+	this->replyToChan(user, "366", "end");
+
+
+//not send to people; info print in terminal
+//	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+//	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << listMembers << "\r\n";
+//	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+
 }
