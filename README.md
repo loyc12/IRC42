@@ -80,7 +80,7 @@ void	Server::replyToChan(int target, Channel *chan, User* user, std::string code
 		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
 	else if (target == CHAN)
 		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-	
+
 	std::string listMembers;
 	for (std::vector<User*>::iterator it = chan->_chanMembers.begin(); it != chan->_chanMembers.end(); it++)
 	{
@@ -193,7 +193,18 @@ command(int target, User *user, std::string condition)
 // 		kick
 
 
- Pogner un asterix ? 
+ Pogner un asterix ?
 
 
 //On fait un chan operator que son pouvoir, c'est d'autoriser ou refuser un invite only.
+
+
+## LOYC :
+
+TODO :
+	implement isLoggedIn in User and checkPassword
+	make sure you can't use the same nick as someone else (storeNickname)
+	implmenet kickUser (message + deleteClient)
+	implement setChannelTopic
+	finish implementing inviteUser
+	finish implementing mode (setChanMode ?)
