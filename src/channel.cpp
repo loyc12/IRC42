@@ -29,11 +29,8 @@ void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = bool
 
 bool Channel::isSameUser(User* user1, User* user2)
 {
-	if ((void *)user1 == (void *)user2) //							WARNING : does that even work?
-	{
-		std::cerr << std::endl << "HALLO" << std::endl;
+	if ((void *)user1 == (void *)user2)
 		return (true);
-	}
 	return (false);
 }
 
@@ -46,14 +43,6 @@ bool	Channel::hasMember(User *user)
 			return (true);
 	}
 	return (false);
-/*
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); ++it)
-	{
-		if (isSameUser(*it, user))
-			return (true);
-	}
-	return (false)
-*/
 }
 
 void	Channel::addChanOps(User *user)
@@ -63,21 +52,12 @@ void	Channel::addChanOps(User *user)
 
 void	Channel::addMember(User *user)
 {
+//	adds user to userlist if it is not in already
 	if (!hasMember(user))
-	{
-//		add user to list here
 		this->_chanMembers.push_back(user);
-		//return ;
-	}
-//	error : already present ??? **I say, if already there, do nothing. Just print the list of members
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		std::cout << (*it)->getNick() << std::endl; //							DEBUG; eventually needs to be send to the newly join members
-	}
-
 }
 
-void	Channel::removeMember(User *user) //									NOTE : when deleting a client, remove it from all channel first
+void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remove it from all channel first
 {
 	if (hasMember(user))
 	{
@@ -86,19 +66,10 @@ void	Channel::removeMember(User *user) //									NOTE : when deleting a client,
 			if (isSameUser(user, _chanMembers[i]))
 				this->_chanMembers.erase(this->_chanMembers.begin() + i);
 		}
-		/*
-//		remove user from list here
-		for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); ++it)
-		{
-			if (compareUsers(*it, user))
-			{
-				delete *it;
-				this->_chanMembers.erase(it);
-			}
-		}
-		*/
 	}
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+//	else
+		err
+	err
 	{
 		std::cout << (*it)->getNick() << std::endl; //							DEBUG;
 	}
@@ -114,16 +85,12 @@ User 	*Channel::getMember(int i)
 }
 
 
-void	Channel::replyToChan(int target, User* user, std::string code, std::string input)
+void	Channel::replyToChan(User* user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
 
-//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
-	if (target == REQUEST)
-		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
-	else if (target == CHAN)
-		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
+	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
 	
 	std::string listMembers;
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)

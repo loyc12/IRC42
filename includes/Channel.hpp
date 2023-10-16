@@ -44,7 +44,7 @@ class Channel
 		void	addChanOps						(User *user);
 		void	removeMember					(User *user);
 		User 	*getMember						(int i);
-		void	replyToChan						(int target, User* user, std::string code, std::string input);
+		void	replyToChan						(User* user, std::string code, std::string input);
 };
 
 #endif

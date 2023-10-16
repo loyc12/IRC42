@@ -13,12 +13,12 @@ const std::string & Server::getPass	(void) const			{ return (this->_password);}
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
-//	If password is invalid
-	// debugPrint(RED, args[1]); // 										DEBUG
-	// debugPrint(RED, this->getPass()); // 								DEBUG
+//	if (user->isLoggedIn())
+//		replyTo(REQUEST, user, user, ERR_ALREADYREGISTRED, "Already registered");
+//	else if ...
 	if (args[1].compare(this->getPass()) != 0)
 	{
-		// debugPrint(RED, DENIED); //										DEBUG
+//		If password is invalid
 		std::string errMsg = "Invalid password";
 		user->setNick("");
 		replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, errMsg);
@@ -83,6 +83,19 @@ int	Server::Mode(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 	if (it != this->_chanContainer.end())
 	{
+		/*
+		TODO ?
+		if i
+			chan->setTo(c, arg(?));
+		if t
+			chan->setTo(c, arg(?));
+		if k
+			chan->setTo(c, arg(?));
+		if o
+			chan->setTo(c, arg(?));
+		if l
+			chan->setTo(c, arg(?));
+		*/
 		if (args[2].compare("+i") == 0)
 		{
 			it->second->setInviteFlag(1);
@@ -92,36 +105,14 @@ int	Server::Mode(User *user, std::vector<std::string> args)
 			replyTo(REQUEST, user, user, "MODE", command);
 		}
 	}
-	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
 	return (0);
 }
 
-// int	Server::Mode(User *user, std::vector<std::string> args, Channel *channel, std::string code)
-// {
-// 	(void)user;
-// 	(void)args;
-
-// 	std::cout << "TODO : set user mode" << std::endl; //				DEBUG
-// 	//Setting operator for new channel (creation alex)
-// 	if (code.compare("NEW") == 0)
-// 	{
-// 		channel->setAdminName(user->getNick());
-// //		TODO: Unlock i, t, k ,l, o
-// 	}
-// 	else if (user->getNick().compare(channel->getAdminName()) == 0)//ptr the user
-// 	{
-// 		std::cout << "You got there, bro, you got there" << std::endl;
-// 	}
-
-// 	return (0);
-// }
-
-//	TELLS readFromClient that this is a message
-int	Server::processMessage(User *user, std::vector<std::string> args)
+//	TELLS readFromClient() THAT THIS IS A MESSAGE
+int	Server::notACommand(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
-
 	return (-1);
 }
 
@@ -136,7 +127,7 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "MODE", "QUIT" }; //		NOTE: ORDER super important -> impact execCommand below
+	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC", "MODE", "QUIT" };
 
 	int id = 0;
 	while (id < 9 && cmd.compare(cmds[id]))
@@ -159,16 +150,16 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setChannelTopic,
 		&Server::Mode,
 		&Server::quitServer,
-		&Server::processMessage
+		&Server::notACommand //												NOTE : default case for getCmdID()
 	};
-	debugPrint(RED, args[0]);	// DEBUG
+	debugPrint(RED, args[0]); // 											DEBUG
 	return (this->*commands[getCmdID(args[0])])(user, args);
 }
 
 //	FT_I/O - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
-void	Server::welcomeUser(User *user)
+void	Server::welcomeUser(User *user) //									TODO (LL) : look over
 {
 	replyTo(REQUEST, user, user, RPL_WELCOME, WELCOME_HEADER);
 	user->wasWelcomed = true;
@@ -230,42 +221,39 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 {
 //	Check all conditions in mode if we can add the member to this channel
 	if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
-		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //		NOTE : these send their own error messages
+		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
 	{
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
 		chan->addMember(user);
-
-//		NOTE : use sendToChan() instead so that every user knows someone new joined
-		chan->replyToChan(CHAN, user, JOIN, chan->getChanName());
-		//replyTo(CHAN, user, user, JOIN, chan->getChanName()); 	// send code to trigger the chan invite
+		chan->replyToChan(user, JOIN, chan->getChanName());
 	}
 }
 
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
-//		TODO: Automate set user here
-//		TODO: can we delete what's below?? Dans Netcat, il peut rejoindre un channel si on ne fournit pas de nom de chan.
-// 		if (args[2].length() != 0) //															NOTE : can't check for missing arg like this (?)
-// 		{
-// 			If more information is added, we assume the client wanted to join a channel, so we block the creation
-// 			replyTo(REQUEST, user, "403", "No Such Channel");//ERR_NOSUCHCHANNEL
-// 			return (0);
-// 		}
-		//	else, create the channel
-		debugPrint(MAGENTA, "\n > adding a new channel\n"); //									DEBUG
-		Channel *newChannel = new Channel(args[1]); //											WARNING : may need to deal with leaks
-		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-		newChannel->setChanName(args[1]);
-		newChannel->addMember(user);
-		replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
-//		Re-using setUsermode for automation
-		std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl;//	DEBUG
- 		newChannel->setAdminName(user->getNick());// TO DELETE
-		newChannel->addChanOps(user);
-		std::string chanOp = "o " + user->getNick();
-		std::cout << "chanOP string: " << chanOp << std::endl;
-		replyTo(REQUEST, user, user, "MODE", chanOp);
+ 		if (args.size() > 2)
+ 		{
+//			If more args are added, we assume the client wanted to join a channel, so we block the creation
+ 			replyTo(REQUEST, user, user, "403", ERR_NOSUCHCHANNEL);
+ 		}
+		else //	create the channel
+		{
+			//TODO create function in channel to do that
+			debugPrint(MAGENTA, "\n > adding a new channel\n"); //										DEBUG
+			Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
+			this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
+			newChannel->setChanName(args[1]);
+			newChannel->addMember(user);
+			replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
+	//		Re-using setUsermode for automation
+			std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl;//	DEBUG
+			newChannel->setAdminName(user->getNick());
+			newChannel->addChanOps(user);
+			std::string chanOp = "o " + user->getNick();
+			std::cout << "chanOP string: " << chanOp << std::endl;
+			replyTo(REQUEST, user, user, "MODE", chanOp);
+		}
 		//setUserMode(user, args, newChannel, "NEW");
 }
 
@@ -273,7 +261,7 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl;
-	if (args[1].compare("#") == 0)
+	if (args.size() < 2 || args[1].compare("#") == 0)
 		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
 	else
 	{
@@ -289,7 +277,7 @@ int	Server::cmdJoin(User *user, std::vector<std::string> args)
 }
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
-void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input) //		NOTE : LL : overload this so its not one spaghetti fct
+void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input) //		TODO (LL) : overload this so its not one spaghetti fct
 {
 	std::ostringstream 	message;
 	std::string 		result;

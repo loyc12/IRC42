@@ -81,7 +81,7 @@ class Server
 			int		setChannelTopic	(User *user, std::vector<std::string> args);
 			int		Mode			(User *user, std::vector<std::string> args);
 //			int		setUserMode		(User *user, std::vector<std::string> args, Channel *channel, std::string code);
-			int		processMessage	(User *user, std::vector<std::string> args);
+			int		notACommand		(User *user, std::vector<std::string> args);
 			int		quitServer		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
