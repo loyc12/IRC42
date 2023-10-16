@@ -14,11 +14,11 @@ const std::string & Server::getPass	(void) const			{ return (this->_password);}
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 //	If password is invalid
-	debugPrint(RED, args[1]); // 										DEBUG
-	debugPrint(RED, this->getPass()); // 								DEBUG
+	// debugPrint(RED, args[1]); // 										DEBUG
+	// debugPrint(RED, this->getPass()); // 								DEBUG
 	if (args[1].compare(this->getPass()) != 0)
 	{
-		debugPrint(RED, DENIED); //										DEBUG
+		// debugPrint(RED, DENIED); //										DEBUG
 		std::string errMsg = "Invalid password";
 		user->setNick("");
 		replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, errMsg);
@@ -115,13 +115,23 @@ int	Server::processMessage(User *user, std::vector<std::string> args)
 	return (-1);
 }
 
+//	When client quits the server
+int	Server::quitServer(User *user, std::vector<std::string> args)
+{
+	(void)args;
+	this->deleteClient(user->getFD());
+	return (0);
+}
+
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[8] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE" };
+	
+	std::cout << "cmd: " << cmd << std::endl;//									DEBUG
+	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "INVITE", "TOPIC","MODE", "QUIT" }; //		NOTE: ORDER super important -> impact execCommand below
 
 	int id = 0;
-	while (id < 8 && cmd.compare(cmds[id]))
+	while (id < 9 && cmd.compare(cmds[id]))
 		id++;
 
 	return (id);
@@ -140,6 +150,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::inviteUser,
 		&Server::setChannelTopic,
 		&Server::setUserMode,
+		&Server::quitServer,
 		&Server::processMessage
 	};
 	debugPrint(RED, args[0]);	// DEBUG
