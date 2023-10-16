@@ -66,16 +66,19 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
 	if (invitee == NULL)
-		std::cerr << "invitee does not exist" << std::endl;
+		replyTo(REQUEST, user, user, "401", "invitee does not exist");
 	else if (it == this->_chanContainer.end())
-		std::cerr << "channel does not exist" << std::endl;
+		replyTo(REQUEST, user, user, "403", "channel does not exist");
 	else if (!(it->second->hasMember(user)))
-		std::cerr << "user is not in channel (cannot invite others)" << std::endl;
+		replyTo(REQUEST, user, user, "404", "user is not in channel (cannot invite others)");		
 	else if (it->second->hasMember(invitee))
-		std::cerr << "invitee is already in channel" << std::endl;
+		replyTo(REQUEST, user, user, "462", "invitee is already in channel");		
 	else
-		std::cerr << "add invitee to server and tell them" << std::endl;
-
+	{
+		//std::string userChan = args[1] + " " + args[2];
+		replyTo(REQUEST, user, invitee, "341", args[2]);	
+		//std::cerr << userChan << std::endl;
+	}
 	return (0);
 }
 
