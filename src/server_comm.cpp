@@ -3,7 +3,7 @@
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
 void	Server::welcomeUser(User *user) //									TODO (LL) : look over
 {
-	replyTo(REQUEST, user, user, RPL_WELCOME, WELCOME_HEADER);
+	sendToUser(user, makeUserMsg(user, RPL_WELCOME, WELCOME_HEADER));
 	user->wasWelcomed = true;
 }
 
@@ -41,16 +41,16 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
-				sendToChan(user, *lastMsg, args);
+				processChanMsg(user, *lastMsg, args);
 			else
-        		replyTo(CHAN, user, user, "", *lastMsg);
+        		sendToUser(user, makeUserMsg(user, *lastMsg));
 		}
 	}
 	bzero(buff, BUFFSIZE);
 }
 
 
-
+/*
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
 void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code, std::string input) //		TODO (LL) : overload this so its not one spaghetti fct
 {
@@ -71,6 +71,19 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
+*/
+
+
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
+void	Server::sendToUser(User* targetUser, std::string message)
+{
+	std::ostringstream debug; //															DEBUG
+	debug << "OUTGOING USER_MSG TO : (" << targetUser->getFD() << ")\t| " << message; //	DEBUG
+	debugPrint(GREEN, debug.str()); //															DEBUG
+
+	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToUser() ");
+}
 
 
 /*
@@ -78,9 +91,4 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 //	reason could be left empty to lower fct count
 
 //	maybe split into different functions instead? (one for welcome, one for errorRepliews, one for channelMessages, etc)
-
-void	Server::replyTo(int target, User* user, std::string code, std::string input)
-{
-	this->replyTo(target, user, code, input);
-}
 */

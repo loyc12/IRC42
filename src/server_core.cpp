@@ -98,4 +98,6 @@ void	Server::clear(void)
 	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
+
+	//	NOTE : make sure to delete all of the channels and user
 }

@@ -6,8 +6,8 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 {
 	if (chan->hasMember(user))
 	{
-		replyTo(REQUEST, user, user, ERR_ALREADYREGISTRED, "Already registered");
-	 	return (true);
+	 	sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
+		return (true);
 	}
 	return (false);
 }
@@ -19,7 +19,7 @@ bool	Server::checkInvitePerm(User *user, Channel *chan)
 //	Check if the mode of the chan is in Invitation only
 	if (chan->getInviteFlag())
 	{
-		replyTo(REQUEST, user, user, ERR_INVITEONLYCHAN, "The channel is invite only");
+		sendToUser(user, makeUserMsg(user, ERR_INVITEONLYCHAN, "The channel is invite only"));
 		return (false);
 	}
 	return (true);
@@ -35,12 +35,12 @@ bool	Server::checkPass(User *user, Channel *chan, std::string pass)
 //		Check password provided, return error if no or bad password
 		if (pass.length() == 0)
 		{
-			replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "No password provided");
+			sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "No password provided"));
 			return (false);
 		}
 		else if (pass.compare(chan->getPass()) != 0)
 		{
-			replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, "Invalid password");
+			sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
 			return (false);
 		}
 	}
@@ -54,7 +54,7 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 //	Check if we can add a member to the channel list
 	if (chan->getMaxMbrCnt() > 0 && chan->getMemberCnt() >= chan->getMaxMbrCnt())
 	{
-		replyTo(REQUEST, user, user, ERR_CHANNELISFULL, "Cannot join channel");
+		sendToUser(user, makeUserMsg(user, ERR_CHANNELISFULL, "Cannot join channel"));
 		return (false);
 	}
 	return (true);

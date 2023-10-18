@@ -12,6 +12,8 @@
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
+# define CMD_COUNT			10
+
 //ENTRY CODE
 # define RPL_WELCOME			"001"
 //CHANNEL CODE
@@ -21,8 +23,6 @@
 # define ERR_PASSWDMISMATCH		"464"
 # define ERR_CHANNELISFULL		"471"
 # define ERR_INVITEONLYCHAN		"473"
-
-
 
 
 # define RPL_NOTOPIC			"331" //no topic set for chan
@@ -72,7 +72,7 @@ class Server
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
 			void	dragToChannel	(User *user, Channel *chan);
-			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
+			void	processChanMsg	(User *sender, std::string message, std::vector<std::string> args);
 //			void	printClient		(struct sockaddr_in *client_addr); //		DEBUG
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
@@ -95,8 +95,8 @@ class Server
 //		FT_I/O
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
-			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
-//			void	reply			(User *user, std::string code, std::string input); //	TODO ?
+//			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
+			void	sendToUser		(User* targetUser, std::string message);
 
 };
 

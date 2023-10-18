@@ -106,8 +106,8 @@ User 	*Channel::getMember(int id)
 }
 
 
-
-//		SENDS A MESSAGE TO EVERYONE IN THE SERVER (EXCEPT USER ?)
+/*
+//		SENDS A MESSAGE TO EVERYONE IN THE SERVER (including sender)
 //		TODO : improve? split? Maybe chunk it?
 void	Channel::replyToChan(User *user, std::string code, std::string input)
 {
@@ -131,8 +131,9 @@ void	Channel::replyToChan(User *user, std::string code, std::string input)
 			throw std::invalid_argument(" > Error at replyToChan() ");
 	}
 }
+*/
 
-//		CREATES A NEW MEMBER LIST AND CALLS replyToChan(memberList) TO SEND IT TO ALL CHANNEL MEMBERS
+//		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
 void	Channel::updateMemberList(User *user)
 {
 	std::string memberList;
@@ -141,9 +142,30 @@ void	Channel::updateMemberList(User *user)
 		memberList += (*it)->getNick() + " ";
 	}
 	std::ostringstream message;
+	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << "\r\n";
 	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
 	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
 	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
-	this->replyToChan(user, "", message.str());
+	this->sendToChan(user, message.str());
 }
+
+//		SENDS A MESSAGE TO EVERYONE IN THE SERVER
+void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
+{
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		std::ostringstream debug; //													DEBUG
+		debug << "OUTGOING CHAN_MSG TO : (" << (*it)->getFD() << ")\t| " << message; //	DEBUG
+		debugPrint(GREEN, debug.str()); //												DEBUG
+
+		//
+		if (!sendToSender && isSameUser((*it), sender))
+		{
+			std::cerr << "skiping sender" << std::endl; //								DEBUG
+		}
+		else if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
+			throw std::invalid_argument(" > Error at sendToChan() ");
+	}
+}
+void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); }

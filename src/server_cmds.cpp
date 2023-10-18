@@ -6,13 +6,13 @@
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 	if (user->wasWelcomed)
-		replyTo(REQUEST, user, user, ERR_ALREADYREGISTRED, "Already registered");
+		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
 	else if (args[1].compare(this->getPass()) != 0)
 	{
 //		If password is invalid
 		std::string errMsg = "Invalid password";
 		user->setNick("");
-		replyTo(REQUEST, user, user, ERR_PASSWDMISMATCH, errMsg);
+		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, errMsg));
 
 //		Deletes the client, loses its FD and removes it from the baseFds
 		deleteClient(user->getFD());
@@ -50,7 +50,7 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
-		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more params"));
 	else
 	{
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -71,7 +71,7 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
-		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more params"));
 	else
 	{
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -79,19 +79,19 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 	//	if the channel exists, try to join it. else create it
 		if (it != this->_chanContainer.end())
 		{
-			(it->second)->replyToChan(user, "PART", (it->second)->getChanName());	//	1nd : tell channel they left
-			(it->second)->updateMemberList(user); //									2rd : update member list for all members
-			(it->second)->removeMember(user); //										3st : remove user from channel
+			(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1nd : tell channel they left
+			(it->second)->updateMemberList(user); //															2rd : update member list for all members
+			(it->second)->removeMember(user); //																3st : remove user from channel
 		}
 		else
-			replyTo(REQUEST, user, user, "403", "channel does not exist");
+			sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
 	}
 	return (0);
 }
 
 
 
-int	Server::kickUser(User *user, std::vector<std::string> args) // , Channel *chan)
+int	Server::kickUser(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
@@ -108,6 +108,7 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 {
 	(void)args;
 	this->deleteClient(user->getFD());
+	//											TODO : remove me from all channels too
 	return (0);
 }
 
@@ -122,16 +123,16 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
 	if (invitee == NULL)
-		replyTo(REQUEST, user, user, "401", "invitee does not exist");
+		sendToUser(user, makeUserMsg(user, "401", "invitee does not exist"));
 	else if (it == this->_chanContainer.end())
-		replyTo(REQUEST, user, user, "403", "channel does not exist");
+		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
 	else if (!(it->second->hasMember(user)))
-		replyTo(REQUEST, user, user, "404", "user is not in channel (cannot invite others)");
+		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
-		replyTo(REQUEST, user, user, "462", "invitee is already in channel");
+		sendToUser(user, makeUserMsg(user, "462", "invitee is already in channel"));
 	else
 	{
-		replyTo(REQUEST, user, invitee, "341", args[2]);
+		sendToUser(invitee, makeUserMsg(user, "341", args[2]));
 		dragToChannel(invitee, it->second);
 	}
 	return (0);
@@ -177,7 +178,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 			std::cout << "Yey" << std::endl;
 
 			std::string command = args[1] + " " + args[2] + " " + user->getNick();
-			replyTo(REQUEST, user, user, "MODE", command);
+			sendToUser(user, makeUserMsg(user, "MODE", command));
 		}
 	}
 	return (0);
@@ -194,14 +195,13 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 }
 
 
-
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[10] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE" };
+	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE" };
 
 	int id = 0;
-	while (id < 9 && cmd.compare(cmds[id]))
+	while (id < CMD_COUNT && cmd.compare(cmds[id]))
 		id++;
 
 	return (id);
