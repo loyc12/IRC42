@@ -45,7 +45,7 @@ class Channel
 		void	removeMember					(User *user);
 		User 	*getMember						(int i);
 		void	replyToChan						(User *user, std::string code, std::string input);
-		void	sendMemberList					(User *user);
+		void	updateMemberList				(User *user);
 };
 
 #endif
