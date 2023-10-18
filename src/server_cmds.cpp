@@ -48,7 +48,6 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 int	Server::joinChan(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
-	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more params"));
 	else
@@ -132,7 +131,8 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, "462", "invitee is already in channel"));
 	else
 	{
-		sendToUser(invitee, makeUserMsg(user, "341", args[2]));
+		//	Inviting <name> to <empty ???>
+		sendToUser(user, makeUserMsg(user, "341", args[1]));
 		dragToChannel(invitee, it->second);
 	}
 	return (0);
@@ -156,41 +156,61 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	// MODE #channel_name +/- code_en_question
+
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 	if (it != this->_chanContainer.end())
 	{
-		/*
-		TODO ?
-		if i
-			chan->setTo(c, arg(?));
-		if t
-			chan->setTo(c, arg(?));
-		if k
-			chan->setTo(c, arg(?));
-		if o
-			chan->setTo(c, arg(?));
-		if l
-			chan->setTo(c, arg(?));
-		*/
-		if (args[2].compare("+i") == 0 || args[2].compare("-i") == 0)
+		if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
 		{
-			if (args[2][0] == '+')
-				it->second->setInviteFlag(1);
-			else
-				it->second->setInviteFlag(0);
-
-			std::cout << "Flag set" << std::endl; //								DEBUG
-
-			std::string command = args[1] + " " + args[2] + " " + user->getNick();
-			sendToUser(user, makeUserMsg(user, "MODE", command));
+			std::cout << "invalid mode" << std::endl; //						TODO : send me to user as an error
+			return (0);
 		}
+		else if (args[2][1] == 'i')
+		{
+			if (args[2][0] == '+')	it->second->setInviteFlag(1);
+			else					it->second->setInviteFlag(0);
+		}
+		else if (args[2][1] == 't')
+		{
+//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
+//			else					it->second->setInviteFlag(0);
+		}
+		else if (args[2][1] == 'k')
+		{
+//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
+//			else					it->second->setInviteFlag(0);
+		}
+		else if (args[2][1] == 'o')
+		{
+//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
+//			else					it->second->setInviteFlag(0);
+		}
+		else if (args[2][1] == 'l')
+		{
+//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
+//			else					it->second->setInviteFlag(0);
+		}
+		else
+		{
+			std::cout << "invalid mode" << std::endl; //						TODO : send me to user as an error
+			return (0);
+		}
+
+//		Informs the user that the mode cange was successful
+		std::string command = args[1] + " " + args[2] + " " + user->getNick();
+		sendToUser(user, makeUserMsg(user, "MODE", command));
+
+		std::cout << "Set "  << args[2][1] << " mode to " << args[2][0] << std::endl; //	DEBUG
 	}
+	else
+		std::cout << "invalid channel" << std::endl; //							TODO : send me to user as an error
+
 	return (0);
 }
 
 
 
-//	TELLS readFromClient() THAT THIS IS A MESSAGE
+//	TELLS readFromClient() THAT THIS IS NOT A COMMAND (aka it's a message)
 int	Server::notACommand(User *user, std::vector<std::string> args)
 {
 	(void)user;
@@ -216,7 +236,6 @@ int Server::getCmdID(std::string cmd)
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::vector<std::string> args)
 {
-
 	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,
 		&Server::storeNickname,
@@ -230,6 +249,5 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setChanMode,
 		&Server::notACommand //												NOTE : default case for getCmdID()
 	};
-	debugPrint(RED, args[0]); // 											DEBUG
 	return (this->*commands[getCmdID(args[0])])(user, args);
 }

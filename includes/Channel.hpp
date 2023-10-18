@@ -11,8 +11,8 @@ class Channel
 	private:
 		std::string _chanName;
 		std::string _adminName; //						userName of the creator of channel
-		std::vector<User*> _chanMembers; //				THIS IS A LIST NOW
-		std::vector<User*> _chanOps; //				THIS IS A LIST NOW
+		std::vector<User*> _chanMembers; //
+		std::vector<User*> _chanOps;
 		std::string	_topic;
 
 		bool		_isInviteOnly;
@@ -41,7 +41,7 @@ class Channel
 		bool	isSameUser						(User *user1, User *user2);
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);
-		void	addChanOps						(User *user);
+		void	addChanOp						(User *user);
 		void	removeMember					(User *user);
 		User 	*getMember						(int i);
 //		void	replyToChan						(User *user, std::string code, std::string input);

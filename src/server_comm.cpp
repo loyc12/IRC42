@@ -33,11 +33,15 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
         lastMsg->assign(buff, 0, byteReceived);
 
 		std::vector<std::string> args = splitString(buff, " \r\n");
+
+		debugPrint(RED, args[0]); // 											DEBUG
+
+		std::ostringstream debug; //											DEBUG
+		debug << "INCOMING USER_MSG FROM (" << fd << ") :\n" << *lastMsg; //	DEBUG
+		debugPrint(GREEN, debug.str()); //										DEBUG
+
 		if (execCommand(user, args) == -1)
 		{
-        	std::ostringstream debug; //											DEBUG
-        	debug << "INCOMING MSG FROM : (" << fd << ")\t| " << *lastMsg; //		DEBUG
-        	debugPrint(GREEN, debug.str()); //										DEBUG
 
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
@@ -77,9 +81,9 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
 void	Server::sendToUser(User* targetUser, std::string message)
 {
-	std::ostringstream debug; //															DEBUG
-	debug << "OUTGOING USER_MSG TO : (" << targetUser->getFD() << ")\t| " << message; //	DEBUG
-	debugPrint(GREEN, debug.str()); //															DEBUG
+	std::ostringstream debug; //														DEBUG
+	debug << "OUTGOING USER_MSG TO (" << targetUser->getFD() << ") :\n" << message; //	DEBUG
+	debugPrint(MAGENTA, debug.str()); //													DEBUG
 
 	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at sendToUser() ");

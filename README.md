@@ -203,8 +203,8 @@ command(int target, User *user, std::string condition)
 
 TODO :
 	make sure you can't use the same nick as someone else (storeNickname)
-	implmenet kickUser (message + remove from chan)
+	implemenet kickUser (message + remove from chan)
 	implement setChannelTopic
-	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)
-	remove user from all channels in QUIT
+	finish implementing modes
+	remove user from all channels when QUIT is called on them
 	rework invite message (invite #1 to)

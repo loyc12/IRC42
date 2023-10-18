@@ -28,7 +28,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
  		}
 		else //	create the channel
 		{
-			debugPrint(MAGENTA, "\n > adding a new channel\n"); //										DEBUG
+			debugPrint(MAGENTA, "\n > creating a channel\n"); //										DEBUG
 
 			Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
 			this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
@@ -37,13 +37,11 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 			newChannel->addMember(user);
 			newChannel->sendToChan(user, makeChanMsg(user, "JOIN", newChannel->getChanName()), true);
 
-			std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl; //	DEBUG
-
 			newChannel->setAdminName(user->getNick());
-			newChannel->addChanOps(user);
+			newChannel->addChanOp(user);
 
-			std::string chanOp = "o " + user->getNick(); //												DEBUG
-			std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
+			std::string chanOp = "o " + user->getNick(); //								NOTE (LL) : does this work as intended?
+	//		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
 
 			sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 		}
@@ -54,14 +52,14 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 void	Server::dragToChannel(User *invitee, Channel *chan)
 {
 //	Check all conditions in mode if we can add the member to this channel
-	if (!isUserInChan(invitee, chan) && checkMaxMbr(invitee, chan)) //	NOTE : these send their own error messages
+	if (!isUserInChan(invitee, chan) && checkMaxMbr(invitee, chan)) //			NOTE : these send their own error messages
 	{
 //		the client can enter the channel
-		debugPrint(MAGENTA, "\n > inviting (dragging) to a channel\n"); // DEBUG
+		debugPrint(MAGENTA, "\n > inviting (dragging) to a channel\n"); //						DEBUG
 
 		chan->addMember(invitee); //															1st : add user to channel
 		chan->sendToChan(invitee, makeChanMsg(invitee, "JOIN", chan->getChanName()), true); //	2nd : tell channel they joined
-		chan->updateMemberList(invitee); //													3rd : update member list for all members
+		chan->updateMemberList(invitee); //														3rd : update member list for all members
 	}
 }
 

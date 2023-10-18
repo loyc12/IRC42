@@ -4,7 +4,7 @@
 
 Channel::Channel(std::string chanName): _chanName(chanName)		{
 	debugPrint(YELLOW, CONSTR_CHAN);
-	this->_topic = "No topic set.";
+	this->_topic = "None";
 	this->_isInviteOnly = 0; }
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
@@ -51,7 +51,7 @@ bool	Channel::hasMember(User *user)
 
 
 
-void	Channel::addChanOps(User *user)
+void	Channel::addChanOp(User *user)
 {
 	this->_chanOps.push_back(user);
 }
@@ -142,10 +142,11 @@ void	Channel::updateMemberList(User *user)
 		memberList += (*it)->getNick() + " ";
 	}
 	std::ostringstream message;
+
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << "\r\n";
-	message << ":" << " 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
-	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
-	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+	message << ": 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ": 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
+	message << ": 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
 	this->sendToChan(user, message.str(), true);
 }
@@ -156,16 +157,17 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		std::ostringstream debug; //													DEBUG
-		debug << "OUTGOING CHAN_MSG TO : (" << (*it)->getFD() << ")\t| " << message; //	DEBUG
-		debugPrint(GREEN, debug.str()); //												DEBUG
+		debug << "OUTGOING CHAN_MSG TO (" << (*it)->getFD() << ") :\n" << message; //	DEBUG
+		debugPrint(MAGENTA, debug.str()); //												DEBUG
 
-		//
-		if (!sendToSender && isSameUser((*it), sender))
+		//	Checks if we need to skip the sender or not
+		if (sendToSender || !isSameUser((*it), sender))
 		{
-			std::cerr << "skiping sender" << std::endl; //								DEBUG
+			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
+				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
-		else if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
-			throw std::invalid_argument(" > Error at sendToChan() ");
+		else
+			std::cerr << "skiping the sender" << std::endl; //							DEBUG
 	}
 }
 void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); } // NOTE (LL) : remove me to double check if all have bool ?
