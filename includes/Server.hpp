@@ -29,7 +29,6 @@
 # define RPL_TOPIC				"332" //topic of the chan
 # define RPL_NAMREPLY			"353" //list of nicknames in channel
 # define RPL_REPLY				"302" //Reply Mode
-# define JOIN					"JOIN"
 # define REQUEST				0 //	NOTE : split replyTo() into two functions instead?
 # define CHAN					1
 
@@ -72,6 +71,7 @@ class Server
 //		CHAN
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
+			void	dragToChannel	(User *user, Channel *chan);
 			void	sendToChan		(User *fromUser, std::string message, std::vector<std::string> args);
 //			void	printClient		(struct sockaddr_in *client_addr); //		DEBUG
 //		CLIENT
@@ -83,6 +83,7 @@ class Server
 			int		storeNickname	(User *user, std::vector<std::string> args);
 			int		storeUserInfo	(User *user, std::vector<std::string> args);
 			int		joinChan		(User *user, std::vector<std::string> args);
+			int		leaveChan		(User *user, std::vector<std::string> args);
 			int		kickUser		(User *user, std::vector<std::string> args);
 			int		quitServer		(User *user, std::vector<std::string> args);
 			int		inviteUser		(User *user, std::vector<std::string> args);

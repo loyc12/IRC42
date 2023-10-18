@@ -66,6 +66,31 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 
 
 
+int	Server::leaveChan(User *user, std::vector<std::string> args)
+{
+//	If join have no channel name, it return "#". We use "#" to return an error code.
+	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
+	if (args.size() < 2 || args[1].compare("#") == 0)
+		replyTo(REQUEST, user, user, ERR_NEEDMOREPARAMS, "Need more params");
+	else
+	{
+		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+
+	//	if the channel exists, try to join it. else create it
+		if (it != this->_chanContainer.end())
+		{
+			(it->second)->replyToChan(user, "PART", (it->second)->getChanName());	//	1nd : tell channel they left
+			(it->second)->updateMemberList(user); //									2rd : update member list for all members
+			(it->second)->removeMember(user); //										3st : remove user from channel
+		}
+		else
+			replyTo(REQUEST, user, user, "403", "channel does not exist");
+	}
+	return (0);
+}
+
+
+
 int	Server::kickUser(User *user, std::vector<std::string> args) // , Channel *chan)
 {
 	(void)user;
@@ -108,6 +133,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	{
 		//std::string userChan = args[1] + " " + args[2];
 		replyTo(REQUEST, user, invitee, "341", args[2]);
+		dragToChannel(invitee, it->second);
 		//std::cerr << userChan << std::endl;
 	}
 	return (0);
@@ -174,7 +200,7 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[9] = {	"PASS", "NICK", "USER", "JOIN", "KICK", "QUIT", "INVITE", "TOPIC", "MODE" };
+	std::string cmds[10] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE" };
 
 	int id = 0;
 	while (id < 9 && cmd.compare(cmds[id]))
@@ -194,6 +220,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::storeNickname,
 		&Server::storeUserInfo,
 		&Server::joinChan,
+		&Server::leaveChan,
 		&Server::kickUser,
 		&Server::quitServer,
 		&Server::inviteUser,

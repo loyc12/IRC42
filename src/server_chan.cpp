@@ -12,7 +12,7 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
 
 		chan->addMember(user); //								1st : add user to channel
-		chan->replyToChan(user, JOIN, chan->getChanName());	//	2nd : tell channel they joined
+		chan->replyToChan(user, "JOIN", chan->getChanName());	//	2nd : tell channel they joined
 		chan->updateMemberList(user); //						3rd : update member list for all members
 	}
 }
@@ -34,7 +34,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 			this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 			newChannel->setChanName(args[1]);
 			newChannel->addMember(user);
-			replyTo(CHAN, user, user, JOIN, newChannel->getChanName());
+			replyTo(CHAN, user, user, "JOIN", newChannel->getChanName());
 	//		Re-using setUsermode for automation
 			std::cout << "newChannel: invite or not? " << newChannel->getInviteFlag() << std::endl;//	DEBUG
 			newChannel->setAdminName(user->getNick());
@@ -44,6 +44,22 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 			replyTo(REQUEST, user, user, "MODE", chanOp);
 		}
 		//setUserMode(user, args, newChannel, "NEW");
+}
+
+
+
+void	Server::dragToChannel(User *user, Channel *chan)
+{
+//	Check all conditions in mode if we can add the member to this channel
+	if (!isUserInChan(user, chan) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
+	{
+//		the client can enter the channel
+		debugPrint(MAGENTA, "\n > inviting (dragging) to a channel\n"); // DEBUG
+
+		chan->addMember(user); //								1st : add user to channel
+		chan->replyToChan(user, "JOIN", chan->getChanName());	//	2nd : tell channel they joined
+		chan->updateMemberList(user); //						3rd : update member list for all members
+	}
 }
 
 

@@ -79,7 +79,10 @@ void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remo
 		for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 		{
 			if (isSameUser(user, *it))
+			{
 				this->_chanMembers.erase(it);
+				return ;
+			}
 		}
 	}
 //	else
@@ -114,9 +117,6 @@ User 	*Channel::getMember(int id)
 //	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
 
-	std::ostringstream debug; //												DEBUG
-	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << message; //	DEBUG
-	debugPrint(GREEN, debug.str()); //											DEBUG
 
 	result = message.str();
 
@@ -125,6 +125,10 @@ User 	*Channel::getMember(int id)
 	{
 		for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 		{
+			std::ostringstream debug; //												DEBUG
+			debug << "OUTGOING C_MSG TO : (" << (*it)->getFD() << ")\t| " << result; //	DEBUG
+			debugPrint(GREEN, debug.str()); //											DEBUG
+
 			if (send((*it)->getFD(), result.c_str(), result.size(), 0) < 0)
 				throw std::invalid_argument(" > Error at replyToChan() ");
 		}
