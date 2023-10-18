@@ -109,7 +109,7 @@ User 	*Channel::getMember(int id)
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER (EXCEPT USER ?)
 //		TODO : improve? split? Maybe chunk it?
- void	Channel::replyToChan(User *user, std::string code, std::string input)
+void	Channel::replyToChan(User *user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	std::string 		result;
@@ -121,17 +121,14 @@ User 	*Channel::getMember(int id)
 	result = message.str();
 
 //	loop to send out the message to EVERYONE in the chan
-	for (int i = 0; i < this->getMemberCnt(); i++)
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
-		for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-		{
-			std::ostringstream debug; //												DEBUG
-			debug << "OUTGOING C_MSG TO : (" << (*it)->getFD() << ")\t| " << result; //	DEBUG
-			debugPrint(GREEN, debug.str()); //											DEBUG
+		std::ostringstream debug; //												DEBUG
+		debug << "OUTGOING C_MSG TO : (" << (*it)->getFD() << ")\t| " << result; //	DEBUG
+		debugPrint(GREEN, debug.str()); //											DEBUG
 
-			if (send((*it)->getFD(), result.c_str(), result.size(), 0) < 0)
-				throw std::invalid_argument(" > Error at replyToChan() ");
-		}
+		if (send((*it)->getFD(), result.c_str(), result.size(), 0) < 0)
+			throw std::invalid_argument(" > Error at replyToChan() ");
 	}
 }
 

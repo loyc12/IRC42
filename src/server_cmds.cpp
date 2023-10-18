@@ -131,10 +131,8 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		replyTo(REQUEST, user, user, "462", "invitee is already in channel");
 	else
 	{
-		//std::string userChan = args[1] + " " + args[2];
 		replyTo(REQUEST, user, invitee, "341", args[2]);
 		dragToChannel(invitee, it->second);
-		//std::cerr << userChan << std::endl;
 	}
 	return (0);
 }
