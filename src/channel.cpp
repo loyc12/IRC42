@@ -14,9 +14,9 @@ std::string const & Channel::getChanName(void) const			{ return (this->_chanName
 std::string const & Channel::getAdminName(void) const 			{ return (this->_adminName); }
 std::string const & Channel::getPass(void) const 				{ return (this->_password); }
 std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
-int const & 		Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
+int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
-bool const & 		Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
+bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
 
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
@@ -147,7 +147,7 @@ void	Channel::updateMemberList(User *user)
 	message << ":" << " 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
 	message << ":" << " 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
-	this->sendToChan(user, message.str());
+	this->sendToChan(user, message.str(), true);
 }
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
@@ -168,4 +168,4 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			throw std::invalid_argument(" > Error at sendToChan() ");
 	}
 }
-void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); }
+void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); } // NOTE (LL) : remove me to double check if all have bool ?

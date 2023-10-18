@@ -54,7 +54,7 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 //	Check if we can add a member to the channel list
 	if (chan->getMaxMbrCnt() > 0 && chan->getMemberCnt() >= chan->getMaxMbrCnt())
 	{
-		sendToUser(user, makeUserMsg(user, ERR_CHANNELISFULL, "Cannot join channel"));
+		sendToUser(user, makeUserMsg(user, ERR_CHANNELISFULL, "Cannot join channel (full)"));
 		return (false);
 	}
 	return (true);

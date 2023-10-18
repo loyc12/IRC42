@@ -51,17 +51,17 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 
 
 
-void	Server::dragToChannel(User *user, Channel *chan)
+void	Server::dragToChannel(User *invitee, Channel *chan)
 {
 //	Check all conditions in mode if we can add the member to this channel
-	if (!isUserInChan(user, chan) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
+	if (!isUserInChan(invitee, chan) && checkMaxMbr(invitee, chan)) //	NOTE : these send their own error messages
 	{
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > inviting (dragging) to a channel\n"); // DEBUG
 
-		chan->addMember(user); //								1st : add user to channel
-		chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName())); //	2nd : tell channel they joined
-		chan->updateMemberList(user); //						3rd : update member list for all members
+		chan->addMember(invitee); //															1st : add user to channel
+		chan->sendToChan(invitee, makeChanMsg(invitee, "JOIN", chan->getChanName()), true); //	2nd : tell channel they joined
+		chan->updateMemberList(invitee); //													3rd : update member list for all members
 	}
 }
 

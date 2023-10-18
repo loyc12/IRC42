@@ -202,10 +202,9 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	implement isLoggedIn in User and checkPassword
 	make sure you can't use the same nick as someone else (storeNickname)
-	implmenet kickUser (message + deleteClient)
+	implmenet kickUser (message + remove from chan)
 	implement setChannelTopic
-	finish implementing inviteUser
 	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)
-	
+	remove user from all channels in QUIT
+	rework invite message (invite #1 to)

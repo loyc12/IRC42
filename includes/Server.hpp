@@ -71,7 +71,7 @@ class Server
 //		CHAN
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
-			void	dragToChannel	(User *user, Channel *chan);
+			void	dragToChannel	(User *invitee, Channel *chan);
 			void	processChanMsg	(User *sender, std::string message, std::vector<std::string> args);
 //			void	printClient		(struct sockaddr_in *client_addr); //		DEBUG
 //		CLIENT

@@ -145,7 +145,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	(void)user;
 	(void)args;
 
-	std::cout << "TODO : set channel topic" << std::endl; //			DEBUG
+	std::cout << "TODO : set channel topic" << std::endl; //						DEBUG
 
 	return (0);
 }
@@ -172,10 +172,14 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		if l
 			chan->setTo(c, arg(?));
 		*/
-		if (args[2].compare("+i") == 0)
+		if (args[2].compare("+i") == 0 || args[2].compare("-i") == 0)
 		{
-			it->second->setInviteFlag(1);
-			std::cout << "Yey" << std::endl;
+			if (args[2][0] == '+')
+				it->second->setInviteFlag(1);
+			else
+				it->second->setInviteFlag(0);
+
+			std::cout << "Flag set" << std::endl; //								DEBUG
 
 			std::string command = args[1] + " " + args[2] + " " + user->getNick();
 			sendToUser(user, makeUserMsg(user, "MODE", command));
