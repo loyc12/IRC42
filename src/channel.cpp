@@ -110,7 +110,7 @@ void	Channel::sendMemberList(User *user)
 		memberList += (*it)->getNick() + " ";
 	}
 
-	this->replyToChan(user, "331", "topis");
+	this->replyToChan(user, "331", "topic");
 	this->replyToChan(user, "353", memberList);
 	this->replyToChan(user, "366", "end");
 
