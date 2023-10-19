@@ -86,3 +86,16 @@ std::string	makeUserMsg(User *user, std::string code, std::string input)
 
 	return (message.str());
 }
+
+
+
+//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
+void	sendToUser(User* targetUser, std::string message)
+{
+	std::ostringstream debug; //															DEBUG
+	debug << "OUTGOING USER_MSG TO : (" << targetUser->getFD() << ")\t| " << message; //	DEBUG
+	debugPrint(GREEN, debug.str()); //														DEBUG
+
+	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
+		throw std::invalid_argument(" > Error at sendToUser() ");
+}

@@ -64,26 +64,15 @@ void	Server::replyTo(int target, User* fromUser, User* toUser, std::string code,
 		message << ":" << fromUser->getNick() << "!" << fromUser->getUsername() << "@" << fromUser->getHostname() << " " << code << " " << input << "\r\n"; // FOR WELCOME ONLY ??
 
 	result = message.str();
-	//std::ostringstream debug; //														DEBUG
-	//debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //		DEBUG
-	debugPrint(GREEN, result); //														DEBUG
+	//std::ostringstream debug; //															DEBUG
+	//debug << "OUTGOING C_MSG TO : (" << toUser->getFD() << ")\t| " << result; //			DEBUG
+	debugPrint(GREEN, result); //															DEBUG
 
 	if (send(toUser->getFD(), result.c_str(), result.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at replyTo() ");
 }
 */
 
-
-//	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
-void	Server::sendToUser(User* targetUser, std::string message)
-{
-	std::ostringstream debug; //															DEBUG
-	debug << "OUTGOING USER_MSG TO : (" << targetUser->getFD() << ")\t| " << message; //	DEBUG
-	debugPrint(GREEN, debug.str()); //															DEBUG
-
-	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at sendToUser() ");
-}
 
 
 /*

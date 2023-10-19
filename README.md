@@ -202,7 +202,8 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	implmenet kickUser (message + remove from chan)
+	nickname to check again when you change your nickname and you are already in channel...
+	implement kickUser (message + remove from chan)
 	implement setChannelTopic
 	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)
 	remove user from all channels in QUIT

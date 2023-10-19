@@ -15,4 +15,6 @@ std::string					makeChanMsg(User *user, std::string code, std::string input);
 std::string					makeUserMsg(User *user, std::string input);
 std::string					makeUserMsg(User *user, std::string code, std::string input);
 
+void						sendToUser(User* targetUser, std::string message);
+
 #endif // UTILS_HPP

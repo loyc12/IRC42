@@ -34,14 +34,14 @@ bool Channel::isSameUser(User* user1, User* user2)
 	return (false);
 }
 
-bool	Channel::hasSameNick(User *user, Server *server)
+bool	Channel::hasSameNick(User *user)
 {
 //	return true if nickname already used
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		if ((*it)->getNick().compare(user->getNick()) == 0)
 		{
-			server->sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
+			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
 			return (true);
 		}
 	}
@@ -59,13 +59,10 @@ bool	Channel::hasMember(User *user)
 	return (false);
 }
 
-
-
 void	Channel::addChanOps(User *user)
 {
 	this->_chanOps.push_back(user);
 }
-
 
 
 void	Channel::addMember(User *user)
@@ -100,7 +97,6 @@ void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remo
 }
 
 
-
 User 	*Channel::getMember(int id)
 {
 	int	j = 0;
@@ -114,6 +110,8 @@ User 	*Channel::getMember(int id)
 	}
 	throw std::invalid_argument(" > Error at Channel::getMember() : invalid member id (too big)");
 }
+
+
 
 //		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
 void	Channel::updateMemberList(User *user)
@@ -132,16 +130,19 @@ void	Channel::updateMemberList(User *user)
 	this->sendToChan(user, message.str(), true);
 }
 
+
+
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 {
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	if (!hasMember(sender))
+		sendToUser(sender, makeUserMsg(sender, "402", "you are not in this channel"));
+	else for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		std::ostringstream debug; //													DEBUG
 		debug << "OUTGOING CHAN_MSG TO : (" << (*it)->getFD() << ")\t| " << message; //	DEBUG
 		debugPrint(GREEN, debug.str()); //												DEBUG
 
-		//
 		if (!sendToSender && isSameUser((*it), sender))
 		{
 			std::cerr << "skiping sender" << std::endl; //								DEBUG
@@ -150,4 +151,18 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			throw std::invalid_argument(" > Error at sendToChan() ");
 	}
 }
-void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); } // NOTE (LL) : remove me to double check if all have bool ?
+
+// OVERLOAD FOR SENDING MESSAGE (BECAUSE OF A PREDICAMENT IN PROCESSCHANMSG();)
+void	Channel::sendToChan(User *sender, std::string message){ sendToChan(sender, message, false); } // NOTE (LL) : remove me to double check if all have bool ?
+
+
+
+//		DEBUG FUNCTION
+void	Channel::printMembers(void)
+{
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		std::cerr << (*it)->getNick() << ", ";
+	}
+	std::cerr << std::endl;
+}
