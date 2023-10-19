@@ -1,6 +1,7 @@
 # 42
 *.DS_Store
 *.vscode
+*ircserv
 
 # Prerequisites
 *.d
