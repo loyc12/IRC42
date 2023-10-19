@@ -38,7 +38,7 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		std::ostringstream debug; //											DEBUG
 		debug << "INCOMING USER_MSG FROM (" << fd << ") :\n" << *lastMsg; //	DEBUG
-		debugPrint(GREEN, debug.str()); //										DEBUG
+		debugPrint(BLUE, debug.str()); //										DEBUG
 
 		if (execCommand(user, args) == -1)
 		{

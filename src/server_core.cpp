@@ -1,10 +1,10 @@
 #include "IRC.hpp"
 
 Server::Server(int port, std::string pass) : _port(port), _password(pass) 	{debugPrint(YELLOW, CONSTR_SERV); }
-Server::~Server() 											{debugPrint(YELLOW, DEST_SERV); }
+Server::~Server() 															{debugPrint(YELLOW, DEST_SERV); }
 
-const int & Server::getPort			(void) const			{ return (this->_port);}
-const std::string & Server::getPass	(void) const			{ return (this->_password);}
+const int & Server::getPort			(void) const							{ return (this->_port);}
+const std::string & Server::getPass	(void) const							{ return (this->_password);}
 
 
 
@@ -23,9 +23,9 @@ void	Server::init()
 
 //	Sets Server Adress
 	bzero(&this->_serverAddr, sizeof(this->_serverAddr));
-	this->_serverAddr.sin_family = AF_INET; //					bind call
-	this->_serverAddr.sin_port = htons(this->getPort()); //		IP Adress
-	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; //			localhost
+	this->_serverAddr.sin_family = AF_INET; //							bind call
+	this->_serverAddr.sin_port = htons(this->getPort()); //				IP Adress
+	this->_serverAddr.sin_addr.s_addr = INADDR_ANY; //					localhost
 
 //	Connects server's port
 	if (bind(this->_baseSocket, (struct sockaddr *) &this->_serverAddr, sizeof(this->_serverAddr)) < 0)
@@ -36,7 +36,7 @@ void	Server::init()
 	FD_ZERO(&this->_baseFds);
 	FD_SET(this->_baseSocket, &this->_baseFds);
 
-	debugPrint(GREEN, LAUNCH); //								DEBUG
+	debugPrint(GREEN, LAUNCH); //										DEBUG
 }
 
 
@@ -82,22 +82,18 @@ void	Server::start(void)
 }
 
 
-
 //	CLOSES THE SERVER SAFELY
 void	Server::clear(void)
 {
-	debugPrint(MAGENTA, CLOSING); //								DEBUG
-	std::map<int, User*>::iterator it = this->_clients.begin();
-	std::map<int, User*>::iterator ite = this->_clients.end();
+	debugPrint(MAGENTA, CLOSING); //					DEBUG
 
-	while (it != ite)
-	{
+	for (std::map<std::string, Channel*>::iterator it = this->_chanContainer.begin(); it != this->_chanContainer.end(); it++)
 		delete it->second;
-		it++;
-	}
+	this->_chanContainer.clear();
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+		delete it->second;
 	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
 
-	//	NOTE : make sure to delete all of the channels and user
 }

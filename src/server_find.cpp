@@ -1,7 +1,5 @@
 #include "IRC.hpp"
 
-
-
 bool	Server::isUserInChan(User *user, Channel *chan)
 {
 	if (chan->hasMember(user))
@@ -62,6 +60,31 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 
 
 
+bool	Server::isNickValid(User *user, std::string nickname)
+{
+	(void)user;
+
+	for (int i = 0; i < (int)nickname.length(); i++)
+	{
+		if (std::isalnum(nickname[i]) == 0 && nickname[i] != '_')
+		{
+			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (bad characters)"));
+			return (false);
+		}
+	}
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second->getNick().compare(nickname) == 0)
+		{
+			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (already taken)"));
+			return (false);
+		}
+	}
+	return (true);
+}
+
+
+
 Channel	*Server::findChannel(std::string str)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
@@ -69,10 +92,9 @@ Channel	*Server::findChannel(std::string str)
 	std::cerr << "findChannel()" << std::endl; //										DEBUG
 	if (it != this->_chanContainer.end())
 	{
-		std::cerr << "channel found" << std::endl; //									DEBUG
 		return (it->second);
 	}
-	else
+	std::cerr << "channel not found" << str << std::endl; //							DEBUG
 		return (NULL);
 }
 
@@ -85,9 +107,9 @@ User	*Server::findUser(std::string str)
 	{
 		if (it->second->getNick().compare(str) == 0)
 		{
-			std::cerr << "user found : " << it->second->getNick() << std::endl; //		DEBUG
 			return (it->second);
 		}
 	}
+	std::cerr << "user not found : " << str << std::endl; //							DEBUG
 	return (NULL);
 }

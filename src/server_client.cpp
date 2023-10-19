@@ -45,15 +45,27 @@ void Server::deleteClient(int fd)
 //	Sets iterator to the client's Fd
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
-//	Deletes all data from client's struct
+//	Make the user leave all channels first
+	for (std::map<std::string, Channel*>::iterator ite = this->_chanContainer.begin(); ite != this->_chanContainer.end(); ite++)
+	{
+		if (ite->second->hasMember(it->second))
+		{
+			ite->second->sendToChan(it->second, makeChanMsg(it->second, "PART", (ite->second)->getChanName()), true);
+			ite->second->removeMember(it->second);
+			ite->second->updateMemberList(it->second);
+		}
+	}
+
+//	Deletes the associated user instance
 	if (it != this->_clients.end())
 		delete it->second;
 
-//	Clears the fd from this client
+//	Clears it's fd
 	this->_clients.erase(fd);
 	debugPrint(CYAN, DISCONNECTED);
 
-//	Removes fd from _baseFds
+
+//	Removes it's fd from _baseFds
 	close(fd);
 	FD_CLR(fd, &(this->_baseFds));
 }

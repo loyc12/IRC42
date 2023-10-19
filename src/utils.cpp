@@ -6,20 +6,22 @@ void	debugPrint(std::string color, std::string message)	{std::cout << color << m
 std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)
 {
 	std::vector<std::string> args;
-
 	int		i = 0;
-	char	*ptr = strtok(strdup(str), chrs); //	NOTE : strtok works iteratively, so it needs to be called once per token
+
+//	NOTE : strtok works iteratively, so it needs to be called once per token
+	char	*ptr = strtok(strdup(str), chrs);
 	ptr = strtok(strdup(str), chrs);
+
 	while (ptr != NULL)
 	{
 		args.push_back(std::string(strdup(ptr)));
-//		std::cout << "args[" << i << "] : \'" << args[i] << "\'" << std::endl; //		DEBUG
 		ptr = strtok(NULL, chrs);
 		i++;
 	}
 
 	return args;
 }
+
 std::vector<std::string>	splitString(const char *str, const char *chrs)
 {
 	return splitStringPrivate(str, chrs);
@@ -36,8 +38,6 @@ std::vector<std::string>	splitString(const std::string str, std::string const ch
 {
 	return splitStringPrivate(str.c_str(), chrs.c_str());
 }
-
-
 
 std::string	makeChanMsg(User *user, std::string input)
 {

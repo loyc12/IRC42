@@ -48,7 +48,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 }
 
 
-
+/*
 void	Server::kickFromChannel(Channel *chan, User *member)
 {
 //	Check all conditions in mode if we can add the member to this channel
@@ -62,6 +62,7 @@ void	Server::kickFromChannel(Channel *chan, User *member)
 		chan->updateMemberList(member); //														3rd : update member list for all members
 	}
 }
+*/
 
 
 
