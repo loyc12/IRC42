@@ -202,7 +202,6 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	make sure you can't use the same nick as someone else (storeNickname)
 	implmenet kickUser (message + remove from chan)
 	implement setChannelTopic
 	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)

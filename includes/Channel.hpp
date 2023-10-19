@@ -12,7 +12,7 @@ class Channel
 		std::string _chanName;
 		std::string _adminName; //						userName of the creator of channel
 		std::vector<User*> _chanMembers; //				THIS IS A LIST NOW
-		std::vector<User*> _chanOps; //				THIS IS A LIST NOW
+		std::vector<User*> _chanOps; //					THIS IS A LIST NOW
 		std::string	_topic;
 
 		bool		_isInviteOnly;
@@ -39,6 +39,7 @@ class Channel
 		void	setInviteFlag					(bool const &boolean);
 
 		bool	isSameUser						(User *user1, User *user2);
+		bool	hasSameNick						(User *user, Server *server);
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);
 		void	addChanOps						(User *user);

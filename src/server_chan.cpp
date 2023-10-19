@@ -5,7 +5,7 @@
 void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> args)
 {
 //	Check all conditions in mode if we can add the member to this channel
-	if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
+	if (!isUserInChan(user, chan) && !chan->hasSameNick(user, this) && checkInvitePerm(user, chan) \
 		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
 	{
 //		the client can enter the channel

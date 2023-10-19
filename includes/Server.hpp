@@ -23,6 +23,7 @@
 # define ERR_PASSWDMISMATCH		"464"
 # define ERR_CHANNELISFULL		"471"
 # define ERR_INVITEONLYCHAN		"473"
+# define ERR_NICKNAMEINUSE		"433"
 
 
 # define RPL_NOTOPIC			"331" //no topic set for chan

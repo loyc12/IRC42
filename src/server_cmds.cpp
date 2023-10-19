@@ -25,8 +25,6 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	user->setNick(args[1]);
-	//TODO : si la fonction nick a deja trouver un nickname pareil, fuck you
-	//?? sauf que cette fonction est appelé au début lorsqu'il se connecte au serveur. Je crois qu'à ce point là, 2 nicknames pareil peuvent exister... À moins qu'on dit qu'on le gère de même, point final??
 	return (0);
 }
 
