@@ -202,9 +202,9 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	nickname to check again when you change your nickname and you are already in channel...
-	implement kickUser (message + remove from chan)
+	prevent users to connect to serv with duplicate nicknames (and not just to chan)
+	check for user presence and perms when calling channel functions
 	implement setChannelTopic
-	finish implementing mode (setChanMode ?) (make mode functions tage +/- as args)
-	remove user from all channels in QUIT
+	finish implementing setChanMode()
+	remove user from all channels when QUIT
 	rework invite message (invite #1 to)
