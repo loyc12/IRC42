@@ -54,51 +54,7 @@ suivi de rien d'autre. Il devient un channel
 
 
 ## VAL: ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-Just for me to keep it in case:
 
-void	Server::sendToChan(std::string message, std::vector<std::string> args)
-{
-	Channel *chan = findChannel(args[1]);
-
-//	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL) // && args.size() > 2)
-	{
-		std::cerr << "HERE" << std::endl; //									DEBUG
-		for (int i = 0; i < chan->getMemberCnt(); i++)
-			replyToChan(CHAN, chan, chan->getMember(i), "", message);
-	}
-}
-
-
-void	Server::replyToChan(int target, Channel *chan, User* user, std::string code, std::string input)
-{
-	std::ostringstream 	message;
-	std::string 		result;
-
-//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
-	if (target == REQUEST)
-		message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
-	else if (target == CHAN)
-		message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-
-	std::string listMembers;
-	for (std::vector<User*>::iterator it = chan->_chanMembers.begin(); it != chan->_chanMembers.end(); it++)
-	{
-		listMembers += it->second.getNick() + " ";
-	}
-
-
-	message << ":" << " 331 " << user->getUsername() << " " << chan->getChanName() << " :" << chan->getTopic() << "\r\n";
-	message << ":" << " 353 " << user->getUsername() << " = " << chan->getChanName() << " :" << listMembers << "\r\n";
-	message << ":" << " 366 " << user->getUsername() << " " << chan->getChanName() << " :" << "End of NAMES list" << "\r\n";
-	result = message.str();
-	std::ostringstream debug; //												DEBUG
-	debug << "OUTGOING C_MSG TO : (" << user->getFD() << ")\t| " << result; //	DEBUG
-	debugPrint(GREEN, debug.str()); //											DEBUG
-
-	if (send(user->getFD(), result.c_str(), result.size(), 0) < 0)
-		throw std::invalid_argument(" > Error at replyTo() ");
-}
 
 ## -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -204,7 +160,7 @@ command(int target, User *user, std::string condition)
 TODO :
 	prevent users to connect to serv with duplicate nicknames (and not just to chan)
 	check for user presence and perms when calling channel functions
-	implement setChannelTopic
+	implement setChannelTopic ->Almost done, need to fix the syntax for LimeChat
 	finish implementing setChanMode()
 	remove user from all channels when QUIT
 	rework invite message (invite #1 to)

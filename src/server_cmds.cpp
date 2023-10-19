@@ -118,7 +118,7 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 
 int	Server::inviteUser(User *user, std::vector<std::string> args)
 {
-	(void)user;
+	//(void)user;
 
 	User *invitee = findUser(args[1]);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
@@ -140,11 +140,27 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 }
 
 
-
+//TOPIC #channel <new topic>
 int	Server::setChanTopic(User *user, std::vector<std::string> args)
 {
-	(void)user;
-	(void)args;
+	/*LOGIC to apply
+	1. check if user is in chanOp container of the channel
+	2. To do that, first check if channel exist. Then, check if user is chanOp
+	3. Make sure that we have args[3]
+	4. Lastly, setTopic
+	*/
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (args.size() < 3 || args[1].compare("#") == 0)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
+	else if (it == this->_chanContainer.end())
+		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+	else if (!(it->second->isChanOp(user)))
+		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+	else
+	{
+		it->second->setTopic(args[2]);
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", args[2]), true); //			TODO have to work on the syntax for LimeChat
+	}
 
 	std::cout << "TODO : set channel topic" << std::endl; //								DEBUG
 

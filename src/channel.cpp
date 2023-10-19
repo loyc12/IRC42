@@ -34,6 +34,16 @@ bool Channel::isSameUser(User* user1, User* user2)
 	return (false);
 }
 
+bool	Channel::isChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (*it == user)
+			return (true);
+	}
+	return (false);
+}
+
 bool	Channel::hasSameNick(User *user)
 {
 //	return true if nickname already used
