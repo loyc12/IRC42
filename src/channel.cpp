@@ -34,19 +34,7 @@ bool Channel::isSameUser(User* user1, User* user2)
 	return (false);
 }
 
-bool	Channel::hasSameNick(User *user)
-{
-//	return true if nickname already used
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		if ((*it)->getNick().compare(user->getNick()) == 0)
-		{
-			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
-			return (true);
-		}
-	}
-	return (false);
-}
+
 
 bool	Channel::hasMember(User *user)
 {
@@ -81,7 +69,7 @@ void	Channel::addMember(User *user)
 
 
 
-void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remove it from all channel first
+void	Channel::removeMember(User *user)
 {
 	if (hasMember(user))
 	{

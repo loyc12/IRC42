@@ -202,9 +202,7 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	prevent users to connect to serv with duplicate nicknames (and not just to chan)
-	check for user presence and perms when calling channel functions
 	implement setChannelTopic
+	fix weird ctrl-c bug for val in netcat ???
 	finish implementing setChanMode()
-	remove user from all channels when QUIT
-	rework invite message (invite #1 to)
+	check for user presence and perms when calling functions (aka getMode, hasMember, etc)

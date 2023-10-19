@@ -96,7 +96,7 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
 	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
+		sendToUser(user, makeUserMsg(user, "404", "not in specified channel (cannot invite others)"));
 	else
 	{
 		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);

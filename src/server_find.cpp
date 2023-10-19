@@ -62,13 +62,11 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 
 bool	Server::isNickValid(User *user, std::string nickname)
 {
-	(void)user;
-
 	for (int i = 0; i < (int)nickname.length(); i++)
 	{
 		if (std::isalnum(nickname[i]) == 0 && nickname[i] != '_')
 		{
-			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (bad characters)"));
+			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (" + nickname + " has non alphanumeric characters)"));
 			return (false);
 		}
 	}
@@ -76,7 +74,7 @@ bool	Server::isNickValid(User *user, std::string nickname)
 	{
 		if (it->second->getNick().compare(nickname) == 0)
 		{
-			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (already taken)"));
+			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Invalid nickname (" + nickname + " is already taken)"));
 			return (false);
 		}
 	}
@@ -94,8 +92,8 @@ Channel	*Server::findChannel(std::string str)
 	{
 		return (it->second);
 	}
-	std::cerr << "channel not found" << str << std::endl; //							DEBUG
-		return (NULL);
+	std::cerr << "channel not found : " << str << std::endl; //							DEBUG
+	return (NULL);
 }
 
 

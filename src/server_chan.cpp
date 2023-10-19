@@ -5,7 +5,7 @@
 void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> args)
 {
 //	Check all conditions in mode if we can add the member to this channel
-	if (!isUserInChan(user, chan) && !chan->hasSameNick(user) && checkInvitePerm(user, chan) \
+	if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
 		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
 	{
 //		the client can enter the channel
@@ -87,7 +87,11 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 	Channel *chan = findChannel(args[1]);
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
-	if (chan != NULL && args.size() > 2)
+	if (chan == NULL)
+		sendToUser(sender, makeUserMsg(sender, "403", "channel does not exist"));
+	else if (args.size() < 3)
+		sendToUser(sender, makeUserMsg(sender, ERR_NEEDMOREPARAMS, "Need more parameters"));
+	else
 	{
 		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //			DEBUG
 		if (!chan->hasMember(sender))
