@@ -16,7 +16,7 @@ class User //								ADD FD INSIDE USER
 		std::string	_name;
 		std::string _userName;
 		std::string	_nick;
-		std::string _hostname;
+		std::string _hostName;
 		sockaddr_in _clientAddr; //when client is connected
 
 	public:
@@ -37,7 +37,7 @@ class User //								ADD FD INSIDE USER
 		void		setName			(std::string name);
 		void		setNick			(std::string nick);
 		void		setUsername		(std::string userName);
-		void		setHostname		(std::string hostname);
+		void		setHostname		(std::string hostName);
 		void		setUserInfo		(std::vector<std::string> args);
 };
 

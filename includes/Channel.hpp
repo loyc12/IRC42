@@ -39,6 +39,7 @@ class Channel
 		void	setInviteFlag					(bool const &boolean);
 
 		bool	isSameUser						(User *user1, User *user2);
+		bool	hasSameNick						(User *user);
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);
 		void	addChanOp						(User *user);
@@ -46,8 +47,10 @@ class Channel
 		User 	*getMember						(int i);
 //		void	replyToChan						(User *user, std::string code, std::string input);
 		void	updateMemberList				(User *user);
+		void	printMembers					(void);
+
+// 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);
-		void	sendToChan						(User *sender, std::string message);
 };
 
 #endif

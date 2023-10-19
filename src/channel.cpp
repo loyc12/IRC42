@@ -27,8 +27,6 @@ void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = bool
 
 //	0================ OTHER FUNCTIONS ================0
 
-
-
 bool Channel::isSameUser(User* user1, User* user2)
 {
 	if ((void *)user1 == (void *)user2)
@@ -36,7 +34,19 @@ bool Channel::isSameUser(User* user1, User* user2)
 	return (false);
 }
 
-
+bool	Channel::hasSameNick(User *user)
+{
+//	return true if nickname already used
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		if ((*it)->getNick().compare(user->getNick()) == 0)
+		{
+			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
+			return (true);
+		}
+	}
+	return (false);
+}
 
 bool	Channel::hasMember(User *user)
 {
@@ -55,7 +65,6 @@ void	Channel::addChanOp(User *user)
 {
 	this->_chanOps.push_back(user);
 }
-
 
 
 void	Channel::addMember(User *user)
@@ -90,7 +99,6 @@ void	Channel::removeMember(User *user) //				NOTE : when deleting a client, remo
 }
 
 
-
 User 	*Channel::getMember(int id)
 {
 	int	j = 0;
@@ -106,32 +114,6 @@ User 	*Channel::getMember(int id)
 }
 
 
-/*
-//		SENDS A MESSAGE TO EVERYONE IN THE SERVER (including sender)
-//		TODO : improve? split? Maybe chunk it?
-void	Channel::replyToChan(User *user, std::string code, std::string input)
-{
-	std::ostringstream 	message;
-	std::string 		result;
-
-//	send structured fix template message to infobox of client (request) or to a chan of client (CHAN) (DONT TOUCH)
-	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-
-
-	result = message.str();
-
-//	loop to send out the message to EVERYONE in the chan
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		std::ostringstream debug; //												DEBUG
-		debug << "OUTGOING C_MSG TO : (" << (*it)->getFD() << ")\t| " << result; //	DEBUG
-		debugPrint(GREEN, debug.str()); //											DEBUG
-
-		if (send((*it)->getFD(), result.c_str(), result.size(), 0) < 0)
-			throw std::invalid_argument(" > Error at replyToChan() ");
-	}
-}
-*/
 
 //		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
 void	Channel::updateMemberList(User *user)
@@ -150,6 +132,8 @@ void	Channel::updateMemberList(User *user)
 
 	this->sendToChan(user, message.str(), true);
 }
+
+
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
@@ -170,4 +154,15 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			std::cerr << "skiping the sender" << std::endl; //							DEBUG
 	}
 }
-void	Channel::sendToChan(User *sender, std::string message) { sendToChan(sender, message, false); } // NOTE (LL) : remove me to double check if all have bool ?
+
+
+
+//		DEBUG FUNCTION
+void	Channel::printMembers(void)
+{
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		std::cerr << (*it)->getNick() << ", ";
+	}
+	std::cerr << std::endl;
+}

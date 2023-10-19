@@ -23,6 +23,7 @@
 # define ERR_PASSWDMISMATCH		"464"
 # define ERR_CHANNELISFULL		"471"
 # define ERR_INVITEONLYCHAN		"473"
+# define ERR_NICKNAMEINUSE		"433"
 
 
 # define RPL_NOTOPIC			"331" //no topic set for chan
@@ -83,8 +84,8 @@ class Server
 			int		storeNickname	(User *user, std::vector<std::string> args);
 			int		storeUserInfo	(User *user, std::vector<std::string> args);
 			int		joinChan		(User *user, std::vector<std::string> args);
-			int		leaveChan		(User *user, std::vector<std::string> args);
 			int		kickUser		(User *user, std::vector<std::string> args);
+			void	kickFromChannel	(Channel *chan, User *member);
 			int		quitServer		(User *user, std::vector<std::string> args);
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChanTopic	(User *user, std::vector<std::string> args);
@@ -92,12 +93,11 @@ class Server
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
+//			OVERLOAD
+			int		leaveChan		(User *user, std::vector<std::string> args);
 //		FT_I/O
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
-//			void	replyTo			(int target, User *fromUser, User *toUser, std::string code, std::string input);
-			void	sendToUser		(User* targetUser, std::string message);
-
 };
 
 #endif // SERVER_HPP

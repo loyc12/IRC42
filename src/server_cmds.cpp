@@ -9,12 +9,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
 	else if (args[1].compare(this->getPass()) != 0)
 	{
-//		If password is invalid
-		std::string errMsg = "Invalid password";
-		user->setNick("");
-		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, errMsg));
-
-//		Deletes the client, loses its FD and removes it from the baseFds
+		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
 		deleteClient(user->getFD());
 	}
 	return (0);
@@ -24,12 +19,12 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 
 int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
-	user->setNick(args[1]);
-	//TODO : si la fonction nick a deja trouver un nickname pareil, fuck you
-	//?? sauf que cette fonction est appelé au début lorsqu'il se connecte au serveur. Je crois qu'à ce point là, 2 nicknames pareil peuvent exister... À moins qu'on dit qu'on le gère de même, point final??
+//	if (nickIsValid(args[1])) //					NOTE (LL) : IMPLEMENT ME (check is usename is free and ~alphanumeric)
+		user->setNick(args[1]);
+//	else
+//		sendToUser(user, makeUserMsg(user, ???, "Invalid username"));
 	return (0);
 }
-
 
 
 int	Server::storeUserInfo(User *user, std::vector<std::string> args)
@@ -39,7 +34,6 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 //	Welcomes as user if this is their first password check (aka first connection)
 	if (!user->wasWelcomed)
 		this->welcomeUser(user);
-
 	return (0);
 }
 
@@ -49,7 +43,7 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	if (args.size() < 2 || args[1].compare("#") == 0)
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more params"));
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else
 	{
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -63,14 +57,12 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-
-
 int	Server::leaveChan(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
 	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //						DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more params"));
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else
 	{
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -78,9 +70,9 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 	//	if the channel exists, try to join it. else create it
 		if (it != this->_chanContainer.end())
 		{
-			(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1nd : tell channel they left
-			(it->second)->updateMemberList(user); //															2rd : update member list for all members
-			(it->second)->removeMember(user); //																3st : remove user from channel
+			(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1st : tell channel they left
+			(it->second)->removeMember(user); //																2nd : remove user from channel
+			(it->second)->updateMemberList(user); //															3rd : update member list for all members
 		}
 		else
 			sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
@@ -88,15 +80,49 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 	return (0);
 }
 
+/*
+int	Server::leaveChan(User *kicker, User *kickedOut, Channel *chan)
+{
+	chan->sendToChan(kickedOut, makeChanMsg(kicker, "KICK", ":dan"), true);
+	chan->removeMember(kickedOut);
+	chan->updateMemberList(kickedOut);
+
+	// //	if the channel exists, try to join it. else create it
+	// 	if (it != this->_chanContainer.end())
+	// 	{
+	// 		(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1st : tell channel they left
+	// 		(it->second)->removeMember(user); //																2nd : remove user from channel
+	// 		(it->second)->updateMemberList(user); //															3rd : update member list for all members
+	// 	}
+	// 	else
+	// 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+	// }
+	return (0);
+}
+*/
 
 
+//:dan!d@localhost 		KICK #Melbourne alice :dan
+//:alex!bob@127.0.0.1 	KICK :dan
 int	Server::kickUser(User *user, std::vector<std::string> args)
 {
-	(void)user;
-	(void)args;
+	User *member = findUser(args[2]);
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
-	std::cout << "TODO : kick user out" << std::endl; //				DEBUG
+	std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //		DEBUG
 
+	if (member == NULL)
+		sendToUser(user, makeUserMsg(user, "401", "member does not exist"));
+	else if (it == this->_chanContainer.end())
+		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+	else if (!(it->second->hasMember(user)))
+		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
+	else
+	{
+		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
+		it->second->removeMember(member);
+		it->second->updateMemberList(member);
+	}
 	return (0);
 }
 
@@ -217,6 +243,7 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 	(void)args;
 	return (-1);
 }
+
 
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND

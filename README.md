@@ -202,9 +202,9 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	make sure you can't use the same nick as someone else (storeNickname)
-	implemenet kickUser (message + remove from chan)
+	prevent users to connect to serv with duplicate nicknames (and not just to chan)
+	check for user presence and perms when calling channel functions
 	implement setChannelTopic
-	finish implementing modes
-	remove user from all channels when QUIT is called on them
+	finish implementing setChanMode()
+	remove user from all channels when QUIT
 	rework invite message (invite #1 to)
