@@ -49,7 +49,6 @@ std::string	makeChanMsg(User *user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << code << " " << input << "\r\n";
-	std::cout << "message from makeChanMsg: " << message.str() << std::endl;
 	return (message.str());
 }
 

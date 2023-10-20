@@ -141,27 +141,25 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 
 
 //TOPIC #channel <new topic>
-int	Server::setChanTopic(User *user, std::vector<std::string> args)
+int	Server::setChanTopic(User *user, std::vector<std::string> args)//								WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
 {
-	/*LOGIC to apply
-	1. check if user is in chanOp container of the channel
-	2. To do that, first check if channel exist. Then, check if user is chanOp
-	3. Make sure that we have args[3]
-	4. Lastly, setTopic
-	** if someone send TOPIC #chan_name -> il veut avoir le topic du chan
-	*/
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (args.size() < 3 || args[1].compare("#") == 0)//									NOTE: modifier size, car il peut avoir moins que 3 args
+	if (args.size() < 2 || args[1].compare("#") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
-	else if (!(it->second->isChanOp(user)))
+	else if (!(it->second->isChanOp(user)) && args.size() == 3)
 		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+	else if (args.size() == 2 && it != this->_chanContainer.end()) //								NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
+	{
+		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
+		sendToUser(user, makeUserMsg(user, "TOPIC", input));
+	}
 	else
 	{
 		it->second->setTopic(args[2]);
-		//std::string input = it->second->getChanName() + " :" + i
-		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", it->second->getTopic()), true); //			TODO have to work on the syntax for LimeChat
+		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true);
 	}
 	return (0);
 }

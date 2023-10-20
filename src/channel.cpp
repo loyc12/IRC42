@@ -146,7 +146,7 @@ void	Channel::updateMemberList(User *user)
 
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
-void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
+void	Channel::sendToChan(User *sender, std::string message, bool sendToSender) 
 {
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
