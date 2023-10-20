@@ -148,9 +148,10 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	2. To do that, first check if channel exist. Then, check if user is chanOp
 	3. Make sure that we have args[3]
 	4. Lastly, setTopic
+	** if someone send TOPIC #chan_name -> il veut avoir le topic du chan
 	*/
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	if (args.size() < 3 || args[1].compare("#") == 0)
+	if (args.size() < 3 || args[1].compare("#") == 0)//									NOTE: modifier size, car il peut avoir moins que 3 args
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
@@ -159,7 +160,8 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	else
 	{
 		it->second->setTopic(args[2]);
-		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", args[2]), true); //			TODO have to work on the syntax for LimeChat
+		//std::string input = it->second->getChanName() + " :" + i
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", it->second->getTopic()), true); //			TODO have to work on the syntax for LimeChat
 	}
 	return (0);
 }

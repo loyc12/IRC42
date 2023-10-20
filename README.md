@@ -160,7 +160,7 @@ command(int target, User *user, std::string condition)
 TODO :
 	prevent users to connect to serv with duplicate nicknames (and not just to chan)
 	check for user presence and perms when calling channel functions
-	implement setChannelTopic ->Almost done, need to fix the syntax for LimeChat
+	implement setChannelTopic ->So annoy by the syntax for LIMECHAT! ugh
 	finish implementing setChanMode()
 	remove user from all channels when QUIT
 	rework invite message (invite #1 to)
