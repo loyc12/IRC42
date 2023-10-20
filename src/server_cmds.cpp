@@ -161,9 +161,6 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 		it->second->setTopic(args[2]);
 		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", args[2]), true); //			TODO have to work on the syntax for LimeChat
 	}
-
-	std::cout << "TODO : set channel topic" << std::endl; //								DEBUG
-
 	return (0);
 }
 
