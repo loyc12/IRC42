@@ -7,7 +7,7 @@
 # define DEST_SERV 			"0========== DESTRUCT-(SERVER) ========0\n"
 # define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n\n"
 # define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
-# define DISCONNECTED 		"\n0========= CLIENT DICONNECTED ========0\n\n"
+# define DISCONNECTED 		"\n0========= CLIENT DISCONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to this IRC server"

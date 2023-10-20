@@ -118,7 +118,7 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 
 int	Server::inviteUser(User *user, std::vector<std::string> args)
 {
-	(void)user;
+	//(void)user;
 
 	User *invitee = findUser(args[1]);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
@@ -140,14 +140,27 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 }
 
 
-
-int	Server::setChanTopic(User *user, std::vector<std::string> args)
+//TOPIC #channel <new topic>
+int	Server::setChanTopic(User *user, std::vector<std::string> args)//								WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
 {
-	(void)user;
-	(void)args;
-
-	std::cout << "TODO : set channel topic" << std::endl; //								DEBUG
-
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	if (args.size() < 2 || args[1].compare("#") == 0)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
+	else if (it == this->_chanContainer.end())
+		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+	else if (!(it->second->isChanOp(user)) && args.size() == 3)
+		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+	else if (args.size() == 2 && it != this->_chanContainer.end()) //								NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
+	{
+		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
+		sendToUser(user, makeUserMsg(user, "TOPIC", input));
+	}
+	else
+	{
+		it->second->setTopic(args[2]);
+		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true);
+	}
 	return (0);
 }
 

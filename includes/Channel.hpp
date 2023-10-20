@@ -39,6 +39,7 @@ class Channel
 		void	setInviteFlag					(bool const &boolean);
 
 		bool	isSameUser						(User *user1, User *user2);
+		bool	isChanOp						(User *user);
 		bool	hasSameNick						(User *user);
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);

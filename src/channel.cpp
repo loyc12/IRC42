@@ -34,7 +34,29 @@ bool Channel::isSameUser(User* user1, User* user2)
 	return (false);
 }
 
+bool	Channel::isChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (*it == user)
+			return (true);
+	}
+	return (false);
+}
 
+bool	Channel::hasSameNick(User *user)
+{
+//	return true if nickname already used
+	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
+	{
+		if ((*it)->getNick().compare(user->getNick()) == 0)
+		{
+			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
+			return (true);
+		}
+	}
+	return (false);
+}
 
 bool	Channel::hasMember(User *user)
 {
@@ -124,7 +146,7 @@ void	Channel::updateMemberList(User *user)
 
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
-void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
+void	Channel::sendToChan(User *sender, std::string message, bool sendToSender) 
 {
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
