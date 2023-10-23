@@ -122,8 +122,6 @@ int	Server::quitServer(User *user, std::vector<std::string> args)
 
 int	Server::inviteUser(User *user, std::vector<std::string> args)
 {
-	//(void)user;
-
 	User *invitee = findUser(args[1]);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
@@ -137,7 +135,9 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, "462", "invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
-	else
+	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user))))
+		sendToUser(user, makeUserMsg(user, "482", "invite only channel"));
+	else if (it->second->hasChanOp(user))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
 		dragToChannel(invitee, it->second);
@@ -174,20 +174,44 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)//								WAR
 
 int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
-	//(void)user;
-	// MODE #channel_name +/- code_en_question
-
+//	(void)user;
+// 	MODE <#channel_name> <+/- code_en_question> <password/autre>
+	
+//	Finding channel
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 	std::cout << "chanName: " << it->second->getChanName() << std::endl; //				DEBUG
+	
 	if (it != this->_chanContainer.end())
 	{
-		if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
+		// if (!(it->second->hasChanOp(user))) //	Might need to change
+		// {
+		// 	sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+		// 	return (0);
+		// }
+		if (args.size() == 2)
 		{
-			std::cout << "invalid mode" << std::endl; //						TODO : send me to user as an error
+// 			RPL_CHANNELMODEIS (324) 
+//   		"<client> <channel> <modestring> <mode arguments>..."
+// 			Sent to a client to inform them of the currently-set modes of a channel.
+//			<channel> is the name of the channel. 
+//			<modestring> and <mode arguments> are a mode string and the mode arguments(delimited as separate parameters) as defined in the MODE message description.
+
+
+			//set mode
+			//check tous les flags sont à quoi
+			std::cout << "client veut juste savoir le mode" << std::endl;
+			//sendToUser(user, makeUserMsg(user, "324", "329")); 				//TODO need to come back to me later
+			return (0);
+		}
+		else if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-')) //1. modestring is NOT size 2 OR not + OR - => invalid mode
+		{
+			std::cout << "invalid mode" << std::endl; //						DEBUG
+			sendToUser(user, makeUserMsg(user, "501", "invalid mode"));//ERR_UMODEUNKNOWNFLAG 
 			return (0);
 		}
 		else if (args[2][1] == 'i')
 		{
+			//std::cout << "in i" << std::endl;
 			if (args[2][0] == '+')	it->second->setInviteFlag(1);
 			else					it->second->setInviteFlag(0);
 		}
@@ -211,14 +235,14 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 //			if (args[2][0] == '+')	it->second->setInviteFlag(1); //			NOTE set a limit to the channel
 //			else					it->second->setInviteFlag(0); //			NOTE no more limit
 		}
-		else
+		else // peut-être pas besoin de ce else généra
 		{
 			std::cout << "invalid mode" << std::endl; //						TODO : send me to user as an error
-			sendToUser(user, makeUserMsg(user, "MODE", "invalid mode"));
+			//sendToUser(user, makeUserMsg(user, "MODE", "invalid mode"));
 			return (0);
 		}
-
-//		Informs the user that the mode cange was successful
+		//std::cout << "main if, at the end" << std::endl; //									DEBUG
+//		Informs the user that the mode change was successful
 		std::string command = args[1] + " " + args[2] + " " + user->getNick();
 		sendToUser(user, makeUserMsg(user, "MODE", command));
 

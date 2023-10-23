@@ -42,7 +42,6 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 
 		std::string chanOp = "o " + user->getNick(); //								NOTE (LL) : does this work as intended?
 //		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
-
 		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
