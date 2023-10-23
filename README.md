@@ -161,3 +161,4 @@ TODO :
 	prevent users to connect to serv with duplicate nicknames (and not just to chan)
 	check for user presence and perms when calling channel functions
 	finish implementing setChanMode()
+	when a chanOp leaves the channel and there is no other chanOp, needs to give chanOp to oldest in the channel

@@ -168,10 +168,11 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)//								WAR
 
 int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
-	(void)user;
+	//(void)user;
 	// MODE #channel_name +/- code_en_question
 
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	std::cout << "chanName: " << it->second->getChanName() << std::endl;
 	if (it != this->_chanContainer.end())
 	{
 		if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
@@ -184,29 +185,30 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 			if (args[2][0] == '+')	it->second->setInviteFlag(1);
 			else					it->second->setInviteFlag(0);
 		}
-		else if (args[2][1] == 't')
+		else if (args[2][1] == 't')	//											WARNING: when implemented, need to add checkups in cmd TOPIC...
 		{
-//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
-//			else					it->second->setInviteFlag(0);
+//			if (args[2][0] == '+')	it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
+//			else					it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
 		}
-		else if (args[2][1] == 'k')
+		else if (args[2][1] == 'k') //											WARNING: when implemented, need to add checkups in cmd JOIN... probably in known channel...
 		{
-//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
-//			else					it->second->setInviteFlag(0);
+//			if (args[2][0] == '+')	it->second->setKeyFlag(1); //				NOTE: adding a password to the channel
+//			else					it->second->setKeyFlag(0); //				NOTE no password
 		}
-		else if (args[2][1] == 'o')
+		else if (args[2][1] == 'o') //											we need to clarify this one
 		{
-//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
-//			else					it->second->setInviteFlag(0);
+//			if (args[2][0] == '+')	it->second->setChanOpFlag(1); 
+//			else					it->second->setChanOpFlag(0);
 		}
-		else if (args[2][1] == 'l')
+		else if (args[2][1] == 'l') //											WARNING: when implemented, need to add checkups in cmd JOIN chan
 		{
-//			if (args[2][0] == '+')	it->second->setInviteFlag(1);
-//			else					it->second->setInviteFlag(0);
+//			if (args[2][0] == '+')	it->second->setInviteFlag(1); //			NOTE set a limit to the channel
+//			else					it->second->setInviteFlag(0); //			NOTE no more limit
 		}
 		else
 		{
 			std::cout << "invalid mode" << std::endl; //						TODO : send me to user as an error
+			sendToUser(user, makeUserMsg(user, "MODE", "invalid mode"));
 			return (0);
 		}
 
