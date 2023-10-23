@@ -158,9 +158,6 @@ command(int target, User *user, std::string condition)
 ## LOYC :
 
 TODO :
-	* KICK: a user peut kick, il faut que ce soit un chan OP. Need to check something in KICK 
-	because it did send the error msg but was still able to kick the chan op
-	* INVITE: same as KICK for checkup
 	* finish implementing setChanMode()
 	* prevent users to connect to serv with duplicate nicknames (and not just to chan)
 	* check for user presence and perms when calling channel functions

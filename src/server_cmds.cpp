@@ -135,6 +135,8 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, "462", "invitee is already in channel"));
+	else if (!(it->second->hasChanOp(user)))
+		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
 	else
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
