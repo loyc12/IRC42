@@ -16,6 +16,7 @@ class Channel
 		std::string	_topic;
 
 		bool		_isInviteOnly;
+		bool		_canTopic;//Chan
 		std::string _password;
 		int			_maxMemberCount;
 
@@ -37,6 +38,7 @@ class Channel
 		void	setTopic						(std::string const &topic);
 		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
+		void	setTopicFlag					(bool const &boolean);
 
 		bool	isSameUser						(User *user1, User *user2);
 		bool	isChanOp						(User *user);

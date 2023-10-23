@@ -146,22 +146,23 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 }
 
 
-//TOPIC #channel <new topic>
-int	Server::setChanTopic(User *user, std::vector<std::string> args)//								WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
+//TOPIC #channel <new topic> //TODO if TopicFlag == 0 anyone can change TOPIC (!(+t)) setTopicFlag a zero quand on cree chan
+int	Server::setChanTopic(User *user, std::vector<std::string> args)//	WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	
 	if (args.size() < 2 || args[1].compare("#") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
 	else if (!(it->second->isChanOp(user)) && args.size() == 3)
 		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
-	else if (args.size() == 2 && it != this->_chanContainer.end()) //								NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
+	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
 		sendToUser(user, makeUserMsg(user, "TOPIC", input));
 	}
-	else
+	else if (it->second->getTopicFlag() == 1 && it->second->isChanOp(user))//()
 	{
 		it->second->setTopic(args[2]);
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
@@ -217,8 +218,8 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		}
 		else if (args[2][1] == 't')	//											WARNING: when implemented, need to add checkups in cmd TOPIC...
 		{
-//			if (args[2][0] == '+')	it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
-//			else					it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
+			if (args[2][0] == '+')	it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
+			else					it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
 		}
 		else if (args[2][1] == 'k') //											WARNING: when implemented, need to add checkups in cmd JOIN... probably in known channel...
 		{

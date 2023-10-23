@@ -24,6 +24,7 @@ void	Channel::setPass(std::string const &password)			{ this->_password = passwor
 void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
+void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }
 
 //	0================ OTHER FUNCTIONS ================0
 
