@@ -86,7 +86,9 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 
 int	Server::kickUser(User *user, std::vector<std::string> args)
 {
+//	Finding user that would be kicked in chan
 	User *member = findUser(args[2]);
+//	Finding channel
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 	std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
@@ -97,6 +99,8 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
 	else if (!(it->second->hasMember(user)))
 		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
+	else if (!(it->second->hasChanOp(user)))
+		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
 	else
 	{
 		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
@@ -172,7 +176,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 	// MODE #channel_name +/- code_en_question
 
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	std::cout << "chanName: " << it->second->getChanName() << std::endl;
+	std::cout << "chanName: " << it->second->getChanName() << std::endl; //				DEBUG
 	if (it != this->_chanContainer.end())
 	{
 		if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
@@ -195,9 +199,9 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 //			if (args[2][0] == '+')	it->second->setKeyFlag(1); //				NOTE: adding a password to the channel
 //			else					it->second->setKeyFlag(0); //				NOTE no password
 		}
-		else if (args[2][1] == 'o') //											we need to clarify this one
+		else if (args[2][1] == 'o') //											
 		{
-//			if (args[2][0] == '+')	it->second->setChanOpFlag(1); 
+//			if (args[2][0] == '+')	it->second->setChanOpFlag(1); //			chanOP give the chanOP privileges to someone else
 //			else					it->second->setChanOpFlag(0);
 		}
 		else if (args[2][1] == 'l') //											WARNING: when implemented, need to add checkups in cmd JOIN chan

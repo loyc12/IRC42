@@ -41,14 +41,24 @@ class Channel
 		bool	isSameUser						(User *user1, User *user2);
 		bool	isChanOp						(User *user);
 		bool	hasSameNick						(User *user);
+//		MEMBER
 		bool	hasMember						(User *user);
 		void	addMember						(User *user);
-		void	addChanOp						(User *user);
 		void	removeMember					(User *user);
 		User 	*getMember						(int i);
-//		void	replyToChan						(User *user, std::string code, std::string input);
 		void	updateMemberList				(User *user);
 		void	printMembers					(void);
+
+//		CHANOP
+		bool	hasChanOp						(User *user);
+		void	addChanOp						(User *user);
+//		void	removeChanOp					(User *user);
+//		User 	*getChanOp						(int i);
+//		void	updateChanOpList				(User *user);
+//		void	printChanOp						(void);
+
+
+//		void	replyToChan						(User *user, std::string code, std::string input);
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

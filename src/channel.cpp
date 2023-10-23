@@ -69,6 +69,15 @@ bool	Channel::hasMember(User *user)
 	return (false);
 }
 
+bool	Channel::hasChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (isSameUser(user, *it))
+			return (true);
+	}
+	return (false);
+}
 
 
 void	Channel::addChanOp(User *user)
