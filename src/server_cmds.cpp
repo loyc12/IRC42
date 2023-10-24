@@ -1,7 +1,6 @@
 #include "IRC.hpp"
 
 
-
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
@@ -15,8 +14,6 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-
-
 int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	if (isNickValid(user, args[1])) //	NOTE : this send its own error messages
@@ -25,8 +22,6 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 		deleteClient(user->getFD());
 	return (0);
 }
-
-
 
 int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 {
@@ -37,8 +32,6 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 		this->welcomeUser(user);
 	return (0);
 }
-
-
 
 int	Server::joinChan(User *user, std::vector<std::string> args)
 {
@@ -57,7 +50,6 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 	}
 	return (0);
 }
-
 
 
 int	Server::leaveChan(User *user, std::vector<std::string> args)
@@ -137,7 +129,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
 	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user))))
 		sendToUser(user, makeUserMsg(user, "482", "invite only channel"));
-	else if (it->second->hasChanOp(user))
+	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
 		dragToChannel(invitee, it->second);
@@ -249,10 +241,19 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 					sendToUser(user, makeUserMsg(user, "404", "Member not in channel"));
 			}
 		}
-		else if (args[2][1] == 'l') //											WARNING: when implemented, need to add checkups in cmd JOIN chan
+		else if (args[2][1] == 'l') //				WARNING: when implemented, need to add checkups in cmd JOIN chan
 		{
-//			if (args[2][0] == '+')	it->second->setInviteFlag(1); //			NOTE set a limit to the channel
-//			else					it->second->setInviteFlag(0); //			NOTE no more limit
+			if (args[2][0] == '+' && (args[4].find_first_not_of("0123456789") == std::string::npos))		 //			NOTE set a limit to the channel
+			{
+				//set limit of _chanMembers AND modify addMember or JOIN known channel IMPORTANT
+				int count = stoi(args[3]);
+				it->second->setMaxMemberCount(count);
+			}
+			else if (args[2][0] == '-')
+			{
+				it->second->setMaxMemberCount(0);
+		
+			}					 //			NOTE no more limit
 		}
 		else // peut-être pas besoin de ce else généra
 		{
