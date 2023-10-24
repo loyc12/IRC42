@@ -31,7 +31,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived > 0)
 	{
         lastMsg->assign(buff, 0, byteReceived);
-
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
 		debugPrint(RED, args[0]); // 											DEBUG

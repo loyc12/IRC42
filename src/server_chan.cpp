@@ -39,10 +39,10 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
+		newChannel->setTopicFlag(0);
 
 		std::string chanOp = "o " + user->getNick(); //								NOTE (LL) : does this work as intended?
 //		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
-
 		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }

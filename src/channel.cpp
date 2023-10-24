@@ -17,6 +17,8 @@ std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
 int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
+bool		const & Channel::getTopicFlag(void) const			{ return (this->_canTopic); }
+
 
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
@@ -24,6 +26,8 @@ void	Channel::setPass(std::string const &password)			{ this->_password = passwor
 void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
+void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }
+
 
 //	0================ OTHER FUNCTIONS ================0
 
@@ -69,11 +73,32 @@ bool	Channel::hasMember(User *user)
 	return (false);
 }
 
+bool	Channel::hasChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (isSameUser(user, *it))
+			return (true);
+	}
+	return (false);
+}
 
 
 void	Channel::addChanOp(User *user)
 {
 	this->_chanOps.push_back(user);
+}
+
+void	Channel::removeChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (isSameUser(user, *it))
+		{
+			this->_chanOps.erase(it);
+			return ;
+		}
+	}
 }
 
 
