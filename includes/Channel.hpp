@@ -29,9 +29,10 @@ class Channel
 		std::string const &getPass				(void) const;
 		std::string const &getTopic				(void) const;
 		int			const &getMaxMbrCnt			(void) const;
-		int				   getMemberCnt			(void) const;
 		bool		const &getInviteFlag 		(void) const;
 		bool		const &getTopicFlag			(void) const;
+		int				   getMemberCnt			(void) const;
+		int 			   getOpCnt				(void) const;
 
 		void	setChanName						(std::string const &chan);
 		void	setAdminName					(std::string const &admin);
@@ -45,24 +46,24 @@ class Channel
 		bool	isChanOp						(User *user);
 		bool	hasSameNick						(User *user);
 //		MEMBER
-		bool	hasMember						(User *user);
-		void	addMember						(User *user);
-		void	removeMember					(User *user);
-		User 	*getMember						(int i);
-		void	updateMemberList				(User *user);
-		void	printMembers					(void);
 
-//		CHANOP
+//		MEMBERS
+		bool	hasMember						(User *user);
 		bool	hasChanOp						(User *user);
+
+		void	addMember						(User *user);
 		void	addChanOp						(User *user);
+
+		void	removeMember					(User *user);
 		void	removeChanOp					(User *user);
 
-//		User 	*getChanOp						(int i);
-//		void	updateChanOpList				(User *user);
-//		void	printChanOp						(void);
+		void	resetOpp						(void);
 
+		User 	*getMember						(int i);
+		void	updateMemberList				(User *user);
 
-//		void	replyToChan						(User *user, std::string code, std::string input);
+		void	printMembers					(void); //					DEBUG
+		void	printChanOps					(void); //					DEBUG
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

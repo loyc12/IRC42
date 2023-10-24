@@ -170,8 +170,41 @@ demande :
 * standariser les codes a envoyer au client ?
 
 checklist :
+	* JOIN #1 dhjfkjsdh -> error 403 envoie un reply, pas un code derreur
+	* MODE #CHANNL +o, send message Informer chanop qui est op
+	* PRIVMSG USER a implementer
+	* TCP IP (info)
+	* netcat moi et loic
+
+- - - - - 
 	* test de channel :
 	* MODE #channel !i (X)
 	* MODE #channel (X)
+
+	* JOIN (X) -> ok
+	* TOPIC #chan -> ok
+
+	* JOIN 1 (<hostadress> has changed mode: o alex) -> po sur
+
+	* TOPIC (x) Reply(403): channel does not exist -> to change
+	* TOPIC (#chanexistepas): channel does not exist -> to change
+	* TOPIC (channelexistemaispas#): channel does not exist -> to change
+
+	* MODE #chan +t ok
+	* MODE #chan -t ok
+
+	* INVITE nickname #chan -ok
+	* INVITE nickname #fake -ok
+	* INVITE fake #chan -ok
+	* MODE #1 +i -ok
+	* MODE #1 -i -ok
+	* JOIN #party jfhjkdshfdjskhfjdfsk
+	* MODE #party +k 1234
+	* MODE #party -k 1234
+	* KICK #chan nick ->segfault
+
+extra :
+	* Welcome user
+	
 
 

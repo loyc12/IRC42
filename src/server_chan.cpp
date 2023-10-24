@@ -9,11 +9,11 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
 	{
 //		the client can enter the channel
-		debugPrint(MAGENTA, "\n > joinning a channel\n"); // DEBUG
+		debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
 
-		chan->addMember(user); //								1st : add user to channel
+		chan->addMember(user); //															1st : add user to channel
 		chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
-		chan->updateMemberList(user); //						3rd : update member list for all members
+		chan->updateMemberList(user); //													3rd : update member list for all members
 	}
 }
 
@@ -39,7 +39,6 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
-		newChannel->setTopicFlag(0);
 
 		std::string chanOp = "o " + user->getNick(); //								NOTE (LL) : does this work as intended?
 //		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
