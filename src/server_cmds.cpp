@@ -53,7 +53,7 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 		if (it != this->_chanContainer.end())
 			knownChannel(user, it->second, args);
 		else
-			newChannel(user, args);
+			newChannel(user, args);//	WARNING : WHAT DOES IT DO IF WE ADD A PASSWORD HERE ?
 	}
 	return (0);
 }
@@ -146,7 +146,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 }
 
 
-//TOPIC #channel <new topic> //TODO if TopicFlag == 0 anyone can change TOPIC (!(+t))
+//TOPIC #channel <new topic>
 int	Server::setChanTopic(User *user, std::vector<std::string> args)//	WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -216,15 +216,15 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 			if (args[2][0] == '+')	it->second->setInviteFlag(1);
 			else					it->second->setInviteFlag(0);
 		}
-		else if (args[2][1] == 't')	//											WARNING: when implemented, need to add checkups in cmd TOPIC...
+		else if (args[2][1] == 't')
 		{
 			if (args[2][0] == '+')	it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
 			else					it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
 		}
-		else if (args[2][1] == 'k') //											WARNING: when implemented, need to add checkups in cmd JOIN... probably in known channel...
+		else if (args[2][1] == 'k' && (args.size() == 4))
 		{
-//			if (args[2][0] == '+')	it->second->setKeyFlag(1); //				NOTE: adding a password to the channel
-//			else					it->second->setKeyFlag(0); //				NOTE no password
+			if (args[2][0] == '+')	it->second->setPass(args[3]);
+			else					it->second->setPass(""); //					NOTE no password
 		}
 		else if (args[2][1] == 'o') //											
 		{
