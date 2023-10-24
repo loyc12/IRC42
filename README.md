@@ -162,3 +162,16 @@ TODO :
 	* prevent users to connect to serv with duplicate nicknames (and not just to chan)
 	* check for user presence and perms when calling channel functions
 	* when a chanOp leaves the channel and there is no other chanOp, needs to give chanOp to oldest in the channel
+
+
+## ALEX:
+
+demande :
+* standariser les codes a envoyer au client ?
+
+checklist :
+	* test de channel :
+	* MODE #channel !i (X)
+	* MODE #channel (X)
+
+
