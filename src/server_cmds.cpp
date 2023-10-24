@@ -249,7 +249,6 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 }
 
 
-
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
