@@ -89,6 +89,18 @@ void	Channel::addChanOp(User *user)
 	this->_chanOps.push_back(user);
 }
 
+void	Channel::removeChanOp(User *user)
+{
+	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
+	{
+		if (isSameUser(user, *it))
+		{
+			this->_chanOps.erase(it);
+			return ;
+		}
+	}
+}
+
 
 void	Channel::addMember(User *user)
 {

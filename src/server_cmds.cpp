@@ -182,7 +182,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 	std::cout << "chanName: " << it->second->getChanName() << std::endl; //				DEBUG
 	
-	if (it != this->_chanContainer.end())
+	if (it != this->_chanContainer.end() && it->second->isChanOp(user))
 	{
 		// if (!(it->second->hasChanOp(user))) //	Might need to change
 		// {
@@ -213,23 +213,41 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		else if (args[2][1] == 'i')
 		{
 			//std::cout << "in i" << std::endl;
-			if (args[2][0] == '+')	it->second->setInviteFlag(1);
-			else					it->second->setInviteFlag(0);
+			if (args[2][0] == '+')			it->second->setInviteFlag(1);
+			else if (args[2][0] == '-')		it->second->setInviteFlag(0);
 		}
 		else if (args[2][1] == 't')
 		{
-			if (args[2][0] == '+')	it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
-			else					it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
+			if (args[2][0] == '+')			it->second->setTopicFlag(1); //				NOTE only chanOp can change TOPIC
+			else if (args[2][0] == '-')		it->second->setTopicFlag(0); //				NOTE anyone in the channel can change the TOPIC
 		}
 		else if (args[2][1] == 'k' && (args.size() == 4))
 		{
-			if (args[2][0] == '+')	it->second->setPass(args[3]);
-			else					it->second->setPass(""); //					NOTE no password
+			if (it == this->_chanContainer.end())
+				sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+			else if (args[2][0] == '+')
+				it->second->setPass(args[3]);
+			else if (args[2][0] == '-')
+				it->second->setPass(""); //					NOTE no password
 		}
-		else if (args[2][1] == 'o') //											
+		else if (args[2][1] == 'o' && (args.size() == 4)) //	NOTE: review print msg or send msg to User and error msg										
 		{
-//			if (args[2][0] == '+')	it->second->setChanOpFlag(1); //			chanOP give the chanOP privileges to someone else
-//			else					it->second->setChanOpFlag(0);
+			User *invitee = findUser(args[3]);
+
+			if (it == this->_chanContainer.end())
+				sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+			else
+			{
+				if (it->second->hasMember(invitee)) //			chanOP give the chanOP privileges to someone else
+				{
+					if (args[2][0] == '+')
+							it->second->addChanOp(invitee);
+					else if (args[2][0] == '-')
+							it->second->removeChanOp(invitee);
+				}
+				else
+					sendToUser(user, makeUserMsg(user, "404", "Member not in channel"));
+			}
 		}
 		else if (args[2][1] == 'l') //											WARNING: when implemented, need to add checkups in cmd JOIN chan
 		{

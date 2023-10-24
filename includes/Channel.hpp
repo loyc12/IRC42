@@ -55,7 +55,8 @@ class Channel
 //		CHANOP
 		bool	hasChanOp						(User *user);
 		void	addChanOp						(User *user);
-//		void	removeChanOp					(User *user);
+		void	removeChanOp					(User *user);
+
 //		User 	*getChanOp						(int i);
 //		void	updateChanOpList				(User *user);
 //		void	printChanOp						(void);
