@@ -31,6 +31,7 @@ class Channel
 		int			const &getMaxMbrCnt			(void) const;
 		int				   getMemberCnt			(void) const;
 		bool		const &getInviteFlag 		(void) const;
+		bool		const &getTopicFlag			(void) const;
 
 		void	setChanName						(std::string const &chan);
 		void	setAdminName					(std::string const &admin);

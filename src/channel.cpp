@@ -17,6 +17,7 @@ std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
 int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
+bool		const & Channel::getTopicFlag(void) const			{ return (this->_canTopic); }
 
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
