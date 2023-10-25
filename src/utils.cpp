@@ -22,7 +22,7 @@ std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)
 	return args;
 }
 
-//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF 
+//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
 std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(str, chrs); }
 std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(str, chrs.c_str()); }
 std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str.c_str(), chrs); }

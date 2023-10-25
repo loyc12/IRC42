@@ -51,6 +51,7 @@ QUITctrlVM ->quitte le server
 checklist :
 TODO :
 	* test duplicate nicknames
+	* leaks
 	* define code : trouver, et les entrer dans le hpp, enlever excedent
 	* les notes doivent etre ecrites toutes de la meme facon
 	* debug comment out + push github
