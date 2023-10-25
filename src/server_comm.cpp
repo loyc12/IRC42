@@ -44,7 +44,14 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
-				processChanMsg(user, *lastMsg, args);
+			{
+				if (args.size() < 2)
+					//error args
+				else if (args[1][0] == '#')
+					// processUserMsg
+				else
+					processChanMsg(user, *lastMsg, args);
+			}
 			else
         		sendToUser(user, makeUserMsg(user, *lastMsg));
 		}
