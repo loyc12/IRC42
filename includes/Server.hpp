@@ -90,7 +90,7 @@ class Server
 //		COMM
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
-			void	sendToPriv		(User *sender, User *receiver, std::string message, bool sendToSender) 
+			void	sendToPriv		(User *sender, User *receiver, std::string message, bool sendToSender); 
 //		FIND
 			bool	isUserInChan	(User *user, Channel *chan);
 			bool	checkInvitePerm	(User *user, Channel *chan);
