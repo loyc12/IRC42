@@ -39,7 +39,7 @@ void	Server::readFromClient(User *user, int fd)
 
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
-		if (true) // isMsgEnd(user->lastMsg)) //	NOTE : implement me to have multiple line messages
+		if (isMsgEnd(user->lastMsg))
 		{
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));

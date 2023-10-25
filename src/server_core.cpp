@@ -77,10 +77,9 @@ void	Server::run(void)
 					else
 						this->knownClient(clientFd);
 				}
+				if (this->shutoff)
+					break;
 			}
-//			NOTE (LL) : WIP
-			if (this->shutoff)
-				break;
 		}
 	}
 }

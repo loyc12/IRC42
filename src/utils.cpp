@@ -4,7 +4,7 @@ void	debugPrint(std::string color, std::string message)	{std::cout << color << m
 
 
 
-//							SPLITS A STRING INTO A VECTOR OF STRINGS, USING CHARS AS DELIMIERS
+//		SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
 std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 {
 	std::vector<std::string> args;
@@ -14,10 +14,8 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 //	NOTE : strtok works iteratively, so it needs to be called once per token
 	while (ptr != NULL)
 	{
-		std::cerr << std::string(ptr) << "." << std::endl; //								DEBUG
-
+		std::cerr << "> " << std::string(ptr) << " <" << std::endl; //					DEBUG
 		args.push_back(std::string(ptr));
-
 		ptr = strtok(NULL, dlmtrs);
 	}
 
@@ -70,7 +68,7 @@ std::string	makePrivMsg(User *sender, std::string input)
 void	sendToUser(User *targetUser, std::string message)
 {
 	std::ostringstream debug; //															DEBUG
-	debug << "OUTGOING USER_MSG TO : (" << targetUser->getFD() << ")\t| " << message; //	DEBUG
+	debug << "OUTGOING USER_MSG TO : " << targetUser->getNick() << "\t| " << message; //	DEBUG
 	debugPrint(GREEN, debug.str()); //														DEBUG
 
 	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)

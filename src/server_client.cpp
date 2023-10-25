@@ -68,14 +68,3 @@ void Server::deleteClient(int fd)
 	close(fd);
 	FD_CLR(fd, &(this->_baseFds));
 }
-
-
-/*
-//	DEBUG PRINT
-void	Server::printClient(struct sockaddr_in *client_addr) //				DEBUG
-{
-	std::cout << CYAN << CONNECTED << " > on socket(" <<
-	this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
-	":" << ntohs(client_addr->sin_port) << DEFCOL<< std::endl << std::endl;
-}
-*/

@@ -81,6 +81,19 @@ bool	Server::isNickValid(User *user, std::string nickname)
 	return (true);
 }
 
+bool	Server::isMsgEnd(std::string str)
+{
+	(void)str;
+	return (true); //								TODO : IMPLEMENT ME
+	/*
+	if (str.length() > 0 && str[str.length() - 1] == '\n') //&& str[str.length() - 2] == '\r')
+		return (true);
+
+	std::cerr << "message is not completed yet" << std::endl; //							DEBUG
+	return (false);
+	*/
+}
+
 
 
 Channel	*Server::findChannel(std::string str)

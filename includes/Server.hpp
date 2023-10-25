@@ -3,11 +3,11 @@
 
 # include "IRC.hpp"
 
-# define CONSTR_SERV 		"0========= PARAM-CONSTR(SERVER) ======0\n"
+# define CONSTR_SERV 		"0=========== CONSTR-(SERVER) =========0\n"
 # define DEST_SERV 			"0========== DESTRUCT-(SERVER) ========0\n"
-# define LAUNCH 			"\n0========== SERVER LAUNCHED ==========0\n\n"
+# define LAUNCH 			"\n0=========== SERVER LAUNCHED =========0\n\n"
 # define CONNECTED 			"\n0========== CLIENT CONNECTED =========0\n"
-# define DISCONNECTED 		"\n0========= CLIENT DISCONNECTED ========0\n\n"
+# define DISCONNECTED 		"\n0======== CLIENT DISCONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to our IRC server!"
@@ -99,9 +99,10 @@ class Server
 			bool	checkInvitePerm	(User *user, Channel *chan);
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
+			bool	isNickValid		(User *user, std::string nickname);
+			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
-			bool	isNickValid		(User *user, std::string nickname);
 };
 
 #endif // SERVER_HPP

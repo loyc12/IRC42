@@ -286,7 +286,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	(void)user;
 	(void)args;
 	this->shutoff = true;
-	debugPrint(MAGENTA, "\n\n > Force-closing server\n"); //						DEBUG
+	debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
 	//this->clear();
 	return (0);
 }
@@ -316,7 +316,7 @@ int Server::getCmdID(std::string cmd)
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::vector<std::string> args)
 {
-	debugPrint(RED, "executing : " + args[0]); // 								DEBUG
+	debugPrint(MAGENTA, "EXECUTING MSG :\n" + user->lastMsg); // 			DEBUG
 
 	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,

@@ -15,7 +15,7 @@ static void	stop(int signal)
 {
 	(void)signal;
 	getServer()->shutoff = true;
-	debugPrint(MAGENTA, "\n\n > Closing and cleaning ...\n"); //			DEBUG
+	debugPrint(MAGENTA, "\n\n > Closing...\n"); //					DEBUG
 }
 
 //	PROGRAM ENTRY POINT
@@ -24,7 +24,7 @@ int main(int ac, char **av)
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, stop);
 
-	std::cout << DEFCOL;	//	DEBUG
+	std::cout << DEFCOL;	//										DEBUG
 
 	int  port;
 	int  pass;
@@ -38,13 +38,13 @@ int main(int ac, char **av)
 		else if (std::string(av[2]).find_first_not_of("1234567890") != std::string::npos)
 			throw std::invalid_argument(PASS);
 
+		pass = atoi(av[2]);
 		port = atoi(av[1]);
 		if (port < 6660 || 6669 < port) // (port < 1025 || 65535 < port)
 			throw std::invalid_argument(TCP);
 
-		pass = atoi(av[2]);
 
-		std::cerr << "Port : " << port << std::endl << "Pass : " << pass << std::endl; //			DEBUG
+//		std::cerr << "Port : " << port << std::endl << "Pass : " << pass << std::endl; //			DEBUG
 
 //		Create object server
 		Server *server = getServer();
