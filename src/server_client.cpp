@@ -1,7 +1,5 @@
 #include "IRC.hpp"
 
-
-
 //	PARSE THE DATA FROM A NEW CLIENT'S FIRST MESSAGES
 void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 {
@@ -13,7 +11,6 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 //	Creates a new user for this new Socket & stores User container inside the Server
 	else
 	{
-//		printClient(client_addr); //										DEBUG
 		User* user = new User(*client_addr);
 		user->setFD(this->_newSocket);
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
@@ -69,14 +66,3 @@ void Server::deleteClient(int fd)
 	close(fd);
 	FD_CLR(fd, &(this->_baseFds));
 }
-
-
-/*
-//	DEBUG PRINT
-void	Server::printClient(struct sockaddr_in *client_addr) //				DEBUG
-{
-	std::cout << CYAN << CONNECTED << " > on socket(" <<
-	this->_newSocket << ") " << inet_ntoa(client_addr->sin_addr) <<
-	":" << ntohs(client_addr->sin_port) << DEFCOL<< std::endl << std::endl;
-}
-*/

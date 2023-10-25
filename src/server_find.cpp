@@ -4,7 +4,7 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 {
 	if (chan->hasMember(user))
 	{
-	 	sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
+	 	sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
 		return (true);
 	}
 	return (false);
@@ -87,12 +87,10 @@ Channel	*Server::findChannel(std::string str)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(str);
 
-	std::cerr << "findChannel()" << std::endl; //										DEBUG
 	if (it != this->_chanContainer.end())
 	{
 		return (it->second);
 	}
-	std::cerr << "channel not found : " << str << std::endl; //							DEBUG
 	return (NULL);
 }
 
@@ -100,7 +98,6 @@ Channel	*Server::findChannel(std::string str)
 
 User	*Server::findUser(std::string str)
 {
-	std::cerr << "findUser()" << std::endl; //											DEBUG
 	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
 		if (it->second->getNick().compare(str) == 0)
@@ -108,6 +105,5 @@ User	*Server::findUser(std::string str)
 			return (it->second);
 		}
 	}
-	std::cerr << "user not found : " << str << std::endl; //							DEBUG
 	return (NULL);
 }

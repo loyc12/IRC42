@@ -1,7 +1,6 @@
 #include "IRC.hpp"
 
 
-
 void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> args)
 {
 //	Check all conditions in mode if we can add the member to this channel
@@ -19,16 +18,14 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
+//	If more args are added, we assume the client wanted to join a channel, so we block the creation
 	if (args.size() > 2)
-	{
-//		If more args are added, we assume the client wanted to join a channel, so we block the creation
-		sendToUser(user, makeUserMsg(user, "403", ERR_NOSUCHCHANNEL));
-	}
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
 	else //	create the channel
 	{
 		debugPrint(MAGENTA, "\n > creating a channel\n"); //										DEBUG
 
-		Channel *newChannel = new Channel(args[1]); //												WARNING : may need to deal with leaks
+		Channel *newChannel = new Channel(args[1]);
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
 
 		newChannel->setChanName(args[1]);
@@ -38,8 +35,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
 
-		std::string chanOp = "+o " + user->getNick(); //								NOTE (LL) : does this work as intended?
-//		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
+		std::string chanOp = "+o " + user->getNick(); 
 		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
@@ -64,12 +60,12 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
 	if (chan == NULL)
-		sendToUser(sender, makeUserMsg(sender, "403", "channel does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else
 	{
 		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //			DEBUG
 		if (!chan->hasMember(sender))
-			sendToUser(sender, makeUserMsg(sender, "402", "you are not in this channel"));
+			sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "you are not in this channel"));
 		else
 			chan->sendToChan(sender, makeChanMsg(sender, message), false);
 	}
@@ -80,7 +76,7 @@ void	Server::processPrivMsg(User *sender, std::string message, std::vector<std::
 	User *receiver = findUser(args[1]);
 
 	if (receiver == NULL)
-		sendToUser(sender, makeUserMsg(sender, "432", "nickname does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "nickname does not exist"));
 	else
 		sendToUser(receiver, makePrivMsg(sender, message));
 }

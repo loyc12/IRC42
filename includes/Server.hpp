@@ -13,23 +13,6 @@
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
 # define CMD_COUNT			11
-
-//ENTRY CODE
-# define RPL_WELCOME			"001"
-//CHANNEL CODE
-# define ERR_NOSUCHCHANNEL		"403"
-# define ERR_NEEDMOREPARAMS		"461"
-# define ERR_ALREADYREGISTRED	"462"
-# define ERR_PASSWDMISMATCH		"464"
-# define ERR_CHANNELISFULL		"471"
-# define ERR_INVITEONLYCHAN		"473"
-# define ERR_ERRONEUSNICKNAME	"432"
-# define ERR_NICKNAMEINUSE		"433"
-
-# define RPL_NOTOPIC			"331" //no topic set for chan
-# define RPL_TOPIC				"332" //topic of the chan
-# define RPL_NAMREPLY			"353" //list of nicknames in channel
-# define RPL_REPLY				"302" //Reply Mode
 # define REQUEST				0 //	NOTE : split replyTo() into two functions instead?
 # define CHAN					1
 

@@ -26,6 +26,7 @@ class User;
 # include "Channel.hpp"
 # include "User.hpp"
 # include "Utils.hpp"
+# include "Codes.hpp"
 
 // PUT NON_CODE DEFINES HERE
 # define BUFFSIZE 256
@@ -43,10 +44,5 @@ static bool	shutServ = false;
 //void irc(Server *server);
 int parseArg(int ac, char **av);
 
-
-/*
-class IRC
-Just to have an instance in the main and in private, it has an instance of server
-*/
 
 #endif // IRC_HPP

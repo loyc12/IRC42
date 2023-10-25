@@ -48,7 +48,7 @@ int main(int ac, char **av)
 		Server server(port, password);
 		server.start();
 	}
-	catch (std::exception &e) //	DEBUG
+	catch (std::exception &e)
 	{
 		std::cerr << "\n\n" << RED << e.what() << "\n" << DEFCOL;
 		if (errno)

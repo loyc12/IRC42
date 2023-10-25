@@ -101,7 +101,7 @@ void	Channel::addChanOp(User *user)
 	if (hasMember(user) && !hasChanOp(user))
 	{
 		this->_chanOps.push_back(user);
-		std::cerr << user->getNick() << " is now Op" << std::endl; //					DEBUG
+		//std::cerr << user->getNick() << " is now Op" << std::endl; //		DEBUG
 	}
 
 }
@@ -121,10 +121,7 @@ void	Channel::removeMember(User *user)
 				return ;
 			}
 		}
-		//	if the member was an OP, unop them 
 	}
-//	else
-//		error message
 }
 
 void	Channel::removeChanOp(User *user)
@@ -143,7 +140,7 @@ void	Channel::removeChanOp(User *user)
 
 void	Channel::resetOpp(void)
 {
-	std::cerr << "reseting ops" << std::endl; //									DEBUG
+//	std::cerr << "reseting ops" << std::endl; //									DEBUG
 	addChanOp(*(this->_chanMembers.begin()));
 }
 
@@ -174,14 +171,12 @@ void	Channel::updateMemberList(User *user)
 	std::ostringstream message;
 
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << "\r\n";
-	message << ": 332 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
-	message << ": 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
-	message << ": 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+	message << ": " << RPL_TOPIC << " " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ": " << RPL_NAMREPLY << " " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
+	message << ": " << RPL_ENDOFNAMES << " " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
 	this->sendToChan(user, message.str(), true);
 }
-
-
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender) 
@@ -200,8 +195,8 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
 				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
-		else
-			std::cerr << "skiping the sender" << std::endl; //							DEBUG
+		// else
+		// 	std::cerr << "skiping the sender" << std::endl; //							DEBUG
 	}
 }
 

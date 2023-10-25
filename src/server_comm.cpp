@@ -1,12 +1,11 @@
 #include "IRC.hpp"
 
 //	SET THE HEADER AND SENDS A WELCOME MESSAGE ON CLIENT
-void	Server::welcomeUser(User *user) //									TODO (LL) : look over
+void	Server::welcomeUser(User *user)
 {
 	sendToUser(user, makeUserMsg(user, RPL_WELCOME, WELCOME_HEADER));
 	user->wasWelcomed = true;
 }
-
 
 
 void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
@@ -31,8 +30,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived > 0)
 	{
         lastMsg->assign(buff, 0, byteReceived);
-//		std::string mybuff(buff);
-//		std::vector<std::string> args = splitString(mybuff, " \r\n");
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
 		debugPrint(RED, args[0]); // 											DEBUG

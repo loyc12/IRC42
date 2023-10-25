@@ -1,11 +1,10 @@
 #include "IRC.hpp"
 
-
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 	if (user->wasWelcomed)
-		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
+		sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
 	else if (args[1].compare(this->getPass()) != 0)
 	{
 		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
@@ -20,8 +19,6 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 	{
 		std::string tmp = user->getNick();
 		user->setNick(args[1]);
-//		if (user->wasWelcomed) //									THIS WORKS, EXCEPT ON LIMECHAT SO FUCK THAT
-//			sendToUser(user, ":" + tmp + " NICK " + args[1]);
 	}
 	else if (!user->wasWelcomed)
 		deleteClient(user->getFD());
@@ -51,7 +48,7 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 		if (it != this->_chanContainer.end())
 			knownChannel(user, it->second, args);
 		else
-			newChannel(user, args);//	WARNING : WHAT DOES IT DO IF WE ADD A PASSWORD HERE ?
+			newChannel(user, args);
 	}
 	return (0);
 }
@@ -60,7 +57,6 @@ int	Server::joinChan(User *user, std::vector<std::string> args)
 int	Server::leaveChan(User *user, std::vector<std::string> args)
 {
 //	If join have no channel name, it return "#". We use "#" to return an error code.
-	std::cout << "args[1]: " << args[1] << " " << args[1].length() << std::endl; //								DEBUG
 	if (args.size() < 2 || args[1].compare("#") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else
@@ -75,7 +71,7 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 			(it->second)->updateMemberList(user); //															3rd : update member list for all members
 		}
 		else
-			sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+			sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	}
 	return (0);
 }
@@ -89,13 +85,13 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 	if (member == NULL)
-		sendToUser(user, makeUserMsg(user, "401", "member does not exist"));
+		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "member does not exist"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
+		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));
 	else
 	{
 		std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
@@ -122,17 +118,17 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
 	if (invitee == NULL)
-		sendToUser(user, makeUserMsg(user, "401", "invitee does not exist"));
+		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "invitee does not exist"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "404", "user is not in channel (cannot invite others)"));
+		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
-		sendToUser(user, makeUserMsg(user, "462", "invitee is already in channel"));
+		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+		sendToUser(user, makeUserMsg(user, "ERR_NOPRIVILEGES", "not a chan op"));
 	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user))))
-		sendToUser(user, makeUserMsg(user, "482", "invite only channel"));
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
@@ -142,17 +138,16 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 }
 
 
-//TOPIC #channel <new topic>
-int	Server::setChanTopic(User *user, std::vector<std::string> args)//	WARNING: when chan op changes TOPIC, it appears twice, not in the chan... in log window
+int	Server::setChanTopic(User *user, std::vector<std::string> args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 	
 	if (args.size() < 2 || args[1].compare("#") == 0 || args[1].compare(":") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, "403", "No such channel"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
 	else if (!(it->second->isChanOp(user)) && args.size() == 3 && it->second->getTopicFlag() == 1)
-		sendToUser(user, makeUserMsg(user, "482", "not a chan op"));
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
@@ -167,8 +162,6 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)//	WARNING: w
 	return (0);
 }
 
-
-// 	MODE <#channel_name> <+/- code_en_question> <password/autre>
 int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
 //	Finding channel
@@ -176,19 +169,15 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 
 //	If it found channel and user is chanop
 	if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, "403", "channel does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else if (it->second->isChanOp(user))
 	{
-//	if modestring is NOT size 2 OR not + OR - => invalid mode
 		if (args.size() == 2)
-		{
-			//sendChanMode(user, it->second); // this means limechat is asking for a list of mode flags
-			std::cerr << "Mooooooom, limechat is bothering us againnnnn" << std::endl; //				DEBUG
 			return (0);
-		}
+//		if modestring is NOT size 2 OR not + OR - => invalid mode
 		else if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
 		{
-			sendToUser(user, makeUserMsg(user, "501", "invalid mode"));
+			sendToUser(user, makeUserMsg(user, "ERR_UMODEUNKNOWNFLAG", "invalid mode"));
 			return (0);
 		}
 //		mode i (chanop can invite or not)
@@ -231,7 +220,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				}
 			}
 			else
-				sendToUser(user, makeUserMsg(user, "404", "Member not in channel"));
+				sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "Member not in channel"));
 		}
 //		mode l (set member limit or remove member limit by chanop on channel)
 		else if (args[2][1] == 'l')
@@ -254,14 +243,12 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		}
 		else
 		{
-			sendToUser(user, makeUserMsg(user, "421", "invalid mode"));
+			sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid mode"));
 			return (0);
 		}
 //		Informs the user that the mode change was successful
 		std::string command = args[1] + " " + args[2] + " " + user->getNick();
 		sendToUser(user, makeUserMsg(user, "MODE", command));
-
-		std::cerr << "Set "  << args[2][1] << " mode to " << args[2][0] << std::endl; //		DEBUG
 	}
 	return (0);
 }
@@ -271,7 +258,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
-	//shutServ = true;
+
 	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	this->clear();
 	return (0);
