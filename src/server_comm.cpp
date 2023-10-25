@@ -34,7 +34,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
 		debugPrint(RED, args[0]); // 											DEBUG
-
 		std::ostringstream debug; //											DEBUG
 		debug << "INCOMING USER_MSG FROM (" << fd << ") :\n" << *lastMsg; //	DEBUG
 		debugPrint(BLUE, debug.str()); //										DEBUG
