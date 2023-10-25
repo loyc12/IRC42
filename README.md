@@ -171,7 +171,7 @@ demande :
 
 checklist :
 	* JOIN #1 dhjfkjsdh -> error 403 envoie un reply, pas un code derreur
-	* MODE #CHANNL +o, send message Informer chanop qui est op
+	* MODE #CHANNL +o, send message Informer chanop qui est op : DONE
 	* PRIVMSG USER a implementer
 	* TCP IP (info)
 	* netcat moi et loic

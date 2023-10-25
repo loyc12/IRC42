@@ -215,12 +215,16 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				if (args[2][0] == '+')
 				{
 					it->second->addChanOp(invitee);
-					//tell invitee what happened //														TODO
+					std::string chanOp = "+o " + invitee->getNick();
+					sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
+					//REVIEW //												TODO
 				}
 				else if (args[2][0] == '-')
 				{
 					it->second->removeChanOp(invitee);
-					//tell invitee what happened //														TODO
+					std::string chanOp = "-o " + invitee->getNick();
+					sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
+					//REVIEW //														TODO
 				}
 			}
 			else
