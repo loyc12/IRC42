@@ -1,43 +1,41 @@
 #include "IRC.hpp"
 
-void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;} //		DEBUG
 
 //							SPLITS A STRING INTO A VECTOR OF STRINGS, USING CHARS AS DELIMIERS
-std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)
+std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)//std::string
 {
 	std::vector<std::string> args;
 	int		i = 0;
 
 //	NOTE : strtok works iteratively, so it needs to be called once per token
-	char	*ptr = strtok(strdup(str), chrs);
+	char	*tmp1 = strdup(str);
+	char	*ptr = strtok(tmp1, chrs);
+	free	(tmp1); //												NOTE : BAD
+
 	ptr = strtok(strdup(str), chrs);
 
 	while (ptr != NULL)
 	{
-		args.push_back(std::string(strdup(ptr)));
+		char	*tmp2 = strdup(ptr);
+		free (ptr); //												NOTE : BAD
+		args.push_back(std::string(tmp2));
+		free (tmp2); //												NOTE : BAD
 		ptr = strtok(NULL, chrs);
 		i++;
 	}
 
+	free (ptr); //													NOTE : BAD
+
 	return args;
 }
 
-std::vector<std::string>	splitString(const char *str, const char *chrs)
-{
-	return splitStringPrivate(str, chrs);
-}
-std::vector<std::string>	splitString(const char *str, const std::string chrs)
-{
-	return splitStringPrivate(str, chrs.c_str());
-}
-std::vector<std::string>	splitString(const std::string str, const char *chrs)
-{
-	return splitStringPrivate(str.c_str(), chrs);
-}
-std::vector<std::string>	splitString(const std::string str, std::string const chrs)
-{
-	return splitStringPrivate(str.c_str(), chrs.c_str());
-}
+
+//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
+std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(str, chrs); }
+std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(str, chrs.c_str()); }
+std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str.c_str(), chrs); }
+std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str.c_str(), chrs.c_str()); }
 
 std::string	makeChanMsg(User *user, std::string input)
 {
@@ -65,6 +63,12 @@ std::string	makeUserMsg(User *user, std::string code, std::string input)
 	return (message.str());
 }
 
+std::string	makePrivMsg(User *sender, std::string input)
+{
+	std::ostringstream 	message;
+	message << ":" << sender->getNick() << " " << input << "\r\n";
+	return (message.str());
+}
 
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT

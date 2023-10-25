@@ -17,8 +17,6 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 	}
 }
 
-
-
 void	Server::newChannel(User *user, std::vector<std::string> args)
 {
 	if (args.size() > 2)
@@ -40,30 +38,11 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
 
-		std::string chanOp = "o " + user->getNick(); //								NOTE (LL) : does this work as intended?
+		std::string chanOp = "+o " + user->getNick(); //								NOTE (LL) : does this work as intended?
 //		std::cout << "chanOP string: " << chanOp << std::endl; //									DEBUG
 		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
-
-
-/*
-void	Server::kickFromChannel(Channel *chan, User *member)
-{
-//	Check all conditions in mode if we can add the member to this channel
-	if (isUserInChan(member, chan)) //	NOTE : these send their own error messages
-	{
-//		the client can enter the channel
-		debugPrint(MAGENTA, "\n > kickfromchan();\n"); // DEBUG
-
-		chan->sendToChan(member, makeChanMsg(member, "KICK", "you need a timeout"), true); //	1nd : tell channel they joined
-		chan->removeMember(member); //															2st : add user to channel
-		chan->updateMemberList(member); //														3rd : update member list for all members
-	}
-}
-*/
-
-
 
 void	Server::dragToChannel(User *invitee, Channel *chan)
 {
@@ -79,8 +58,6 @@ void	Server::dragToChannel(User *invitee, Channel *chan)
 	}
 }
 
-
-
 void	Server::processChanMsg(User *sender, std::string message, std::vector<std::string> args)
 {
 	Channel *chan = findChannel(args[1]);
@@ -88,8 +65,6 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
 	if (chan == NULL)
 		sendToUser(sender, makeUserMsg(sender, "403", "channel does not exist"));
-	else if (args.size() < 3)
-		sendToUser(sender, makeUserMsg(sender, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else
 	{
 		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //			DEBUG
@@ -98,4 +73,14 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 		else
 			chan->sendToChan(sender, makeChanMsg(sender, message), false);
 	}
+}
+
+void	Server::processPrivMsg(User *sender, std::string message, std::vector<std::string> args)
+{
+	User *receiver = findUser(args[1]);
+
+	if (receiver == NULL)
+		sendToUser(sender, makeUserMsg(sender, "432", "nickname does not exist"));
+	else
+		sendToUser(receiver, makePrivMsg(sender, message));
 }

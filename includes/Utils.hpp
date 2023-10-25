@@ -14,6 +14,7 @@ std::string					makeChanMsg(User *user, std::string input);
 std::string					makeChanMsg(User *user, std::string code, std::string input);
 std::string					makeUserMsg(User *user, std::string input);
 std::string					makeUserMsg(User *user, std::string code, std::string input);
+std::string					makePrivMsg(User *sender, std::string input);
 
 void						sendToUser(User *targetUser, std::string message);
 

@@ -31,6 +31,8 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived > 0)
 	{
         lastMsg->assign(buff, 0, byteReceived);
+//		std::string mybuff(buff);
+//		std::vector<std::string> args = splitString(mybuff, " \r\n");
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
 		debugPrint(RED, args[0]); // 											DEBUG
@@ -40,18 +42,17 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		if (execCommand(user, args) == -1)
 		{
-
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
 			{
-				if (args.size() < 2)
-					//error args
+				if (args.size() < 3)
+					sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 				else if (args[1][0] == '#')
-					// processUserMsg
-				else
 					processChanMsg(user, *lastMsg, args);
+				else
+					processPrivMsg(user, *lastMsg, args);
 			}
-			else
+			else // replace by "INVALID COMMAND"
         		sendToUser(user, makeUserMsg(user, *lastMsg));
 		}
 	}

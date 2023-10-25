@@ -4,7 +4,7 @@
 
 Channel::Channel(std::string chanName): _chanName(chanName)		{
 	debugPrint(YELLOW, CONSTR_CHAN);
-	this->_topic = "None";
+	this->_topic = "No topic is set";
 	this->_isInviteOnly = 0;
 	this->_canTopic = 0;
 	this->_maxMemberCount = 0;}

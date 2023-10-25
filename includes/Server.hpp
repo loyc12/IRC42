@@ -12,7 +12,7 @@
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
-# define CMD_COUNT			10
+# define CMD_COUNT			11
 
 //ENTRY CODE
 # define RPL_WELCOME			"001"
@@ -67,7 +67,7 @@ class Server
 			void	newChannel		(User *user, std::vector<std::string> args);
 			void	dragToChannel	(User *invitee, Channel *chan);
 			void	processChanMsg	(User *sender, std::string message, std::vector<std::string> args);
-//			void	printClient		(struct sockaddr_in *client_addr); //		DEBUG
+			void	processPrivMsg	(User *user, std::string lastMsg, std::vector<std::string> args);
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int fd);
@@ -79,11 +79,11 @@ class Server
 			int		joinChan		(User *user, std::vector<std::string> args);
 			int		leaveChan		(User *user, std::vector<std::string> args);
 			int		kickUser		(User *user, std::vector<std::string> args);
-//			void	kickFromChannel	(Channel *chan, User *member);
 			int		quitServer		(User *user, std::vector<std::string> args);
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
+			int		closeServer		(User *user, std::vector<std::string> args);
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);

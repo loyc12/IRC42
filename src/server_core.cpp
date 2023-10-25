@@ -76,6 +76,9 @@ void	Server::start(void)
 						this->knownClient(clientFd);
 				}
 			}
+//			NOTE (LL) : WIP
+//			if (shutServ)
+//				break;
 		}
 	}
 	this->clear();

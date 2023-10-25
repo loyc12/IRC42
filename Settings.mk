@@ -16,7 +16,6 @@ FILES		=	server_core \
 				user \
 				utils \
 				channel \
-#				message \
 
 # Directory names
 SRCDIR		=	src/
