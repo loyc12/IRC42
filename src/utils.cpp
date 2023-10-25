@@ -66,7 +66,6 @@ std::string	makeUserMsg(User *user, std::string code, std::string input)
 }
 
 
-
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
 void	sendToUser(User *targetUser, std::string message)
 {

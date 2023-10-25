@@ -170,39 +170,9 @@ demande :
 * standariser les codes a envoyer au client ?
 
 checklist :
-	* JOIN #1 dhjfkjsdh -> error 403 envoie un reply, pas un code derreur
-	* MODE #CHANNL +o, send message Informer chanop qui est op : DONE
 	* PRIVMSG USER a implementer
 	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
 	* netcat moi et loic
-
-- - - - - 
-	* test de channel :
-	* MODE #channel !i (X)
-	* MODE #channel (X)
-
-	* JOIN (X) -> ok
-	* TOPIC #chan -> ok
-
-	* JOIN 1 (<hostadress> has changed mode: o alex) -> po sur
-
-	* TOPIC (x) Reply(403): channel does not exist -> to change
-	* TOPIC (#chanexistepas): channel does not exist -> to change
-	* TOPIC (channelexistemaispas#): channel does not exist -> to change
-	* TOPIC -> quand quelqu'un rejoint un channel qui a un topic de set, il n'imprime pas le topic... all good in Netcat. PAS limechat. ALMOST fixed... we need a flag: if topicHasNotBeenSet -> send code 331. If topicSet -> send code 332
-
-	* MODE #chan +t ok
-	* MODE #chan -t ok
-
-	* INVITE nickname #chan -ok
-	* INVITE nickname #fake -ok
-	* INVITE fake #chan -ok
-	* MODE #1 +i -ok
-	* MODE #1 -i -ok
-	* JOIN #party jfhjkdshfdjskhfjdfsk
-	* MODE #party +k 1234
-	* MODE #party -k 1234
-	* KICK #chan nick ->segfault
 
 extra :
 	* Welcome user

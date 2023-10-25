@@ -41,7 +41,6 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 
 		if (execCommand(user, args) == -1)
 		{
-
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
 				processChanMsg(user, *lastMsg, args);
@@ -50,4 +49,11 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 		}
 	}
 	bzero(buff, BUFFSIZE);
+}
+
+//		SENDS A MESSAGE TO PRIVATE USER
+void	Server::sendToPriv(User *sender, User *receiver, std::string message, bool sendToSender) 
+{
+//Command: PRIVMSG
+//Parameters: <target>{,<target>} <text to be sent>
 }
