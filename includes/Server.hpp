@@ -10,9 +10,9 @@
 # define DISCONNECTED 		"\n0========= CLIENT DISCONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
-# define WELCOME_HEADER 	"Welcome to this IRC server"
+# define WELCOME_HEADER 	"Welcome to our IRC server!"
 
-# define CMD_COUNT			11
+# define CMD_COUNT				12
 
 //ENTRY CODE
 # define RPL_WELCOME			"001"
@@ -26,48 +26,51 @@
 # define ERR_ERRONEUSNICKNAME	"432"
 # define ERR_NICKNAMEINUSE		"433"
 
+# define	ERR_UNKNOWNCOMMAND	"421"
+
 # define RPL_NOTOPIC			"331" //no topic set for chan
 # define RPL_TOPIC				"332" //topic of the chan
 # define RPL_NAMREPLY			"353" //list of nicknames in channel
 # define RPL_REPLY				"302" //Reply Mode
-# define REQUEST				0 //	NOTE : split replyTo() into two functions instead?
-# define CHAN					1
 
 
 class Server
 {
 	private:
 //		Parsing
-			int			_port;
-			std::string	_password;
+			int		_port;
+			int		_pass;
 //		Start
-			int			_baseSocket;
-			int 		_newSocket;
-			int			_socketCount;
-			fd_set 		_baseFds;
-			fd_set 		_targetFds;
+			int		_baseSocket;
+			int 	_newSocket;
+			int		_socketCount;
+			fd_set 	_baseFds;
+			fd_set 	_targetFds;
 //		Storage
 			std::map<int, User*> 			_clients;
 			std::map<std::string, Channel*> _chanContainer;
 			struct sockaddr_in				_serverAddr;
 
 	public:
+			bool					shutoff; //								NOTE : use and accessor instead (?)
 //		Constructor - Destructor
-			Server					(int port, std::string pass);
+			Server					();
 			~Server					();
 // 		Getters - Setters
 			const int 				&getPort(void) const;
-			const std::string 		&getPass(void) const;
+			const int 				&getPass(void) const;
+			void					setPort(int port);
+			void					setPass(int pass);
 //		CORE (has constructors)
 			void	init			(void);
-			void	start			(void);
+			void	run				(void);
 			void	clear			(void);
 //		CHAN
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
 			void	dragToChannel	(User *invitee, Channel *chan);
-			void	processChanMsg	(User *sender, std::string message, std::vector<std::string> args);
-			void	processPrivMsg	(User *user, std::string lastMsg, std::vector<std::string> args);
+			void	processChanMsg	(User *sender, std::vector<std::string> args);
+			void	processPrivMsg	(User *user, std::vector<std::string> args);
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int fd);
@@ -83,13 +86,14 @@ class Server
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
-			int		closeServer		(User *user, std::vector<std::string> args);
+			int		sendMessage		(User *user, std::vector<std::string> args);
+			int		closeServer		(User *user, std::vector<std::string> args); //	NOTE : for debuging purposes only
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
 //		COMM
 			void	welcomeUser		(User *user);
-			void	readFromClient	(User *user, int fd, std::string *lastMsg);
+			void	readFromClient	(User *user, int fd);
 //		FIND
 			bool	isUserInChan	(User *user, Channel *chan);
 			bool	checkInvitePerm	(User *user, Channel *chan);

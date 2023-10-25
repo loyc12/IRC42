@@ -58,7 +58,7 @@ void	Server::dragToChannel(User *invitee, Channel *chan)
 	}
 }
 
-void	Server::processChanMsg(User *sender, std::string message, std::vector<std::string> args)
+void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 {
 	Channel *chan = findChannel(args[1]);
 
@@ -71,16 +71,16 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 		if (!chan->hasMember(sender))
 			sendToUser(sender, makeUserMsg(sender, "402", "you are not in this channel"));
 		else
-			chan->sendToChan(sender, makeChanMsg(sender, message), false);
+			chan->sendToChan(sender, makeChanMsg(sender, sender->lastMsg), false);
 	}
 }
 
-void	Server::processPrivMsg(User *sender, std::string message, std::vector<std::string> args)
+void	Server::processPrivMsg(User *sender, std::vector<std::string> args)
 {
 	User *receiver = findUser(args[1]);
 
 	if (receiver == NULL)
 		sendToUser(sender, makeUserMsg(sender, "432", "nickname does not exist"));
 	else
-		sendToUser(receiver, makePrivMsg(sender, message));
+		sendToUser(receiver, makePrivMsg(sender, sender->lastMsg));
 }

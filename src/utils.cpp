@@ -1,41 +1,36 @@
 #include "IRC.hpp"
 
-void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;} //		DEBUG
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
+
+
 
 //							SPLITS A STRING INTO A VECTOR OF STRINGS, USING CHARS AS DELIMIERS
-std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)//std::string
+std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 {
 	std::vector<std::string> args;
-	int		i = 0;
+
+	char	*ptr = strtok((char *)str.c_str(), dlmtrs);
 
 //	NOTE : strtok works iteratively, so it needs to be called once per token
-	char	*tmp1 = strdup(str);
-	char	*ptr = strtok(tmp1, chrs);
-	free	(tmp1); //												NOTE : BAD
-
-	ptr = strtok(strdup(str), chrs);
-
 	while (ptr != NULL)
 	{
-		char	*tmp2 = strdup(ptr);
-		free (ptr); //												NOTE : BAD
-		args.push_back(std::string(tmp2));
-		free (tmp2); //												NOTE : BAD
-		ptr = strtok(NULL, chrs);
-		i++;
-	}
+		std::cerr << std::string(ptr) << "." << std::endl; //								DEBUG
 
-	free (ptr); //													NOTE : BAD
+		args.push_back(std::string(ptr));
+
+		ptr = strtok(NULL, dlmtrs);
+	}
 
 	return args;
 }
 
 
+
 //							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
-std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(str, chrs); }
-std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(str, chrs.c_str()); }
-std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str.c_str(), chrs); }
-std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str.c_str(), chrs.c_str()); }
+std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(std::string(str), chrs); }
+std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(std::string(str), chrs.c_str()); }
+std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str, chrs); }
+std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs.c_str()); }
 
 std::string	makeChanMsg(User *user, std::string input)
 {

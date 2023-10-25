@@ -21,6 +21,7 @@ class User //								ADD FD INSIDE USER
 
 	public:
 		bool wasWelcomed; //				TODO (LL) : use an accessor instead
+		std::string	lastMsg;
 // 		Constructors & Destructor
 		User(sockaddr_in clientAddr);
 		~User();

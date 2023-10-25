@@ -26,14 +26,13 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
 void	Server::knownClient(int fd)
 {
-	std::string	lastMsg;
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
 
 //	Finds target client
 	if (it != this->_clients.end())
 	{
 		User *user = it->second;
-		readFromClient(user, fd, &lastMsg);
+		readFromClient(user, fd);
 	}
 }
 
