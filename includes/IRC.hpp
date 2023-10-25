@@ -20,14 +20,12 @@
 class Server;
 class Channel;
 class User;
-//class Message;
 
 # include "Colours.hpp"
 # include "Server.hpp"
 # include "Channel.hpp"
 # include "User.hpp"
 # include "Utils.hpp"
-//# include "Message.hpp"
 
 // PUT NON_CODE DEFINES HERE
 # define BUFFSIZE 256

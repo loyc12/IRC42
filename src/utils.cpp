@@ -1,6 +1,6 @@
 #include "IRC.hpp"
 
-void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
+void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;} //		DEBUG
 
 //							SPLITS A STRING INTO A VECTOR OF STRINGS, USING CHARS AS DELIMIERS
 std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)
@@ -22,22 +22,11 @@ std::vector<std::string>	splitStringPrivate(const char *str, const char *chrs)
 	return args;
 }
 
-std::vector<std::string>	splitString(const char *str, const char *chrs)
-{
-	return splitStringPrivate(str, chrs);
-}
-std::vector<std::string>	splitString(const char *str, const std::string chrs)
-{
-	return splitStringPrivate(str, chrs.c_str());
-}
-std::vector<std::string>	splitString(const std::string str, const char *chrs)
-{
-	return splitStringPrivate(str.c_str(), chrs);
-}
-std::vector<std::string>	splitString(const std::string str, std::string const chrs)
-{
-	return splitStringPrivate(str.c_str(), chrs.c_str());
-}
+//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF 
+std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(str, chrs); }
+std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(str, chrs.c_str()); }
+std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str.c_str(), chrs); }
+std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str.c_str(), chrs.c_str()); }
 
 std::string	makeChanMsg(User *user, std::string input)
 {
@@ -62,6 +51,13 @@ std::string	makeUserMsg(User *user, std::string code, std::string input)
 {
 	std::ostringstream 	message;
 	message << ":" << user->getHostname() << " " << code << " " << user->getNick() << " :" << input << "\r\n";
+	return (message.str());
+}
+
+std::string	makePrivMsg(User *sender, std::string input)
+{
+	std::ostringstream 	message;
+	message << ":" << sender->getNick() << " " << input << "\r\n";
 	return (message.str());
 }
 

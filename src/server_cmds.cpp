@@ -269,29 +269,29 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 	return (-1);
 }
 
-int	Server::privMsg(User *user, std::vector<std::string> args)
-{
+// int	Server::privMsg(User *user, std::vector<std::string> args)
+// {
 
-	if (args.size() == 3)
-	{
-		User *receiver = findUser(args[1]);
-		if (receiver == NULL)
-			sendToUser(user, makeUserMsg(user, "400", "unknown client"));
-		else
-		{
-			sendToPriv(user, receiver, makeChanMsg(user, args[2]), true);
-		}
-	}
-	else
-		sendToUser(user, makeUserMsg(user, "400", "Command Invalid"));
-	// PRIVMSG nickname :kljdklfjklasjfkldj (pour Netcat same for Limechat)
-	return (0);
-}
+// 	if (args.size() == 3)
+// 	{
+// 		User *receiver = findUser(args[1]);
+// 		if (receiver == NULL)
+// 			sendToUser(user, makeUserMsg(user, "400", "unknown client"));
+// 		else
+// 		{
+// 			sendToPriv(user, receiver, makeChanMsg(user, args[2]), true);
+// 		}
+// 	}
+// 	else
+// 		sendToUser(user, makeUserMsg(user, "400", "Command Invalid"));
+// 	// PRIVMSG nickname :kljdklfjklasjfkldj (pour Netcat same for Limechat)
+// 	return (0);
+// }
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE", "PRIVMSG" };
+	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE"}; //, "PRIVMSG" };
 
 	int id = 0;
 	while (id < CMD_COUNT && cmd.compare(cmds[id]))
@@ -315,7 +315,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::inviteUser,
 		&Server::setChanTopic,
 		&Server::setChanMode,
-		&Server::privMsg,
+		// &Server::privMsg,
 		&Server::notACommand //											NOTE : default case for getCmdID()
 	};
 	return (this->*commands[getCmdID(args[0])])(user, args);

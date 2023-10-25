@@ -44,14 +44,14 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 			//	if is a channel message : send to channel users
 			if (args[0].compare("PRIVMSG") == 0)
 			{
-				if (args.size() < 2)
-					//error args
+				if (args.size() < 3)
+					sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 				else if (args[1][0] == '#')
-					// processUserMsg
-				else
 					processChanMsg(user, *lastMsg, args);
+				else
+					processPrivMsg(user, *lastMsg, args);
 			}
-			else
+			else // replace by "INVALID COMMAND"
         		sendToUser(user, makeUserMsg(user, *lastMsg));
 		}
 	}
@@ -59,8 +59,8 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 }
 
 //		SENDS A MESSAGE TO PRIVATE USER
-void	Server::sendToPriv(User *sender, User *receiver, std::string message, bool sendToSender) 
-{
+//void	Server::sendToPriv(User *sender, User *receiver, std::string message, bool sendToSender) 
+//{
 //Command: PRIVMSG
 //Parameters: <target>{,<target>} <text to be sent>
-}
+//}
