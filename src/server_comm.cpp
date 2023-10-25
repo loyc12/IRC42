@@ -31,6 +31,8 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	else if (byteReceived > 0)
 	{
         lastMsg->assign(buff, 0, byteReceived);
+//		std::string mybuff(buff);
+//		std::vector<std::string> args = splitString(mybuff, " \r\n");
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
 		debugPrint(RED, args[0]); // 											DEBUG
@@ -57,10 +59,3 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	}
 	bzero(buff, BUFFSIZE);
 }
-
-//		SENDS A MESSAGE TO PRIVATE USER
-//void	Server::sendToPriv(User *sender, User *receiver, std::string message, bool sendToSender) 
-//{
-//Command: PRIVMSG
-//Parameters: <target>{,<target>} <text to be sent>
-//}

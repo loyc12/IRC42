@@ -12,7 +12,7 @@
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to this IRC server"
 
-# define CMD_COUNT			10
+# define CMD_COUNT			11
 
 //ENTRY CODE
 # define RPL_WELCOME			"001"
@@ -83,14 +83,13 @@ class Server
 			int		inviteUser		(User *user, std::vector<std::string> args);
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
-			// int		privMsg			(User *user, std::vector<std::string> args);
+			int		closeServer		(User *user, std::vector<std::string> args);
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
 //		COMM
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd, std::string *lastMsg);
-			void	sendToPriv		(User *sender, User *receiver, std::string message, bool sendToSender); 
 //		FIND
 			bool	isUserInChan	(User *user, Channel *chan);
 			bool	checkInvitePerm	(User *user, Channel *chan);

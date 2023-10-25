@@ -17,7 +17,12 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	if (isNickValid(user, args[1])) //	NOTE : this send its own error messages
+	{
+		std::string tmp = user->getNick();
 		user->setNick(args[1]);
+//		if (user->wasWelcomed) //									THIS WORKS, EXCEPT ON LIMECHAT SO FUCK THAT
+//			sendToUser(user, ":" + tmp + " NICK " + args[1]);
+	}
 	else if (!user->wasWelcomed)
 		deleteClient(user->getFD());
 	return (0);
@@ -256,10 +261,22 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		std::string command = args[1] + " " + args[2] + " " + user->getNick();
 		sendToUser(user, makeUserMsg(user, "MODE", command));
 
-		std::cerr << "Set "  << args[2][1] << " mode to " << args[2][0] << std::endl; //				DEBUG
+		std::cerr << "Set "  << args[2][1] << " mode to " << args[2][0] << std::endl; //		DEBUG
 	}
 	return (0);
 }
+
+//	TELLS THE SERVER TO SHUT OFF (FOR CORRECTION PPURPOSES)
+int	Server::closeServer(User *user, std::vector<std::string> args)
+{
+	(void)user;
+	(void)args;
+	//shutServ = true;
+	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
+	this->clear();
+	return (0);
+}
+
 
 //	TELLS readFromClient() THAT THIS IS NOT A COMMAND (aka it's a message)
 int	Server::notACommand(User *user, std::vector<std::string> args)
@@ -269,29 +286,10 @@ int	Server::notACommand(User *user, std::vector<std::string> args)
 	return (-1);
 }
 
-// int	Server::privMsg(User *user, std::vector<std::string> args)
-// {
-
-// 	if (args.size() == 3)
-// 	{
-// 		User *receiver = findUser(args[1]);
-// 		if (receiver == NULL)
-// 			sendToUser(user, makeUserMsg(user, "400", "unknown client"));
-// 		else
-// 		{
-// 			sendToPriv(user, receiver, makeChanMsg(user, args[2]), true);
-// 		}
-// 	}
-// 	else
-// 		sendToUser(user, makeUserMsg(user, "400", "Command Invalid"));
-// 	// PRIVMSG nickname :kljdklfjklasjfkldj (pour Netcat same for Limechat)
-// 	return (0);
-// }
-
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE"}; //, "PRIVMSG" };
+	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE", "CLOSE"}; //, "PRIVMSG" };
 
 	int id = 0;
 	while (id < CMD_COUNT && cmd.compare(cmds[id]))
@@ -315,7 +313,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::inviteUser,
 		&Server::setChanTopic,
 		&Server::setChanMode,
-		// &Server::privMsg,
+		&Server::closeServer,
 		&Server::notACommand //											NOTE : default case for getCmdID()
 	};
 	return (this->*commands[getCmdID(args[0])])(user, args);

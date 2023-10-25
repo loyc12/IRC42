@@ -41,7 +41,7 @@ int main(int ac, char **av)
 
 	try
 	{
-		std::cout << DEFCOL;
+		std::cout << DEFCOL;	//	DEBUG
         port 		= parseArg(ac, av);
 		password 	= av[2];
 //		Create object server

@@ -75,8 +75,6 @@ void	Server::processChanMsg(User *sender, std::string message, std::vector<std::
 	}
 }
 
-
-
 void	Server::processPrivMsg(User *sender, std::string message, std::vector<std::string> args)
 {
 	User *receiver = findUser(args[1]);

@@ -23,12 +23,8 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 ## Devoir
 
-*
-
 ## Note :
-
 * Eviter de prendre des rencontres de Jeudi
-
 
 ## Netcat:
 * tout se passe dans le terminal pour netcat. Pas d'interface graphique
@@ -50,7 +46,6 @@ QUITctrlVM ->quitte le server
 
 checklist :
 TODO :
-	* test duplicate nicknames
 	* leaks
 	* define code : trouver, et les entrer dans le hpp, enlever excedent
 	* les notes doivent etre ecrites toutes de la meme facon
