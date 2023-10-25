@@ -174,7 +174,7 @@ void	Channel::updateMemberList(User *user)
 	std::ostringstream message;
 
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << "\r\n";
-	message << ": 331 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ": 332 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
 	message << ": 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
 	message << ": 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 

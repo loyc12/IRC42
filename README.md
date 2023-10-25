@@ -173,7 +173,7 @@ checklist :
 	* JOIN #1 dhjfkjsdh -> error 403 envoie un reply, pas un code derreur
 	* MODE #CHANNL +o, send message Informer chanop qui est op : DONE
 	* PRIVMSG USER a implementer
-	* TCP IP (info)
+	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
 	* netcat moi et loic
 
 - - - - - 
@@ -189,6 +189,7 @@ checklist :
 	* TOPIC (x) Reply(403): channel does not exist -> to change
 	* TOPIC (#chanexistepas): channel does not exist -> to change
 	* TOPIC (channelexistemaispas#): channel does not exist -> to change
+	* TOPIC -> quand quelqu'un rejoint un channel qui a un topic de set, il n'imprime pas le topic... all good in Netcat. PAS limechat. ALMOST fixed... we need a flag: if topicHasNotBeenSet -> send code 331. If topicSet -> send code 332
 
 	* MODE #chan +t ok
 	* MODE #chan -t ok
