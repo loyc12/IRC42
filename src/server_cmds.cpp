@@ -93,13 +93,14 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	User *invitee = findUser(args[1]);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
-//	REVIEW : DO NOT RETURN AN ERROR RELATED TO NOT ENTERING THE CHAN
-	if (invitee == NULL)// REVIEW --> ONLY ENTER JOIN GIVE THIS ERROR
-		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "invitee does not exist"));
+	if (args.size() < 3)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
+	else if (invitee == NULL)
+		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "invitee does not exist"));
 	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "user is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user)))
@@ -117,17 +118,17 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 int	Server::kickUser(User *user, std::vector<std::string> args)
 {
 //	Finding user that would be kicked in chan
-	User *member = findUser(args[2]);	//REVIEW : kick someone that are not in chan
+	User *member = findUser(args[2]);
 //	Finding channel
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-//	REVIEW : DO NOT RETURN AN ERROR RELATED TO NOT ENTERING THE CHAN
-//	REVIEW : KICK MYSELF DO NOT WORK WHEN NO CHAN, NEED TO TRY WITH CHAN
-	if (member == NULL)	// REVIEW --> ONLY ENTER KICK GIVE THIS ERROR
-		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "member does not exist"));// REVIEW change user to member -> :10.12.2.5 ERR_NOSUCHNICK alex :member does not exist
+	if (args.size() < 3)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));//
-	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));//
+	else if (member == NULL)
+		sendToUser(user, makeUserMsg(member, "ERR_NOSUCHNICK", "member does not exist"));
+	else if (!(it->second->hasMember(member)))
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "user is not in channel"));//
 	else if (!(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));//
 	else
@@ -169,11 +170,12 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
 //	Finding channel
-//	REVIEW : MODE #CHANNAME, RETURN NOTHING
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 //	If it found channel and user is chanop
-	if (it == this->_chanContainer.end())// REVIEW --> ONLY ENTER MODE GIVE THIS ERROR
+	if (args.size() <= 1)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else if (it->second->isChanOp(user))
 	{
@@ -225,7 +227,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				}
 			}
 			else
-				sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "Member not in channel"));
+				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Member not in channel"));
 		}
 //		mode l (set member limit or remove member limit by chanop on channel)
 		else if (args[2][1] == 'l')
@@ -277,10 +279,10 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	(void)args;
 	this->shutoff = true;
 	debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
-	//this->clear(); REVIEW
-
-	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	this->clear();
+	//bzero(&this->_serverAddr, sizeof(this->_serverAddr));
+	//FD_ZERO(&this->_baseFds);
+	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	return (0);
 }
 

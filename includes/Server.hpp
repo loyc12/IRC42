@@ -70,7 +70,6 @@ class Server
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
 			int		sendMessage		(User *user, std::vector<std::string> args);
-			int		closeServer		(User *user, std::vector<std::string> args); //	NOTE : for debuging purposes only
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
@@ -86,6 +85,7 @@ class Server
 			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME REVIEW
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
+			int		closeServer		(User *user, std::vector<std::string> args);//DEBUG
 };
 
 #endif // SERVER_HPP

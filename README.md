@@ -47,11 +47,9 @@ QUIT ->quitte le server
 
 checklist :
 TODO :
-	* ctrl d nc
-	* verif ernno is not a trigger to something
-	* verif fcntl
-	* ctrl d, ctrl z (memory leaks also)
-	* Implement NOTICE
+	* checkpass = implement in boool pour eviter de faire lire quelque chose qui existe pas
+	* readfromclient -> lit de la donnee qui existe pas, quand client disconnecte.... a suivre
 	* Relire le PDF au complet
 	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
 	* netcat moi et loic
+	* memory leaks also

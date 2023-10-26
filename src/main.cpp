@@ -39,7 +39,7 @@ int main(int ac, char **av)
 
 		pass = atoi(av[2]);
 		port = atoi(av[1]);
-		if (port < 6660 || 6669 < port) // (port < 1025 || 65535 < port) REVIEW
+		if (port < 6660 || 6669 < port) // (port < 1025 || 65535 < port) Used those for IRC
 			throw std::invalid_argument(TCP);
 
 //		Create object server

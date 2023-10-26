@@ -17,13 +17,7 @@ void	Server::readFromClient(User *user, int fd)
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles what to do depending on the byte value (error, null or message)
-	if (byteReceived == -1)
-	{
-//		If CTRL-C at recv, treat as not an error; in Netcat
-		if (errno == EINTR)
-			throw std::invalid_argument(" > Error at select(): ");
-	}
-	else if (byteReceived == 0)
+	if (byteReceived == 0)
 	{
 //		Deletes the client, loses its FD and removes it from the baseFds
 		deleteClient(fd);

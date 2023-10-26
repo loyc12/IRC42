@@ -58,12 +58,7 @@ void	Server::run(void)
 
 //		Checks validity of received socket fd (if error, break / throw)
 		if (this->_socketCount == -1)
-		{
-//			If CTRL-C at select, treat as not an error.
-			if (errno == EINTR)
-				break ;
-			throw std::invalid_argument(" > Error at select(): ");
-		}
+			break ;
 		else if (this->_socketCount > 0)
 		{
 			for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)

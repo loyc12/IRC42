@@ -28,4 +28,4 @@ LIBS		=
 LIBX		=
 
 # Arguments to call the command with
-ARGS		= 6666 1234
+ARGS		= 6667 1234

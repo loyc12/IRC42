@@ -114,7 +114,6 @@ void	Channel::removeMember(User *user)
 				return ;
 			}
 		}
-		//	if the member was an OP, unop them // REVIEW
 	}
 }
 
