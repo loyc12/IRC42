@@ -52,12 +52,12 @@ void Server::deleteClient(int fd)
 	if (it != this->_clients.end())
 		delete it->second;
 
-//	Clears it's fd
+//	Clears its fd
 	this->_clients.erase(fd);
 	debugPrint(CYAN, DISCONNECTED);
 
 
-//	Removes it's fd from _baseFds
+//	Removes its fd from _baseFds
 	close(fd);
 	FD_CLR(fd, &(this->_baseFds));
 }

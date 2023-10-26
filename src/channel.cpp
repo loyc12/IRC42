@@ -7,6 +7,7 @@ Channel::Channel(std::string chanName): _chanName(chanName)		{
 	this->_topic = "No topic is set";
 	this->_isInviteOnly = 0;
 	this->_canTopic = 0;
+	this->_keyFlag = 0;
 	this->_maxMemberCount = 0;}
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
@@ -19,6 +20,7 @@ std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
 int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
 bool		const & Channel::getTopicFlag(void) const			{ return (this->_canTopic); }
+bool		const & Channel::getKeyFlag(void) const				{ return (this->_keyFlag); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 int 				Channel::getOpCnt(void) const				{ return (this->_chanOps.size()); }
 
@@ -30,7 +32,7 @@ void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }
-
+void	Channel::setKeyFlag(bool const &boolean)				{ this->_keyFlag = boolean; }
 
 //	0================ OTHER FUNCTIONS ================0
 
@@ -172,7 +174,7 @@ void	Channel::updateMemberList(User *user)
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 {
-	printChanOps(); //																	DEBUG
+	//printChanOps(); //																	DEBUG
 
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
@@ -181,10 +183,10 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 		debugPrint(MAGENTA, debug.str()); //											DEBUG
 
 		//	Checks if we need to skip the sender or not
-		if (sendToSender || !isSameUser((*it), sender))
+		if (sendToSender || !isSameUser((*it), sender)) //						WARNING is it working? leaks here
 		{
 			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
-				throw std::invalid_argument(" > Error at sendToChan() ");
+				throw std::invalid_argument(" > Error at sendToChan() ");//		WARNING leaks here
 		}
 	}
 }

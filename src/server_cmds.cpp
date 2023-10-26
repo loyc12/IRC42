@@ -203,9 +203,15 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		else if (args[2][1] == 'k' && (args.size() == 4))
 		{
 			if (args[2][0] == '+')
+			{
+				it->second->setKeyFlag(1);
 				it->second->setPass(args[3]);
+			}
 			else if (args[2][0] == '-')
+			{
+				it->second->setKeyFlag(0);
 				it->second->setPass("");
+			}
 		}
 //		mode o (add or remove chanOp privileges)
 		else if (args[2][1] == 'o' && (args.size() == 4))

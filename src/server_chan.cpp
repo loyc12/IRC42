@@ -4,16 +4,30 @@
 void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> args)
 {
 //	Check all conditions in mode if we can add the member to this channel
-	if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) && checkMaxMbr(user, chan)) //	NOTE : these send their own error messages
+	if (chan->getKeyFlag() == 1)
 	{
-		if (args[2] && checkPass(user, chan, args[2]))
+		if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
+		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan))
 		{
+//			the client can enter the channel
+			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
+
+			chan->addMember(user); //															1st : add user to channel
+			chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
+			chan->updateMemberList(user); //													3rd : update member list for all members
 		}
-//		the client can enter the channel
-		debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
-		chan->addMember(user); //															1st : add user to channel
-		chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
-		chan->updateMemberList(user); //													3rd : update member list for all members
+	}
+	else if (chan->getKeyFlag() == 0)
+	{
+		if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) && checkMaxMbr(user, chan))
+		{
+//			the client can enter the channel
+			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
+
+			chan->addMember(user); //															1st : add user to channel
+			chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
+			chan->updateMemberList(user); //													3rd : update member list for all members
+		}
 	}
 }
 
