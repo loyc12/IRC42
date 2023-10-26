@@ -84,7 +84,7 @@ bool	Server::isNickValid(User *user, std::string nickname)
 bool	Server::isMsgEnd(std::string str)
 {
 	(void)str;
-	return (true); //								TODO : IMPLEMENT ME
+	return (true); //								TODO : IMPLEMENT ME REVIEW
 	/*
 	if (str.length() > 0 && str[str.length() - 1] == '\n') //&& str[str.length() - 2] == '\r')
 		return (true);

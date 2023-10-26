@@ -53,7 +53,6 @@ bool	Channel::isChanOp(User *user)
 
 bool	Channel::hasSameNick(User *user)
 {
-//	return true if nickname already used
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		if ((*it)->getNick().compare(user->getNick()) == 0)
@@ -67,7 +66,6 @@ bool	Channel::hasSameNick(User *user)
 
 bool	Channel::hasMember(User *user)
 {
-//	return true if user* already in members list
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		if (isSameUser(user, *it))
@@ -78,7 +76,6 @@ bool	Channel::hasMember(User *user)
 
 bool	Channel::hasChanOp(User *user)
 {
-//	return true if user* already in ops list
 	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
 	{
 		if (isSameUser(user, *it))
@@ -87,9 +84,9 @@ bool	Channel::hasChanOp(User *user)
 	return (false);
 }
 
+// ADDS USER TO USERLIST IF IT'S NOT IN ALREADY
 void	Channel::addMember(User *user)
 {
-//	adds user to userlist if it is not in already
 	if (!hasMember(user))
 		this->_chanMembers.push_back(user);
 	if (getOpCnt() < 1)
@@ -99,11 +96,7 @@ void	Channel::addMember(User *user)
 void	Channel::addChanOp(User *user)
 {
 	if (hasMember(user) && !hasChanOp(user))
-	{
 		this->_chanOps.push_back(user);
-		//std::cerr << user->getNick() << " is now Op" << std::endl; //		DEBUG
-	}
-
 }
 
 void	Channel::removeMember(User *user)
@@ -121,7 +114,7 @@ void	Channel::removeMember(User *user)
 				return ;
 			}
 		}
-		//	if the member was an OP, unop them
+		//	if the member was an OP, unop them // REVIEW
 	}
 }
 
@@ -141,7 +134,6 @@ void	Channel::removeChanOp(User *user)
 
 void	Channel::resetOpp(void)
 {
-//	std::cerr << "reseting ops" << std::endl; //									DEBUG
 	addChanOp(*(this->_chanMembers.begin()));
 }
 
@@ -158,7 +150,6 @@ User 	*Channel::getMember(int id)
 	}
 	throw std::invalid_argument(" > Error at Channel::getMember() : invalid member id (too big)");
 }
-
 
 
 //		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
@@ -196,11 +187,8 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
 				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
-		// else
-		// 	std::cerr << "skiping the sender" << std::endl; //							DEBUG
 	}
 }
-
 
 
 //		DEBUG FUNCTION

@@ -4,7 +4,7 @@
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 	if (user->wasWelcomed)
-		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
+		sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
 	else if (args[1].compare(std::to_string(this->getPass())) != 0)
 	{
 		std::cerr << "Pass  : " << std::to_string(this->getPass()) << "." << std::endl << "Input : " << args[1] << "." << std::endl; //			DEBUG
@@ -79,32 +79,6 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 }
 
 
-int	Server::kickUser(User *user, std::vector<std::string> args)
-{
-//	Finding user that would be kicked in chan
-	User *member = findUser(args[2]);
-//	Finding channel
-	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-
-	if (member == NULL)
-		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "member does not exist"));
-	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
-	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));
-	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));
-	else
-	{
-		std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
-		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
-		it->second->removeMember(member);
-		it->second->updateMemberList(member);
-	}
-	return (0);
-}
-
-
 //	When client quits the server
 int	Server::quitServer(User *user, std::vector<std::string> args)
 {
@@ -119,7 +93,8 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	User *invitee = findUser(args[1]);
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[2]);
 
-	if (invitee == NULL)
+//	REVIEW : DO NOT RETURN AN ERROR RELATED TO NOT ENTERING THE CHAN
+	if (invitee == NULL)// REVIEW --> ONLY ENTER JOIN GIVE THIS ERROR
 		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "invitee does not exist"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
@@ -138,6 +113,33 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	}
 	return (0);
 }
+
+int	Server::kickUser(User *user, std::vector<std::string> args)
+{
+//	Finding user that would be kicked in chan
+	User *member = findUser(args[2]);	//REVIEW : kick someone that are not in chan
+//	Finding channel
+	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+//	REVIEW : DO NOT RETURN AN ERROR RELATED TO NOT ENTERING THE CHAN
+//	REVIEW : KICK MYSELF DO NOT WORK WHEN NO CHAN, NEED TO TRY WITH CHAN
+	if (member == NULL)	// REVIEW --> ONLY ENTER KICK GIVE THIS ERROR
+		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "member does not exist"));// REVIEW change user to member -> :10.12.2.5 ERR_NOSUCHNICK alex :member does not exist
+	else if (it == this->_chanContainer.end())
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));//
+	else if (!(it->second->hasMember(user)))
+		sendToUser(user, makeUserMsg(user, "ERR_CANNOTSENDTOCHAN", "user is not in channel (cannot invite others)"));//
+	else if (!(it->second->hasChanOp(user)))
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));//
+	else
+	{
+		std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
+		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
+		it->second->removeMember(member);
+		it->second->updateMemberList(member);
+	}
+	return (0);
+}
+
 
 
 int	Server::setChanTopic(User *user, std::vector<std::string> args)
@@ -167,10 +169,11 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
 //	Finding channel
+//	REVIEW : MODE #CHANNAME, RETURN NOTHING
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 //	If it found channel and user is chanop
-	if (it == this->_chanContainer.end())
+	if (it == this->_chanContainer.end())// REVIEW --> ONLY ENTER MODE GIVE THIS ERROR
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else if (it->second->isChanOp(user))
 	{
@@ -274,7 +277,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	(void)args;
 	this->shutoff = true;
 	debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
-	//this->clear();
+	//this->clear(); REVIEW
 
 	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	this->clear();

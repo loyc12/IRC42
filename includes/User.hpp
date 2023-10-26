@@ -8,7 +8,7 @@
 
 class Message;
 
-class User //								ADD FD INSIDE USER
+class User //								ADD FD INSIDE USER	REVIEW
 {
 	private:
 // 		Data
@@ -17,10 +17,10 @@ class User //								ADD FD INSIDE USER
 		std::string _userName;
 		std::string	_nick;
 		std::string _hostName;
-		sockaddr_in _clientAddr; //when client is connected
+		sockaddr_in _clientAddr; //when client is connected REVIEW
 
 	public:
-		bool wasWelcomed; //				TODO (LL) : use an accessor instead
+		bool wasWelcomed; //				TODO (LL) : use an accessor instead REVIEW
 		std::string	lastMsg;
 // 		Constructors & Destructor
 		User(sockaddr_in clientAddr);
@@ -41,6 +41,5 @@ class User //								ADD FD INSIDE USER
 		void		setHostname		(std::string hostName);
 		void		setUserInfo		(std::vector<std::string> args);
 };
-
 
 #endif // USER_HPP

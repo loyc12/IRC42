@@ -12,8 +12,8 @@
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
 # define WELCOME_HEADER 	"Welcome to our IRC server!"
 
-# define CMD_COUNT			11
-# define REQUEST				0 //	NOTE : split replyTo() into two functions instead?
+# define CMD_COUNT				12
+# define REQUEST				0
 # define CHAN					1
 
 
@@ -35,7 +35,7 @@ class Server
 			struct sockaddr_in				_serverAddr;
 
 	public:
-			bool					shutoff; //								NOTE : use and accessor instead (?)
+			bool					shutoff;
 //		Constructor - Destructor
 			Server					();
 			~Server					();
@@ -52,7 +52,7 @@ class Server
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
 			void	dragToChannel	(User *invitee, Channel *chan);
-			void	processChanMsg	(User *sender, std::vector<std::string> args);
+			void	processChanMsg	(User *sender, std::vector<std::string> args);	//REVIEW OVERLOAD
 			void	processPrivMsg	(User *user, std::vector<std::string> args);
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
@@ -83,7 +83,7 @@ class Server
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
 			bool	isNickValid		(User *user, std::string nickname);
-			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME
+			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME REVIEW
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
 };

@@ -8,8 +8,8 @@
 # include <arpa/inet.h> //	IP stuff
 # include <netinet/in.h> //	IP stuff
 # include <sys/socket.h> //	socket stuff
-# include <string.h> //		string (why not <string> instead ??)
-# include <string> //		string (why not <string.h> instead ??)
+# include <string.h> //		string (why not <string> instead ??)// REVIEW
+# include <string> //		string (why not <string.h> instead ??)// REVIEW
 # include <map>
 # include <list>
 # include <vector> //		container of users found in a channel

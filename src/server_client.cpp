@@ -18,8 +18,6 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 	}
 }
 
-
-
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
 void	Server::knownClient(int fd)
 {
@@ -32,8 +30,6 @@ void	Server::knownClient(int fd)
 		readFromClient(user, fd);
 	}
 }
-
-
 
 //	DELETES A GIVEN CLIENT
 void Server::deleteClient(int fd)

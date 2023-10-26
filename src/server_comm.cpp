@@ -41,7 +41,7 @@ void	Server::readFromClient(User *user, int fd)
 		if (isMsgEnd(user->lastMsg))
 		{
 			if (execCommand(user, args))
-				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
+				sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid command"));
 			user->lastMsg = ""; //			NOTE : reset user's msg buffer
 		}
 	}
