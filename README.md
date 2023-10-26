@@ -47,7 +47,7 @@ QUIT ->quitte le server
 
 checklist :
 TODO :
-	* checkpass = implement in boool pour eviter de faire lire quelque chose qui existe pas
+	* let's deal with LEAKS now...
 	* readfromclient -> lit de la donnee qui existe pas, quand client disconnecte.... a suivre
 	* Relire le PDF au complet
 	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
