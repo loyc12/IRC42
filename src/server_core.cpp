@@ -1,11 +1,13 @@
 #include "IRC.hpp"
 
-Server::Server(int port, std::string pass) : _port(port), _password(pass) 	{debugPrint(YELLOW, CONSTR_SERV); }
-Server::~Server() 															{debugPrint(YELLOW, DEST_SERV); }
+Server::Server() : shutoff(false)	{debugPrint(YELLOW, CONSTR_SERV); }
+Server::~Server() 					{debugPrint(YELLOW, DEST_SERV); }
 
-const int & Server::getPort			(void) const							{ return (this->_port);}
-const std::string & Server::getPass	(void) const							{ return (this->_password);}
+const int & Server::getPort			(void) const { return (this->_port);}
+const int & Server::getPass			(void) const { return (this->_pass);}
 
+void	Server::setPort				(int port) { this->_port = port; }
+void	Server::setPass				(int pass) { this->_pass = pass; }
 
 
 //	INITS THE SERVER PROCESSES
@@ -42,14 +44,14 @@ void	Server::init()
 
 
 //	LAUNCHES THE SERVER AND ITS PROCESSES
-void	Server::start(void)
+void	Server::run(void)
 {
 	struct sockaddr_in				client_addr;
 	socklen_t 						client_len = sizeof(client_addr);
 
 	this->init();
 
-	while (!shutServ)
+	while (!this->shutoff)
 	{
 		this->_targetFds = this->_baseFds;
 		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
@@ -75,10 +77,11 @@ void	Server::start(void)
 					else
 						this->knownClient(clientFd);
 				}
+				if (this->shutoff)
+					break;
 			}
 		}
 	}
-	this->clear();
 }
 
 
@@ -92,8 +95,10 @@ void	Server::clear(void)
 	this->_chanContainer.clear();
 	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 		delete it->second;
+
 	this->_clients.clear();
 	close(this->_baseSocket);
 	close(this->_newSocket);
 
+	delete this;
 }

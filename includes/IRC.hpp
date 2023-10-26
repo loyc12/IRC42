@@ -32,17 +32,11 @@ class User;
 # define BUFFSIZE 256
 
 //  ERROR
-# define PASSWORD	" > Error main(): Invalid password"
+# define PASS		" > Error main(): Invalid password"
 # define PORT		" > Error main(): Invalid port"
 # define TCP		" > Error main(): Not a TCP port for IRC"
-# define ARG		" > Error main(): Not a port"
 # define COUNT		" > Error main(): Invalid argument count."
 
-//	put defines here
-static bool	shutServ = false;
-
-//void irc(Server *server);
-int parseArg(int ac, char **av);
-
+Server	*getServer(void); //	singleton used to acces the server instance from anywhere
 
 #endif // IRC_HPP

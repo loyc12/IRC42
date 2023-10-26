@@ -8,7 +8,7 @@ void	Server::welcomeUser(User *user)
 }
 
 
-void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
+void	Server::readFromClient(User *user, int fd)
 {
 	char 		buff[BUFFSIZE];
 
@@ -29,28 +29,20 @@ void	Server::readFromClient(User *user, int fd, std::string *lastMsg)
 	}
 	else if (byteReceived > 0)
 	{
-        lastMsg->assign(buff, 0, byteReceived);
+		std::ostringstream debug; //										DEBUG
+		debug << "INCOMING USER_MSG FROM (" << fd << ") :\n" << buff; //	DEBUG
+		debugPrint(BLUE, debug.str()); //									DEBUG
+
+		std::string str;
+    	user->lastMsg.append(str.assign(buff, 0, byteReceived));
+
 		std::vector<std::string> args = splitString(buff, " \r\n");
 
-		debugPrint(RED, args[0]); // 											DEBUG
-		std::ostringstream debug; //											DEBUG
-		debug << "INCOMING USER_MSG FROM (" << fd << ") :\n" << *lastMsg; //	DEBUG
-		debugPrint(BLUE, debug.str()); //										DEBUG
-
-		if (execCommand(user, args) == -1)
+		if (isMsgEnd(user->lastMsg))
 		{
-			//	if is a channel message : send to channel users
-			if (args[0].compare("PRIVMSG") == 0)
-			{
-				if (args.size() < 3)
-					sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
-				else if (args[1][0] == '#')
-					processChanMsg(user, *lastMsg, args);
-				else
-					processPrivMsg(user, *lastMsg, args);
-			}
-			else // replace by "INVALID COMMAND"
-        		sendToUser(user, makeUserMsg(user, *lastMsg));
+			if (execCommand(user, args))
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
+			user->lastMsg = ""; //			NOTE : reset user's msg buffer
 		}
 	}
 	bzero(buff, BUFFSIZE);

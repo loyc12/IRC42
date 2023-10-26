@@ -121,6 +121,7 @@ void	Channel::removeMember(User *user)
 				return ;
 			}
 		}
+		//	if the member was an OP, unop them
 	}
 }
 
@@ -179,14 +180,14 @@ void	Channel::updateMemberList(User *user)
 }
 
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
-void	Channel::sendToChan(User *sender, std::string message, bool sendToSender) 
+void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 {
 	printChanOps(); //																	DEBUG
 
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		std::ostringstream debug; //													DEBUG
-		debug << "OUTGOING CHAN_MSG TO (" << (*it)->getFD() << ") :\n" << message; //	DEBUG
+		debug << "OUTGOING CHAN_MSG TO (" << (*it)->getNick() << ") :\n" << message; //	DEBUG
 		debugPrint(MAGENTA, debug.str()); //											DEBUG
 
 		//	Checks if we need to skip the sender or not

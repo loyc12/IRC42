@@ -2,7 +2,7 @@
 
 // 0================ BASE FUNCTIONS ================0
 
-User::User(sockaddr_in clientAddr) : _fd(0), _name("*"), _userName("*"), _nick("*"), _hostName("*"), _clientAddr(clientAddr), wasWelcomed(false)
+User::User(sockaddr_in clientAddr) : _fd(0), _name("*"), _userName("*"), _nick("*"), _hostName("*"), _clientAddr(clientAddr), wasWelcomed(false), lastMsg("")
 														{ debugPrint(YELLOW, CONSTR_USER); }
 User::~User()											{ debugPrint(YELLOW, DEST_USER); }
 

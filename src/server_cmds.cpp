@@ -4,9 +4,11 @@
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
 	if (user->wasWelcomed)
-		sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
-	else if (args[1].compare(this->getPass()) != 0)
+		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTRED, "Already registered"));
+	else if (args[1].compare(std::to_string(this->getPass())) != 0)
 	{
+		std::cerr << "Pass  : " << std::to_string(this->getPass()) << "." << std::endl << "Input : " << args[1] << "." << std::endl; //			DEBUG
+
 		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
 		deleteClient(user->getFD());
 	}
@@ -141,9 +143,9 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 int	Server::setChanTopic(User *user, std::vector<std::string> args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	
+
 	if (args.size() < 2 || args[1].compare("#") == 0 || args[1].compare(":") == 0)
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));	
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
 	else if (!(it->second->isChanOp(user)) && args.size() == 3 && it->second->getTopicFlag() == 1)
@@ -201,7 +203,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				it->second->setPass("");
 		}
 //		mode o (add or remove chanOp privileges)
-		else if (args[2][1] == 'o' && (args.size() == 4))									
+		else if (args[2][1] == 'o' && (args.size() == 4))
 		{
 			User *invitee = findUser(args[3]);
 			if (it->second->hasMember(invitee))
@@ -253,11 +255,26 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 	return (0);
 }
 
+//	PRIVMSG #channel/user <message>
+int	Server::sendMessage(User *user, std::vector<std::string> args)
+{
+	if (args.size() < 3)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+	else if (args[1][0] == '#')
+		processChanMsg(user, args);
+	else
+		processPrivMsg(user, args);
+	return (0);
+}
+
 //	TELLS THE SERVER TO SHUT OFF (FOR CORRECTION PPURPOSES)
 int	Server::closeServer(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
+	this->shutoff = true;
+	debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
+	//this->clear();
 
 	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	this->clear();
@@ -265,18 +282,18 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 }
 
 
-//	TELLS readFromClient() THAT THIS IS NOT A COMMAND (aka it's a message)
+//	MAKES execCommand RETURN AN ERROR CODE (1)
 int	Server::notACommand(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
-	return (-1);
+	return (1); // aka : invalid command
 }
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND
 int Server::getCmdID(std::string cmd)
 {
-	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE", "CLOSE"}; //, "PRIVMSG" };
+	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE", "PRIVMSG", "CLOSESERV"};
 
 	int id = 0;
 	while (id < CMD_COUNT && cmd.compare(cmds[id]))
@@ -289,6 +306,8 @@ int Server::getCmdID(std::string cmd)
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::vector<std::string> args)
 {
+	debugPrint(MAGENTA, "EXECUTING MSG :\n" + user->lastMsg); // 			DEBUG
+
 	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,
 		&Server::storeNickname,
@@ -300,6 +319,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::inviteUser,
 		&Server::setChanTopic,
 		&Server::setChanMode,
+		&Server::sendMessage,
 		&Server::closeServer,
 		&Server::notACommand //											NOTE : default case for getCmdID()
 	};
