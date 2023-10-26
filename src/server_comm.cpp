@@ -13,6 +13,7 @@ void	Server::readFromClient(User *user, int fd)
 	char 		buff[BUFFSIZE];
 
 	bzero(buff, BUFFSIZE);
+
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles what to do depending on the byte value (error, null or message)
@@ -35,14 +36,18 @@ void	Server::readFromClient(User *user, int fd)
 
 		std::string str;
     	user->lastMsg.append(str.assign(buff, 0, byteReceived));
-
-		std::vector<std::string> args = splitString(buff, " \r\n");
+		debugPrint(YELLOW, user->lastMsg);
 
 		if (isMsgEnd(user->lastMsg))
 		{
+			std::vector<std::string> args = splitString(user->lastMsg, " \r\n");
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid command"));
-			user->lastMsg = ""; //			NOTE : reset user's msg buffer
+			user->lastMsg.clear();
+		}
+		else
+		{
+			debugPrint(YELLOW, "!isMsgEnd(user->lastMsg)");
 		}
 	}
 	bzero(buff, BUFFSIZE);

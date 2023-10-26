@@ -47,7 +47,6 @@ QUIT ->quitte le server
 
 checklist :
 TODO :
-	* .tpp, .ipp
 	* ctrl d nc
 	* verif ernno is not a trigger to something
 	* verif fcntl
