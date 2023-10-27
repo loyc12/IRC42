@@ -13,7 +13,6 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 //	NOTE : strtok works iteratively, so it needs to be called once per token
 	while (ptr != NULL)
 	{
-		std::cerr << "> " << std::string(ptr) << " <" << std::endl; //					DEBUG
 		args.push_back(std::string(ptr));
 		ptr = strtok(NULL, dlmtrs);
 	}

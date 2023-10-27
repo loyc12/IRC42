@@ -174,7 +174,6 @@ void	Channel::updateMemberList(User *user)
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 {
-	//printChanOps(); //																	DEBUG
 
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
@@ -183,31 +182,10 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 		debugPrint(MAGENTA, debug.str()); //											DEBUG
 
 		//	Checks if we need to skip the sender or not
-		if (sendToSender || !isSameUser((*it), sender)) //						WARNING is it working? leaks here
+		if (sendToSender || !isSameUser((*it), sender))
 		{
 			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
-				throw std::invalid_argument(" > Error at sendToChan() ");//		WARNING leaks here
+				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
 	}
-}
-
-
-//		DEBUG FUNCTION
-void	Channel::printMembers(void)
-{
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		std::cerr << (*it)->getNick() << ", ";
-	}
-	std::cerr << std::endl;
-}
-
-//		DEBUG FUNCTION
-void	Channel::printChanOps(void)
-{
-	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
-	{
-		std::cerr << (*it)->getNick() << ", ";
-	}
-	std::cerr << std::endl;
 }

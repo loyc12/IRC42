@@ -31,7 +31,7 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 {
 	user->setUserInfo(args);
 
-//	Welcomes as user if this is their first password check (aka first connection)
+//	Welcomes as user if this is their first password check (first connection)
 	if (!user->wasWelcomed)
 		this->welcomeUser(user);
 	return (0);
@@ -284,19 +284,16 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	(void)user;
 	(void)args;
 	this->shutoff = true;
-	//debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
-	//this->clear();
-	//debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	return (0);
 }
 
 
-//	MAKES execCommand RETURN AN ERROR CODE (1)
+//	MAKES execCommand RETURN AN ERROR CODE (1): invalid command
 int	Server::notACommand(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
-	return (1); // aka : invalid command
+	return (1);
 }
 
 //	GETS THE SPECIFIC ID OF A USER COMMAND

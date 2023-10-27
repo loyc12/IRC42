@@ -8,7 +8,7 @@
 
 class Message;
 
-class User //								ADD FD INSIDE USER	REVIEW
+class User
 {
 	private:
 // 		Data
@@ -17,10 +17,10 @@ class User //								ADD FD INSIDE USER	REVIEW
 		std::string _userName;
 		std::string	_nick;
 		std::string _hostName;
-		sockaddr_in _clientAddr; //when client is connected REVIEW
+		sockaddr_in _clientAddr;
 
 	public:
-		bool wasWelcomed; //				TODO (LL) : use an accessor instead REVIEW
+		bool wasWelcomed;
 		std::string	lastMsg;
 // 		Constructors & Destructor
 		User(sockaddr_in clientAddr);

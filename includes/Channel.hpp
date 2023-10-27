@@ -10,7 +10,7 @@ class Channel
 {
 	private:
 		std::string _chanName;
-		std::string _adminName;	//REVIEW opName
+		std::string _adminName;
 		std::vector<User*> _chanMembers;
 		std::vector<User*> _chanOps;
 		std::string	_topic;
@@ -40,7 +40,7 @@ class Channel
 		void	setAdminName					(std::string const &admin);
 		void	setPass							(std::string const &password);
 		void	setTopic						(std::string const &topic);
-		void	setMaxMemberCount				(int const &count); //REVIEW getMaxMbrCnT
+		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
 		void	setTopicFlag					(bool const &boolean);
 		void	setKeyFlag						(bool const &boolean);
@@ -49,7 +49,7 @@ class Channel
 		bool	isChanOp						(User *user);
 		bool	hasSameNick						(User *user);
 
-		bool	hasMember						(User *user);//REVIEW OVERLOAD ?
+		bool	hasMember						(User *user);
 		bool	hasChanOp						(User *user);
 
 		void	addMember						(User *user);
@@ -62,9 +62,6 @@ class Channel
 
 		User 	*getMember						(int i);
 		void	updateMemberList				(User *user);
-
-		void	printMembers					(void); //					DEBUG
-		void	printChanOps					(void); //					DEBUG
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

@@ -77,7 +77,6 @@ void	Server::run(void)
 			}
 		}
 	}
-	//this->clear();
 }
 
 

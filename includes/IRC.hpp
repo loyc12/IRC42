@@ -1,21 +1,24 @@
 #ifndef IRC_HPP
 # define IRC_HPP
 
+//Stream
 # include <iostream>
 # include <sstream>
-# include <fcntl.h> //		fds
-# include <unistd.h> //		close fds
-# include <arpa/inet.h> //	IP stuff
-# include <netinet/in.h> //	IP stuff
-# include <sys/socket.h> //	socket stuff
-# include <string.h> //		string (why not <string> instead ??)// REVIEW
-# include <string> //		string (why not <string.h> instead ??)// REVIEW
+//Fds
+# include <fcntl.h>
+# include <unistd.h>
+//IP
+# include <arpa/inet.h> 
+# include <netinet/in.h>
+# include <sys/socket.h>
+// Tools
+# include <string>
 # include <map>
 # include <list>
-# include <vector> //		container of users found in a channel
-
-# include <sys/time.h> //	select
-# include <sys/select.h> //	select
+# include <vector>
+//select()
+# include <sys/time.h>
+# include <sys/select.h>
 
 class Server;
 class Channel;
@@ -39,4 +42,4 @@ class User;
 
 Server	*getServer(void); //	singleton used to acces the server instance from anywhere
 
-#endif // IRC_HPP
+#endif 

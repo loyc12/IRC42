@@ -52,7 +52,7 @@ class Server
 			void	knownChannel	(User *user, Channel *chan, std::vector<std::string> args);
 			void	newChannel		(User *user, std::vector<std::string> args);
 			void	dragToChannel	(User *invitee, Channel *chan);
-			void	processChanMsg	(User *sender, std::vector<std::string> args);	//REVIEW OVERLOAD
+			void	processChanMsg	(User *sender, std::vector<std::string> args);
 			void	processPrivMsg	(User *user, std::vector<std::string> args);
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
@@ -82,7 +82,7 @@ class Server
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
 			bool	isNickValid		(User *user, std::string nickname);
-			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME REVIEW
+			bool	isMsgEnd		(std::string str);
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
 			int		closeServer		(User *user, std::vector<std::string> args);//DEBUG

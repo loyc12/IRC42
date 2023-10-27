@@ -47,7 +47,7 @@ int main(int ac, char **av)
 		server->setPort(port);
 		server->setPass(pass);
 		server->run();
-		server->clear(); //need to comment out when check for leaks
+		server->clear();
 	}
 	catch (std::exception &e)
 	{

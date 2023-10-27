@@ -78,7 +78,6 @@ void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "channel does not exist"));
 	else
 	{
-		std::cerr << "sendToChan(), chan not NULL : " << args[1] << std::endl; //			DEBUG
 		if (!chan->hasMember(sender))
 			sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "you are not in this channel"));
 		else
