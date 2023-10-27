@@ -3,15 +3,17 @@
 // CHECKS PASSWORD AND SENDS AN ERROR CODE TO CLIENT IF WRONG
 int	Server::checkPassword(User *user, std::vector<std::string> args)
 {
-	if (user->wasWelcomed)
+	if (user->wasWelcomed())
 		sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
 	else if (args[1].compare(std::to_string(this->getPass())) != 0)
 	{
-		std::cerr << "Pass  : " << std::to_string(this->getPass()) << "." << std::endl << "Input : " << args[1] << "." << std::endl; //			DEBUG
-
 		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
+
+		//	deletes client if they fail to set their name properly on login
 		deleteClient(user->getFD());
 	}
+	else
+		user->addLoginStep(0);
 	return (0);
 }
 
@@ -21,8 +23,10 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 	{
 		std::string tmp = user->getNick();
 		user->setNick(args[1]);
+		user->addLoginStep(1);
 	}
-	else if (!user->wasWelcomed)
+	//	deletes client if they fail to set their name properly on login
+	else if (!user->wasWelcomed())
 		deleteClient(user->getFD());
 	return (0);
 }
@@ -34,27 +38,9 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 	else
 	{
 		user->setUserInfo(args); //					TODO check is info is valid
-
-//		Welcomes as user if this is their first password check (first connection)
-		if (!user->wasWelcomed)
-			this->welcomeUser(user);
+		user->addLoginStep(2);
 	}
 	return (0);
-
-/*
-	if (args.size() < 5)
-	{
-		std::cout << "catch arg size less than 5" << std::endl;
-		deleteClient(user->getFD());
-		return (0);
-	}
-	else if (args[2] != "*" || args[3] != "*")
-	{
-		std::cout << "catch no * *" << std::endl;
-		deleteClient(user->getFD());
-		return (0);
-	}
-*/
 }
 
 int	Server::joinChan(User *user, std::vector<std::string> args)
@@ -307,17 +293,8 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-
-//	MAKES execCommand RETURN AN ERROR CODE (1): invalid command
-int	Server::notACommand(User *user, std::vector<std::string> args)
-{
-	(void)user;
-	(void)args;
-	return (1);
-}
-
 //	GETS THE SPECIFIC ID OF A USER COMMAND
-int Server::getCmdID(std::string cmd)
+int Server::getCmdID(User *user, std::string cmd)
 {
 	std::string cmds[CMD_COUNT] = { "PASS", "NICK", "USER", "JOIN", "PART", "KICK", "QUIT", "INVITE", "TOPIC", "MODE", "PRIVMSG", "CLOSESERV"};
 
@@ -325,14 +302,16 @@ int Server::getCmdID(std::string cmd)
 	while (id < CMD_COUNT && cmd.compare(cmds[id]))
 		id++;
 
+	// if user is not logged in and using a valid command, we tell him to log in first
+	if (id > 2 && id != CMD_COUNT && user->getLoginStep() < 3)
+		return (CMD_COUNT + 1);
 	return (id);
 }
-
 
 //	PICKS A COMMAND TO EXECUTE BASED ON THE ARGS
 int	Server::execCommand(User *user, std::vector<std::string> args)
 {
-	debugPrint(MAGENTA, "EXECUTING MSG :\n" + user->lastMsg); // 			DEBUG
+	debugPrint(MAGENTA, "EXECUTING MSG :\n" + user->getLastMsg()); // 		DEBUG
 
 	int (Server::*commands[])(User*, std::vector<std::string>) = {
 		&Server::checkPassword,
@@ -347,7 +326,26 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setChanMode,
 		&Server::sendMessage,
 		&Server::closeServer,
-		&Server::notACommand //											NOTE : default case for getCmdID()
+		&Server::notACommand, //						NOTE : default case for getCmdID()
+		&Server::notLoggedIn //							NOTE : command N : for loggin perms
 	};
-	return (this->*commands[getCmdID(args[0])])(user, args);
+	return (this->*commands[getCmdID(user, args[0])])(user, args);
+}
+
+//	MAKES execCommand RETURN AN ERROR CODE (1): invalid command
+int	Server::notACommand(User *user, std::vector<std::string> args)
+{
+	(void)user;
+	(void)args;
+	return (1);
+}
+
+//	PREVENTS USER FOR ACCESSING NON_LOGGIN CMDS WHEN NOT LOGGED IN
+int	Server::notLoggedIn(User *user, std::vector<std::string> args)
+{
+	(void)args;
+
+	sendToUser(user, makeUserMsg(user, ERR_NOTREGISTERED, "forbidden command : login not completed"));
+
+	return (0);
 }

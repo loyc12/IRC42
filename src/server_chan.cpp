@@ -50,7 +50,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
 
-		std::string chanOp = "+o " + user->getNick(); 
+		std::string chanOp = "+o " + user->getNick();
 		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
@@ -81,7 +81,7 @@ void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 		if (!chan->hasMember(sender))
 			sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "you are not in this channel"));
 		else
-			chan->sendToChan(sender, makeChanMsg(sender, sender->lastMsg), false);
+			chan->sendToChan(sender, makeChanMsg(sender, sender->getLastMsg()), false);
 	}
 }
 
@@ -92,5 +92,5 @@ void	Server::processPrivMsg(User *sender, std::vector<std::string> args)
 	if (receiver == NULL)
 		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "nickname does not exist"));
 	else
-		sendToUser(receiver, makePrivMsg(sender, sender->lastMsg));
+		sendToUser(receiver, makePrivMsg(sender, sender->getLastMsg()));
 }

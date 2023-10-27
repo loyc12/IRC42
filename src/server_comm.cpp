@@ -4,7 +4,7 @@
 void	Server::welcomeUser(User *user)
 {
 	sendToUser(user, makeUserMsg(user, RPL_WELCOME, WELCOME_HEADER));
-	user->wasWelcomed = true;
+	user->setWelcome(true);
 }
 
 
@@ -33,15 +33,20 @@ void	Server::readFromClient(User *user, int fd)
 		debugPrint(BLUE, debug.str()); //									DEBUG
 
 		std::string str;
-    	user->lastMsg.append(str.assign(buff, 0, byteReceived));
-		debugPrint(YELLOW, user->lastMsg);
+		str.assign(buff, 0, byteReceived);
+    	user->setLastMsg(str.append(user->getLastMsg()));
 
-		if (isMsgEnd(user->lastMsg))
+		debugPrint(YELLOW, user->getLastMsg());
+
+		if (isMsgEnd(user->getLastMsg()))
 		{
-			std::vector<std::string> args = splitString(user->lastMsg, " \r\n");
+			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid command"));
-			user->lastMsg.clear();
+
+			user->setLastMsg("");
+			if (user->wasWelcomed() == false && user->getLoginStep() == 0b111) // aka user finished login in
+				welcomeUser(user);
 		}
 		else
 		{

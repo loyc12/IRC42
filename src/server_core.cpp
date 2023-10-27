@@ -97,6 +97,6 @@ void	Server::clear(void)
 	this->_chanContainer.clear();
 
 	close(this->_baseSocket);
-	
+
 	delete this;
 }

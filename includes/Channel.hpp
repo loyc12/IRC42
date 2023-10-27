@@ -29,10 +29,10 @@ class Channel
 		std::string const &getAdminName			(void) const;
 		std::string const &getPass				(void) const;
 		std::string const &getTopic				(void) const;
-		int			const &getMaxMbrCnt			(void) const;
 		bool		const &getInviteFlag 		(void) const;
 		bool		const &getTopicFlag			(void) const;
 		bool		const &getKeyFlag			(void) const;
+		int			const &getMaxMbrCnt			(void) const;
 		int				   getMemberCnt			(void) const;
 		int 			   getOpCnt				(void) const;
 
@@ -40,10 +40,10 @@ class Channel
 		void	setAdminName					(std::string const &admin);
 		void	setPass							(std::string const &password);
 		void	setTopic						(std::string const &topic);
-		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
 		void	setTopicFlag					(bool const &boolean);
 		void	setKeyFlag						(bool const &boolean);
+		void	setMaxMemberCount				(int const &count);
 
 		bool	isSameUser						(User *user1, User *user2);
 		bool	isChanOp						(User *user);

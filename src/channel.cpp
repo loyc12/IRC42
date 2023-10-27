@@ -17,10 +17,10 @@ std::string const & Channel::getChanName(void) const			{ return (this->_chanName
 std::string const & Channel::getAdminName(void) const 			{ return (this->_adminName); }
 std::string const & Channel::getPass(void) const 				{ return (this->_password); }
 std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
-int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
 bool		const & Channel::getTopicFlag(void) const			{ return (this->_canTopic); }
 bool		const & Channel::getKeyFlag(void) const				{ return (this->_keyFlag); }
+int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 int 				Channel::getOpCnt(void) const				{ return (this->_chanOps.size()); }
 
@@ -29,10 +29,10 @@ void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
 void	Channel::setPass(std::string const &password)			{ this->_password = password; }
 void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
-void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }
 void	Channel::setKeyFlag(bool const &boolean)				{ this->_keyFlag = boolean; }
+void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 
 //	0================ OTHER FUNCTIONS ================0
 

@@ -70,9 +70,10 @@ class Server
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
 			int		sendMessage		(User *user, std::vector<std::string> args);
-			int		notACommand		(User *user, std::vector<std::string> args);
-			int		getCmdID		(std::string cmd);
+			int		getCmdID		(User *user, std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
+			int		notACommand		(User *user, std::vector<std::string> args);
+			int		notLoggedIn		(User *user, std::vector<std::string> args);
 //		COMM
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd);
