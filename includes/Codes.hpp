@@ -16,6 +16,7 @@
 # define	RPL_ENDOFNAMES				366
 
 // -- ERRORS							400 - 599
+# define	ERR_UNKNOWNERROR			"400"
 # define	ERR_NOSUCHNICK				401
 # define	ERR_NOSUCHCHANNEL			"403"
 # define	ERR_CANNOTSENDTOCHAN		404

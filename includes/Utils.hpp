@@ -18,4 +18,6 @@ std::string					makePrivMsg(User *sender, std::string input);
 
 void						sendToUser(User *targetUser, std::string message);
 
+void						printChars(std::string str);
+
 #endif // UTILS_HPP

@@ -33,11 +33,13 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 
 int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 {
-	if (args.size() < 5)
+	if (user->wasWelcomed())
+		sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
+	else if (args.size() < 5)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
-	else
+	else if (isInfoValid(user, args))
 	{
-		user->setUserInfo(args); //					TODO check is info is valid
+		user->setUserInfo(args);
 		user->addLoginStep(2);
 	}
 	return (0);
@@ -79,7 +81,7 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 			(it->second)->updateMemberList(user); //															3rd : update member list for all members
 		}
 		else
-			sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
+			sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	}
 	return (0);
 }
@@ -102,17 +104,17 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	if (args.size() < 3)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	else if (invitee == NULL)
-		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "invitee does not exist"));
+		sendToUser(user, makeUserMsg(user, "ERR_NOSUCHNICK", "Invitee does not exist"));
 	else if (!(it->second->hasMember(user)))
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "user is not in channel (cannot invite others)"));
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
-		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "invitee is already in channel"));
+		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_NOPRIVILEGES", "not a chan op"));
+		sendToUser(user, makeUserMsg(user, "ERR_NOPRIVILEGES", "Not a chan op"));
 	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user))))
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "invite only channel"));
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
@@ -130,13 +132,13 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	if (args.size() < 3)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));//
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));//
 	else if (member == NULL)
-		sendToUser(user, makeUserMsg(member, "ERR_NOSUCHNICK", "member does not exist"));
+		sendToUser(user, makeUserMsg(member, "ERR_NOSUCHNICK", "Member does not exist"));
 	else if (!(it->second->hasMember(member)))
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "user is not in channel"));//
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));//
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));//
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Not a chan op"));//
 	else
 	{
 		std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
@@ -158,7 +160,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
 	else if (!(it->second->isChanOp(user)) && args.size() == 3 && it->second->getTopicFlag() == 1)
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "not a chan op"));
+		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Not a chan op"));
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
@@ -182,7 +184,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 	if (args.size() <= 1)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "channel does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	else if (it->second->isChanOp(user))
 	{
 		if (args.size() == 2)
@@ -190,7 +192,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 //		if modestring is NOT size 2 OR not + OR - => invalid mode
 		else if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
 		{
-			sendToUser(user, makeUserMsg(user, "ERR_UMODEUNKNOWNFLAG", "invalid mode"));
+			sendToUser(user, makeUserMsg(user, "ERR_UMODEUNKNOWNFLAG", "Invalid mode"));
 			return (0);
 		}
 //		mode i (chanop can invite or not)
@@ -262,7 +264,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 		}
 		else
 		{
-			sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid mode"));
+			sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "Invalid mode"));
 			return (0);
 		}
 //		Informs the user that the mode change was successful
@@ -289,7 +291,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 {
 	(void)user;
 	(void)args;
-	this->shutoff = true;
+	this->shutOff();
 	return (0);
 }
 
@@ -345,7 +347,7 @@ int	Server::notLoggedIn(User *user, std::vector<std::string> args)
 {
 	(void)args;
 
-	sendToUser(user, makeUserMsg(user, ERR_NOTREGISTERED, "forbidden command : login not completed"));
+	sendToUser(user, makeUserMsg(user, ERR_NOTREGISTERED, "Forbidden command : Login not yet completed"));
 
 	return (0);
 }

@@ -81,6 +81,23 @@ bool	Server::isNickValid(User *user, std::string nickname)
 	return (true);
 }
 
+bool	Server::isInfoValid(User *user, std::vector<std::string> args)
+{
+	for (int j = 1; j < 5; j++)
+	{
+		for (int i = 0; i < (int)args[j].length(); i++)
+		{
+			//	NOTE : ':' is allowed in the realname, which might get fucky wucky
+			if (std::isalnum(args[j][i]) == 0 && args[j][i] != '_' && args[j][i] != '*' && args[j][i] != ':')
+			{
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Invalid user info (" + args[j] + " has non alphanumeric characters)"));
+				return (false);
+			}
+		}
+	}
+	return (true);
+}
+
 bool	Server::isMsgEnd(std::string str)
 {
 	//EOF

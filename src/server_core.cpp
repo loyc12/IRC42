@@ -1,13 +1,15 @@
 #include "IRC.hpp"
 
-Server::Server() : shutoff(false)	{debugPrint(YELLOW, CONSTR_SERV); }
+Server::Server() : _shutoff(false)	{debugPrint(YELLOW, CONSTR_SERV); }
 Server::~Server() 					{debugPrint(YELLOW, DEST_SERV); }
 
-const int & Server::getPort			(void) const { return (this->_port);}
-const int & Server::getPass			(void) const { return (this->_pass);}
+const int &Server::getPort			(void) const	{ return (this->_port);}
+const int &Server::getPass			(void) const	{ return (this->_pass);}
+const bool &Server::isShutOff		(void) const	{ return (this->_shutoff); }
 
-void	Server::setPort				(int port) { this->_port = port; }
-void	Server::setPass				(int pass) { this->_pass = pass; }
+void	Server::setPort				(int port)		{ this->_port = port; }
+void	Server::setPass				(int pass)		{ this->_pass = pass; }
+void	Server::shutOff				(void)			{ this->_shutoff = true; }
 
 
 //	INITS THE SERVER PROCESSES
@@ -51,7 +53,7 @@ void	Server::run(void)
 
 	this->init();
 
-	while (!this->shutoff)
+	while (!this->isShutOff())
 	{
 		this->_targetFds = this->_baseFds;
 		this->_socketCount = select(FD_SETSIZE, &this->_targetFds, nullptr, nullptr, nullptr);
@@ -72,7 +74,7 @@ void	Server::run(void)
 					else
 						this->knownClient(clientFd);
 				}
-				if (this->shutoff)
+				if (this->isShutOff())
 					break;
 			}
 		}

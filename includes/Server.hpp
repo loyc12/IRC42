@@ -24,6 +24,7 @@ class Server
 			int		_port;
 			int		_pass;
 //		Start
+			bool	_shutoff;
 			int		_baseSocket;
 			int 	_newSocket;
 			int		_socketCount;
@@ -35,15 +36,16 @@ class Server
 			struct sockaddr_in				_serverAddr;
 
 	public:
-			bool					shutoff;
 //		Constructor - Destructor
 			Server					();
 			~Server					();
 // 		Getters - Setters
 			const int 				&getPort(void) const;
 			const int 				&getPass(void) const;
+			const bool 				&isShutOff(void) const;
 			void					setPort(int port);
 			void					setPass(int pass);
+			void					shutOff(void);
 //		CORE (has constructors)
 			void	init			(void);
 			void	run				(void);
@@ -83,6 +85,7 @@ class Server
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
 			bool	isNickValid		(User *user, std::string nickname);
+			bool	isInfoValid		(User *user, std::vector<std::string> args);
 			bool	isMsgEnd		(std::string str);
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);

@@ -13,7 +13,7 @@ Server	*getServer(void)
 static void	stop(int signal)
 {
 	(void)signal;
-	getServer()->shutoff = true;
+	getServer()->shutOff();
 	debugPrint(MAGENTA, "\n\n > Closing...\n"); //					DEBUG
 }
 

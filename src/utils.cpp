@@ -71,3 +71,12 @@ void	sendToUser(User *targetUser, std::string message)
 	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
 		throw std::invalid_argument(" > Error at sendToUser() ");
 }
+
+//		DEBUG
+void	printChars(std::string str)
+{
+	std::cerr << "message values : " << std::endl;
+	for (int i = 0; i < (int)str.length(); i++)
+		std::cerr << "[" << (int)str[i] << "] ";
+	std::cerr << std::endl;
+}
