@@ -211,9 +211,7 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 void	Channel::printMembers(void)
 {
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
 		std::cerr << (*it)->getNick() << ", ";
-	}
 	std::cerr << std::endl;
 }
 
@@ -221,8 +219,6 @@ void	Channel::printMembers(void)
 void	Channel::printChanOps(void)
 {
 	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
-	{
 		std::cerr << (*it)->getNick() << ", ";
-	}
 	std::cerr << std::endl;
 }
