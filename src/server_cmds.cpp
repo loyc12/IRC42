@@ -284,11 +284,9 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	(void)user;
 	(void)args;
 	this->shutoff = true;
-	debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
-	this->clear();
-	//bzero(&this->_serverAddr, sizeof(this->_serverAddr));
-	//FD_ZERO(&this->_baseFds);
-	debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
+	//debugPrint(MAGENTA, "\n\n > Force-closing...\n"); //			DEBUG
+	//this->clear();
+	//debugPrint(MAGENTA, "\n\n > Closing (manually) and cleaning ...\n"); //						DEBUG
 	return (0);
 }
 

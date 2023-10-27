@@ -10,10 +10,14 @@ void	Server::welcomeUser(User *user)
 
 void	Server::readFromClient(User *user, int fd)
 {
+	if (shutoff)
+	{
+		std::cerr << "Is shut" << std::endl;
+		return;
+	}
+
 	char 		buff[BUFFSIZE];
-
 	bzero(buff, BUFFSIZE);
-
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
 
 //	Handles what to do depending on the byte value (error, null or message)
