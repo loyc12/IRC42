@@ -29,12 +29,32 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 
 int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 {
-	user->setUserInfo(args);
+	if (args.size() < 5)
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+	else
+	{
+		user->setUserInfo(args); //					TODO check is info is valid
 
-//	Welcomes as user if this is their first password check (first connection)
-	if (!user->wasWelcomed)
-		this->welcomeUser(user);
+//		Welcomes as user if this is their first password check (first connection)
+		if (!user->wasWelcomed)
+			this->welcomeUser(user);
+	}
 	return (0);
+
+/*
+	if (args.size() < 5)
+	{
+		std::cout << "catch arg size less than 5" << std::endl;
+		deleteClient(user->getFD());
+		return (0);
+	}
+	else if (args[2] != "*" || args[3] != "*")
+	{
+		std::cout << "catch no * *" << std::endl;
+		deleteClient(user->getFD());
+		return (0);
+	}
+*/
 }
 
 int	Server::joinChan(User *user, std::vector<std::string> args)

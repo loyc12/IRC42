@@ -50,14 +50,17 @@ void Server::deleteClient(int fd)
 
 //	Deletes the associated user instance
 	if (it != this->_clients.end())
+	{
 		delete it->second;
 
-//	Clears its fd
-	this->_clients.erase(fd);
-	debugPrint(CYAN, DISCONNECTED);
+	//	Clears its fd
+		this->_clients.erase(fd);
+		debugPrint(CYAN, DISCONNECTED);
 
-
-//	Removes its fd from _baseFds
-	close(fd);
-	FD_CLR(fd, &(this->_baseFds));
+	//	Removes its fd from _baseFds
+		close(fd);
+		FD_CLR(fd, &(this->_baseFds));
+	}
+	else
+		std::cerr << "invalid fd : cannot delete this client" << std::endl;
 }
