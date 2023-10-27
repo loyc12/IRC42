@@ -58,17 +58,12 @@ void	Server::run(void)
 
 //		Checks validity of received socket fd (if error, break / throw)
 		if (this->_socketCount == -1)
-		{
-//			If CTRL-C at select, treat as not an error.
-			if (errno == EINTR)
-				break ;
-			throw std::invalid_argument(" > Error at select(): ");
-		}
+			break ;
 		else if (this->_socketCount > 0)
 		{
 			for (int clientFd = 0; clientFd < FD_SETSIZE; ++clientFd)
 			{
-//				Check if the bit in the Fd is setted.
+//				Check if the bit in the Fd is set.
 				if (FD_ISSET(clientFd, &this->_targetFds))
 				{
 //					Manages the client either as a new or old one, depending on its FD
@@ -90,15 +85,18 @@ void	Server::clear(void)
 {
 	debugPrint(MAGENTA, CLOSING); //					DEBUG
 
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		close(it->second->getFD());
+		delete it->second;
+	}
+	this->_clients.clear();
+
 	for (std::map<std::string, Channel*>::iterator it = this->_chanContainer.begin(); it != this->_chanContainer.end(); it++)
 		delete it->second;
 	this->_chanContainer.clear();
-	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
-		delete it->second;
 
-	this->_clients.clear();
 	close(this->_baseSocket);
-	close(this->_newSocket);
-
+	
 	delete this;
 }

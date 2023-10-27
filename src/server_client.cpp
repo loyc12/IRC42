@@ -1,7 +1,5 @@
 #include "IRC.hpp"
 
-
-
 //	PARSE THE DATA FROM A NEW CLIENT'S FIRST MESSAGES
 void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 {
@@ -13,15 +11,12 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 //	Creates a new user for this new Socket & stores User container inside the Server
 	else
 	{
-//		printClient(client_addr); //										DEBUG
 		User* user = new User(*client_addr);
 		user->setFD(this->_newSocket);
 		this->_clients.insert(std::pair<int, User*>(this->_newSocket, user));
 		FD_SET(this->_newSocket, &this->_baseFds);
 	}
 }
-
-
 
 //	READS AN INCOMING MESSAGE FROM A ALREADY EXISTING CLIENT
 void	Server::knownClient(int fd)
@@ -35,8 +30,6 @@ void	Server::knownClient(int fd)
 		readFromClient(user, fd);
 	}
 }
-
-
 
 //	DELETES A GIVEN CLIENT
 void Server::deleteClient(int fd)
@@ -57,14 +50,17 @@ void Server::deleteClient(int fd)
 
 //	Deletes the associated user instance
 	if (it != this->_clients.end())
+	{
 		delete it->second;
 
-//	Clears it's fd
-	this->_clients.erase(fd);
-	debugPrint(CYAN, DISCONNECTED);
+	//	Clears its fd
+		this->_clients.erase(fd);
+		debugPrint(CYAN, DISCONNECTED);
 
-
-//	Removes it's fd from _baseFds
-	close(fd);
-	FD_CLR(fd, &(this->_baseFds));
+	//	Removes its fd from _baseFds
+		close(fd);
+		FD_CLR(fd, &(this->_baseFds));
+	}
+	else
+		std::cerr << "invalid fd : cannot delete this client" << std::endl;
 }

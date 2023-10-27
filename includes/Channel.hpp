@@ -10,13 +10,14 @@ class Channel
 {
 	private:
 		std::string _chanName;
-		std::string _adminName; //						userName of the creator of channel
-		std::vector<User*> _chanMembers; //
+		std::string _adminName;
+		std::vector<User*> _chanMembers;
 		std::vector<User*> _chanOps;
 		std::string	_topic;
 
 		bool		_isInviteOnly;
-		bool		_canTopic;//Chan
+		bool		_canTopic;
+		bool		_keyFlag;
 		std::string _password;
 		int			_maxMemberCount;
 
@@ -31,6 +32,7 @@ class Channel
 		int			const &getMaxMbrCnt			(void) const;
 		bool		const &getInviteFlag 		(void) const;
 		bool		const &getTopicFlag			(void) const;
+		bool		const &getKeyFlag			(void) const;
 		int				   getMemberCnt			(void) const;
 		int 			   getOpCnt				(void) const;
 
@@ -41,13 +43,12 @@ class Channel
 		void	setMaxMemberCount				(int const &count);
 		void	setInviteFlag					(bool const &boolean);
 		void	setTopicFlag					(bool const &boolean);
+		void	setKeyFlag						(bool const &boolean);
 
 		bool	isSameUser						(User *user1, User *user2);
 		bool	isChanOp						(User *user);
 		bool	hasSameNick						(User *user);
-//		MEMBER
 
-//		MEMBERS
 		bool	hasMember						(User *user);
 		bool	hasChanOp						(User *user);
 
@@ -61,9 +62,6 @@ class Channel
 
 		User 	*getMember						(int i);
 		void	updateMemberList				(User *user);
-
-		void	printMembers					(void); //					DEBUG
-		void	printChanOps					(void); //					DEBUG
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

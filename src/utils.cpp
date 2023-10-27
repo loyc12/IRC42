@@ -3,7 +3,6 @@
 void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
 
 
-
 //		SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
 std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 {
@@ -14,14 +13,12 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 //	NOTE : strtok works iteratively, so it needs to be called once per token
 	while (ptr != NULL)
 	{
-		std::cerr << "> " << std::string(ptr) << " <" << std::endl; //					DEBUG
 		args.push_back(std::string(ptr));
 		ptr = strtok(NULL, dlmtrs);
 	}
 
 	return args;
 }
-
 
 
 //							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs

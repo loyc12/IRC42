@@ -7,6 +7,7 @@ Channel::Channel(std::string chanName): _chanName(chanName)		{
 	this->_topic = "No topic is set";
 	this->_isInviteOnly = 0;
 	this->_canTopic = 0;
+	this->_keyFlag = 0;
 	this->_maxMemberCount = 0;}
 Channel::~Channel(void) 										{ debugPrint(YELLOW, DEST_CHAN); }
 
@@ -19,6 +20,7 @@ std::string const & Channel::getTopic(void) const				{ return (this->_topic); }
 int 		const & Channel::getMaxMbrCnt(void) const			{ return (this->_maxMemberCount); }
 bool 		const & Channel::getInviteFlag(void)const			{ return (this->_isInviteOnly); }
 bool		const & Channel::getTopicFlag(void) const			{ return (this->_canTopic); }
+bool		const & Channel::getKeyFlag(void) const				{ return (this->_keyFlag); }
 int 				Channel::getMemberCnt(void) const			{ return (this->_chanMembers.size()); }
 int 				Channel::getOpCnt(void) const				{ return (this->_chanOps.size()); }
 
@@ -30,7 +32,7 @@ void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = count; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }
-
+void	Channel::setKeyFlag(bool const &boolean)				{ this->_keyFlag = boolean; }
 
 //	0================ OTHER FUNCTIONS ================0
 
@@ -53,7 +55,6 @@ bool	Channel::isChanOp(User *user)
 
 bool	Channel::hasSameNick(User *user)
 {
-//	return true if nickname already used
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		if ((*it)->getNick().compare(user->getNick()) == 0)
@@ -67,7 +68,6 @@ bool	Channel::hasSameNick(User *user)
 
 bool	Channel::hasMember(User *user)
 {
-//	return true if user* already in members list
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		if (isSameUser(user, *it))
@@ -78,7 +78,6 @@ bool	Channel::hasMember(User *user)
 
 bool	Channel::hasChanOp(User *user)
 {
-//	return true if user* already in ops list
 	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
 	{
 		if (isSameUser(user, *it))
@@ -87,9 +86,9 @@ bool	Channel::hasChanOp(User *user)
 	return (false);
 }
 
+// ADDS USER TO USERLIST IF IT'S NOT IN ALREADY
 void	Channel::addMember(User *user)
 {
-//	adds user to userlist if it is not in already
 	if (!hasMember(user))
 		this->_chanMembers.push_back(user);
 	if (getOpCnt() < 1)
@@ -99,11 +98,7 @@ void	Channel::addMember(User *user)
 void	Channel::addChanOp(User *user)
 {
 	if (hasMember(user) && !hasChanOp(user))
-	{
 		this->_chanOps.push_back(user);
-		std::cerr << user->getNick() << " is now Op" << std::endl; //					DEBUG
-	}
-
 }
 
 void	Channel::removeMember(User *user)
@@ -121,10 +116,7 @@ void	Channel::removeMember(User *user)
 				return ;
 			}
 		}
-		//	if the member was an OP, unop them
 	}
-//	else
-//		error message
 }
 
 void	Channel::removeChanOp(User *user)
@@ -143,7 +135,6 @@ void	Channel::removeChanOp(User *user)
 
 void	Channel::resetOpp(void)
 {
-	std::cerr << "reseting ops" << std::endl; //									DEBUG
 	addChanOp(*(this->_chanMembers.begin()));
 }
 
@@ -162,7 +153,6 @@ User 	*Channel::getMember(int id)
 }
 
 
-
 //		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
 void	Channel::updateMemberList(User *user)
 {
@@ -174,19 +164,16 @@ void	Channel::updateMemberList(User *user)
 	std::ostringstream message;
 
 	message << ":" << user->getNick() << "!" << user->getUsername() << "@" << user->getHostname() << " " << "\r\n";
-	message << ": 332 " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
-	message << ": 353 " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
-	message << ": 366 " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
+	message << ": " << RPL_TOPIC << " " << user->getUsername() << " " << this->getChanName() << " :" << this->getTopic() << "\r\n";
+	message << ": " << RPL_NAMREPLY << " " << user->getUsername() << " = " << this->getChanName() << " :" << memberList << "\r\n";
+	message << ": " << RPL_ENDOFNAMES << " " << user->getUsername() << " " << this->getChanName() << " :" << "End of NAMES list" << "\r\n";
 
 	this->sendToChan(user, message.str(), true);
 }
 
-
-
 //		SENDS A MESSAGE TO EVERYONE IN THE SERVER
 void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 {
-	printChanOps(); //																	DEBUG
 
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
@@ -200,25 +187,5 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 			if (send((*it)->getFD(), message.c_str(), message.size(), 0) < 0)
 				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
-		else
-			std::cerr << "skiping the sender" << std::endl; //							DEBUG
 	}
-}
-
-
-
-//		DEBUG FUNCTION
-void	Channel::printMembers(void)
-{
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-		std::cerr << (*it)->getNick() << ", ";
-	std::cerr << std::endl;
-}
-
-//		DEBUG FUNCTION
-void	Channel::printChanOps(void)
-{
-	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
-		std::cerr << (*it)->getNick() << ", ";
-	std::cerr << std::endl;
 }

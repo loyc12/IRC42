@@ -13,25 +13,8 @@
 # define WELCOME_HEADER 	"Welcome to our IRC server!"
 
 # define CMD_COUNT				12
-
-//ENTRY CODE
-# define RPL_WELCOME			"001"
-//CHANNEL CODE
-# define ERR_NOSUCHCHANNEL		"403"
-# define ERR_NEEDMOREPARAMS		"461"
-# define ERR_ALREADYREGISTRED	"462"
-# define ERR_PASSWDMISMATCH		"464"
-# define ERR_CHANNELISFULL		"471"
-# define ERR_INVITEONLYCHAN		"473"
-# define ERR_ERRONEUSNICKNAME	"432"
-# define ERR_NICKNAMEINUSE		"433"
-
-# define	ERR_UNKNOWNCOMMAND	"421"
-
-# define RPL_NOTOPIC			"331" //no topic set for chan
-# define RPL_TOPIC				"332" //topic of the chan
-# define RPL_NAMREPLY			"353" //list of nicknames in channel
-# define RPL_REPLY				"302" //Reply Mode
+# define REQUEST				0
+# define CHAN					1
 
 
 class Server
@@ -52,7 +35,7 @@ class Server
 			struct sockaddr_in				_serverAddr;
 
 	public:
-			bool					shutoff; //								NOTE : use and accessor instead (?)
+			bool					shutoff;
 //		Constructor - Destructor
 			Server					();
 			~Server					();
@@ -87,7 +70,6 @@ class Server
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
 			int		sendMessage		(User *user, std::vector<std::string> args);
-			int		closeServer		(User *user, std::vector<std::string> args); //	NOTE : for debuging purposes only
 			int		notACommand		(User *user, std::vector<std::string> args);
 			int		getCmdID		(std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
@@ -100,9 +82,10 @@ class Server
 			bool	checkPass		(User *user, Channel *chan, std::string pass);
 			bool	checkMaxMbr		(User *user, Channel *chan);
 			bool	isNickValid		(User *user, std::string nickname);
-			bool	isMsgEnd		(std::string str); //							TODO : IMPLEMENT ME
+			bool	isMsgEnd		(std::string str);
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
+			int		closeServer		(User *user, std::vector<std::string> args);//DEBUG
 };
 
 #endif // SERVER_HPP

@@ -29,28 +29,27 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 ## Netcat:
 * tout se passe dans le terminal pour netcat. Pas d'interface graphique
 * Il faut s'assurer de l'installer sur notre appareil. Dans le terminal: brew install netcat
-* Après la ligne de commande pour se connecter: netcat localhost <port>
-* Il faut que je regarde pour le mot de passe, j'imagine que la logique serait de l'ajouter à la suite de port...
-PASS <pass>ctrlVM après enter
-NICK <nick>ctrlVM après enter
-USER <username> * * :<nick>ctrlVM après enter
+* Après la ligne de commande pour se connecter: nc localhost <port> (us, we use 6666 for memo reasons)
+* NOTE : localhost -> system preference/network -> IP adress
 
-PRIVMSG #chanName :<le message>ctrlVM après enter
-PRIVMSG <nickname> :<le message>ctrlVM après enter
+PASS <pass>
+NICK <nick>
+USER <username>
 
-JOIN #chanNamectrlVM après enter
-PART #chanNamectrlVM après enter ->quitter un channel
-QUITctrlVM ->quitte le server
+PRIVMSG #chanName :<le message>
+PRIVMSG nickname :<le message>
+
+JOIN #chanName
+PART #chanName ->quitter un channel
+QUIT ->quitte le server
 
 ## REVIEW
 
 checklist :
 TODO :
-	* leaks
-	* define code : trouver, et les entrer dans le hpp, enlever excedent
-	* les notes doivent etre ecrites toutes de la meme facon
-	* debug comment out + push github
+	* let's deal with LEAKS now...
+	* readfromclient -> lit de la donnee qui existe pas, quand client disconnecte.... a suivre
 	* Relire le PDF au complet
 	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
 	* netcat moi et loic
-	
+	* memory leaks also
