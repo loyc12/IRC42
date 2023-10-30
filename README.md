@@ -5,14 +5,14 @@ Server to host a chat.
 TESTTESTTEST
 
 ## Netcat:
-* Everything happens in the terminal. No graphic interface 
+* Everything happens in the terminal. No graphic interface
 * Check if you have Netcat. Terminal: nc. To install: brew install netcat
 * To connect: nc localhost <port>
 * NOTE : localhost -> system preference/network -> IP adress
 
 PASS <pass> CTRL-VM before ENTER
-USER <username> CTRL-VM before ENTER
-NICK <nick> CTRL-VM before ENTER
+USER <username> * * <nickname> CTRL-VM before ENTER
+NICK <nickname> CTRL-VM before ENTER
 
 PRIVMSG #chanName :<le message> CTRL-VM before ENTER
 PRIVMSG nickname :<le message> CTRL-VM before ENTER
@@ -34,5 +34,4 @@ Nickname : al
 Login: al
 Real name : al
 
-Click Droit --> Connect ( Va dire que la connection est refusee)
 Dans le terminal (apres le make) : ./ircserv 6667 1234
