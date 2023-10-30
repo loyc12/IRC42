@@ -55,5 +55,5 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## TODO (LL)
-	fix segfault when kicking
+	check NOTE (LL) in server commands: if statements are wonkey and self defeating. spaghet???
 	inform everyone on nickname change (?)
