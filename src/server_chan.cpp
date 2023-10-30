@@ -79,7 +79,7 @@ void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 	else
 	{
 		if (!chan->hasMember(sender))
-			sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "you are not in this channel"));
+			sendToUser(sender, makeUserMsg(sender, ERR_CANNOTSENDTOCHAN, "you are not in this channel"));
 		else
 			chan->sendToChan(sender, makeChanMsg(sender, sender->getLastMsg()), false);
 	}

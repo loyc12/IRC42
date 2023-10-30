@@ -49,6 +49,7 @@ class User
 		void		setUserInfo		(std::vector<std::string> args);
 
 		void		addLoginStep	(int step);
+		bool		isLoggedIn		(void);
 };
 
 #endif // USER_HPP

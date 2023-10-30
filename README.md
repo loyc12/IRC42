@@ -33,3 +33,8 @@ Login: al
 Real name : al
 
 Dans le terminal (apres le make) : ./ircserv 6667 1234
+
+
+## TODO (LL)
+	fix segfault when kicking
+	inform everyone on nickname change (?)

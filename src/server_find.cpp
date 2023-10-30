@@ -4,7 +4,7 @@ bool	Server::isUserInChan(User *user, Channel *chan)
 {
 	if (chan->hasMember(user))
 	{
-	 	sendToUser(user, makeUserMsg(user, "ERR_ALREADYREGISTRED", "Already registered"));
+	 	sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Already registered"));
 		return (true);
 	}
 	return (false);
@@ -52,7 +52,7 @@ bool	Server::checkMaxMbr(User *user, Channel *chan)
 //	Check if we can add a member to the channel list
 	if (chan->getMaxMbrCnt() > 0 && chan->getMemberCnt() >= chan->getMaxMbrCnt())
 	{
-		sendToUser(user, makeUserMsg(user, ERR_CHANNELISFULL, "Cannot join channel (full)"));
+		sendToUser(user, makeUserMsg(user, ERR_CHANNELISFULL, chan->getChanName() + " is full"));
 		return (false);
 	}
 	return (true);
@@ -66,7 +66,7 @@ bool	Server::isNickValid(User *user, std::string nickname)
 	{
 		if (std::isalnum(nickname[i]) == 0 && nickname[i] != '_')
 		{
-			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname (" + nickname + " has non alphanumeric characters)"));
+			sendToUser(user, makeUserMsg(user, ERR_ERRONEUSNICKNAME, "Invalid nickname : " + nickname + " has non alphanumeric characters"));
 			return (false);
 		}
 	}
@@ -74,7 +74,7 @@ bool	Server::isNickValid(User *user, std::string nickname)
 	{
 		if (it->second->getNick().compare(nickname) == 0)
 		{
-			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Invalid nickname (" + nickname + " is already taken)"));
+			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Invalid nickname : " + nickname + " is already taken"));
 			return (false);
 		}
 	}
@@ -90,7 +90,7 @@ bool	Server::isInfoValid(User *user, std::vector<std::string> args)
 			//	NOTE : ':' is allowed in the realname, which might get fucky wucky
 			if (std::isalnum(args[j][i]) == 0 && args[j][i] != '_' && args[j][i] != '*' && args[j][i] != ':')
 			{
-				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Invalid user info (" + args[j] + " has non alphanumeric characters)"));
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Invalid user info : " + args[j] + " has non alphanumeric characters"));
 				return (false);
 			}
 		}

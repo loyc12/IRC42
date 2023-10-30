@@ -10,12 +10,9 @@
 # define DISCONNECTED 		"\n0======== CLIENT DISCONNECTED ========0\n\n"
 # define DENIED 			"\n0========= CONNECTION DENIED =========0\n"
 # define CLOSING 			"\n0=========== CLOSING SERVER ==========0\n\n"
+
 # define WELCOME_HEADER 	"Welcome to our IRC server!"
-
-# define CMD_COUNT				12
-# define REQUEST				0
-# define CHAN					1
-
+# define CMD_COUNT			13
 
 class Server
 {
@@ -72,6 +69,7 @@ class Server
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
 			int		sendMessage		(User *user, std::vector<std::string> args);
+			int		ping			(User *user, std::vector<std::string> args);
 			int		getCmdID		(User *user, std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
 			int		notACommand		(User *user, std::vector<std::string> args);
