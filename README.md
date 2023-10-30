@@ -1,55 +1,38 @@
-# IRC42
+# ft_irc
+Server to host a chat.
 
 //port un peu comme un fd
 TESTTESTTEST
 
-## Installation
+## Netcat:
+* Everything happens in the terminal. No graphic interface 
+* Check if you have Netcat. Terminal: nc. To install: brew install netcat
+* To connect: nc localhost <port>
+* NOTE : localhost -> system preference/network -> IP adress
+
+PASS <pass> CTRL-VM before ENTER
+USER <username> CTRL-VM before ENTER
+NICK <nick> CTRL-VM before ENTER
+
+PRIVMSG #chanName :<le message> CTRL-VM before ENTER
+PRIVMSG nickname :<le message> CTRL-VM before ENTER
+
+JOIN #chanName CTRL-VM before ENTER
+PART #chanName CTRL-VM before ENTER ->quit a channel
+QUIT CTRL-VM before ENTER ->quit the server
+
+## Limechat
 
 At School ---> Get LimeChat IRC Client
 Ouvre Limechat-> server/serverproperties/
 
 Network name : irc42
 server : localhost
-Port: 6667
+Port: 6666
 
 Nickname : al
 Login: al
 Real name : al
 
-OK
-
 Click Droit --> Connect ( Va dire que la connection est refusee)
 Dans le terminal (apres le make) : ./ircserv 6667 1234
-
-## Devoir
-
-## Note :
-* Eviter de prendre des rencontres de Jeudi
-
-## Netcat:
-* tout se passe dans le terminal pour netcat. Pas d'interface graphique
-* Il faut s'assurer de l'installer sur notre appareil. Dans le terminal: brew install netcat
-* Après la ligne de commande pour se connecter: nc localhost <port> (us, we use 6666 for memo reasons)
-* NOTE : localhost -> system preference/network -> IP adress
-
-PASS <pass>
-NICK <nick>
-USER <username>
-
-PRIVMSG #chanName :<le message>
-PRIVMSG nickname :<le message>
-
-JOIN #chanName
-PART #chanName ->quitter un channel
-QUIT ->quitte le server
-
-## REVIEW
-
-checklist :
-TODO :
-	* let's deal with LEAKS now...
-	* readfromclient -> lit de la donnee qui existe pas, quand client disconnecte.... a suivre
-	* Relire le PDF au complet
-	* TCP IP (info): on utiliser v4; 32-bits adresse; on a choisi -> moins complexe, plus facile, mais il a des limites sur le nombre de IP possible à créer
-	* netcat moi et loic
-	* memory leaks also
