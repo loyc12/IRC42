@@ -1,9 +1,6 @@
 # ft_irc
 Server to host a chat.
 
-//port un peu comme un fd
-TESTTESTTEST
-
 ## Netcat:
 * Everything happens in the terminal. No graphic interface
 * Check if you have Netcat. Terminal: nc. To install: brew install netcat
@@ -14,12 +11,13 @@ PASS <pass> CTRL-VM before ENTER
 USER <username> * * <nickname> CTRL-VM before ENTER
 NICK <nickname> CTRL-VM before ENTER
 
-PRIVMSG #chanName :<le message> CTRL-VM before ENTER
-PRIVMSG nickname :<le message> CTRL-VM before ENTER
+PRIVMSG #chanName :<message> CTRL-VM before ENTER
+PRIVMSG nickname :<message> CTRL-VM before ENTER
 
 JOIN #chanName CTRL-VM before ENTER
 PART #chanName CTRL-VM before ENTER ->quit a channel
 QUIT CTRL-VM before ENTER ->quit the server
+KICK #chanName <nickname> CTRL-VM before ENTER
 
 ## Limechat
 
