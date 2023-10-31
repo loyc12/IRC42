@@ -23,6 +23,7 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 	{
 		std::string tmp = user->getNick();
 		user->setNick(args[1]);
+		//									TODO : inform everyone this happened
 		user->addLoginStep(1);
 	}
 	//	deletes client if they fail to set their nickname properly on login

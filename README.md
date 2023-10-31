@@ -55,13 +55,17 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## TODO (LL)
-	check NOTE (LL) in server_cmds: if statements are wonkey and self defeating. spaghet???
-	joining and leaving are iffy (concerned user is not properly notified : ghost users)
+	joining and leaving are iffy (ghost users)
+		concerned user is not properly notified in sddToChan() and removeFromChan()
+
 	look for invalid reads when calling NICK
+
 	rework replies :
 		RPL_TOPIC
 		RPL_NOTOPIC ???
 		RPL_INVITING ???
 
-	inform everyone on nickname change (?)
-	only execute the first line in the user buffer
+	inform everyone on nickname change (to fix ghost names)
+
+	amange ctrl + D (???)
+	only execute the first line in the user buffer (???)
