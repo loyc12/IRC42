@@ -57,6 +57,7 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 ## TODO (LL)
 	check NOTE (LL) in server_cmds: if statements are wonkey and self defeating. spaghet???
 	joining and leaving are iffy (concerned user is not properly notified : ghost users)
+	look for invalid reads when calling NICK
 	rework replies :
 		RPL_TOPIC
 		RPL_NOTOPIC ???

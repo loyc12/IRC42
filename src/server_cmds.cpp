@@ -140,7 +140,7 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	else if (!(it->second->hasMember(member)))
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));//
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "482", "Operator permissions needed"));//prob
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));//prob
 	else
 	{
 		removeFromChan(member, user, it->second); //																LL1
