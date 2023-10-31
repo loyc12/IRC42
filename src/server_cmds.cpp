@@ -112,9 +112,9 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_NOPRIVILEGES", "Not a chan op"));
-	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user))))
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Invite only channel"));
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "You're not channel operator")); //DO NOT TOUCH IT. It works.
+	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user)))) //in case someone from outside who was not invited tries to join
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
@@ -132,13 +132,13 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	if (args.size() < 3)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
-		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));//
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	else if (member == NULL)
-		sendToUser(user, makeUserMsg(member, "ERR_NOSUCHNICK", "Member does not exist"));
+		sendToUser(user, makeUserMsg(user, ERR_NOSUCHNICK, "Member does not exist"));
 	else if (!(it->second->hasMember(member)))
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));//
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Not a chan op"));//
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "You're not channel operator"));
 	else
 	{
 		std::cout << "> KICKING " << member->getNick() << " out of " << args[1] << std::endl; //					DEBUG
@@ -160,7 +160,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
 	else if (!(it->second->isChanOp(user)) && args.size() == 3 && it->second->getTopicFlag() == 1)
-		sendToUser(user, makeUserMsg(user, "ERR_CHANOPRIVSNEEDED", "Not a chan op"));
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "You're not channel operator")); // DO NOT TOUCH IT. It works
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
