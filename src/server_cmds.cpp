@@ -9,7 +9,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 	{
 		sendToUser(user, makeUserMsg(user, ERR_PASSWDMISMATCH, "Invalid password"));
 
-		//	deletes client if they fail to set their name properly on login
+		//	deletes client if they fail to use the proper password on login
 		deleteClient(user->getFD());
 	}
 	else
@@ -25,7 +25,7 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 		user->setNick(args[1]);
 		user->addLoginStep(1);
 	}
-	//	deletes client if they fail to set their name properly on login
+	//	deletes client if they fail to set their nickname properly on login
 	else if (!user->wasWelcomed())
 		deleteClient(user->getFD());
 	return (0);
@@ -74,11 +74,12 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 	//	if the channel exists, try to join it. else create it
-		if (it != this->_chanContainer.end())
+		if (it != this->_chanContainer.end()) //							NOTE : we need to send the updated user list to everyone, including the user that just left
 		{
-			(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1st : tell channel they left
-			(it->second)->removeMember(user); //																2nd : remove user from channel
-			(it->second)->updateMemberList(user); //															3rd : update member list for all members
+			removeFromChan(user, NULL, it->second); //															LL1
+		//	(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1st : tell channel they left
+		//	(it->second)->removeMember(user); //																2nd : remove user from channel
+		//	(it->second)->updateMemberList(user); //															3rd : update member list for all members
 		}
 		else
 			sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
@@ -111,9 +112,9 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
-	else if (!(it->second->hasChanOp(user))) //																	NOTE (LL): wtf pt.1
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
-	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user)))) //							NOTE (LL): wtf pt.2
+//	else if (!(it->second->hasChanOp(user))) //											NOTE (LL): this one supercedes the next one... wtf
+//		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
+	else if (it->second->getInviteFlag() == 1 && !(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
 	{
@@ -142,9 +143,10 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));//
 	else
 	{
-		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
-		it->second->removeMember(member);
-		it->second->updateMemberList(member);
+		removeFromChan(member, user, it->second); //																LL1
+	//	it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
+	//	it->second->removeMember(member);
+	//	it->second->updateMemberList(member);
 	}
 	return (0);
 }
@@ -164,13 +166,15 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
-		sendToUser(user, makeUserMsg(user, "TOPIC", input));
+		sendToUser(user, makeUserMsg(user, "TOPIC", input)); //								TODO : see if input needs to be something else
+
+		// reply like this ? -> ": " << RPL_TOPIC << " " << user->getUsername() << " " << chan->getChanName() << " :" << chan->getTopic() << "\r\n";
 	}
 	else if ((it->second->getTopicFlag() == 1 && it->second->isChanOp(user)) || (it->second->getTopicFlag() == 0))
 	{
 		it->second->setTopic(args[2]);
 		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
-		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true);
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true); //			TODO : see if input needs to be something else
 	}
 	return (0);
 }
@@ -356,7 +360,7 @@ int	Server::notLoggedIn(User *user, std::vector<std::string> args)
 {
 	(void)args;
 
-	sendToUser(user, makeUserMsg(user, ERR_NOTREGISTERED, "Forbidden command : Finish logging in first"));
+	sendToUser(user, makeUserMsg(user, ERR_NOTREGISTERED, "Forbidden command : finish logging in first"));
 
 	return (0);
 }

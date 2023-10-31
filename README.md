@@ -55,5 +55,12 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## TODO (LL)
-	check NOTE (LL) in server commands: if statements are wonkey and self defeating. spaghet???
+	check NOTE (LL) in server_cmds: if statements are wonkey and self defeating. spaghet???
+	joining and leaving are iffy (concerned user is not properly notified : ghost users)
+	rework replies :
+		RPL_TOPIC
+		RPL_NOTOPIC ???
+		RPL_INVITING ???
+
 	inform everyone on nickname change (?)
+	only execute the first line in the user buffer

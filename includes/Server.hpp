@@ -53,6 +53,9 @@ class Server
 			void	dragToChannel	(User *invitee, Channel *chan);
 			void	processChanMsg	(User *sender, std::vector<std::string> args);
 			void	processPrivMsg	(User *user, std::vector<std::string> args);
+			void	addToChan		(User *user, Channel *chan);
+			void	removeFromChan	(User *member, Channel *chan);
+			void	removeFromChan	(User *member, User *kicker, Channel *chan);
 //		CLIENT
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int fd);
@@ -87,7 +90,7 @@ class Server
 			bool	isMsgEnd		(std::string str);
 			Channel	*findChannel	(std::string str);
 			User	*findUser		(std::string str);
-			int		closeServer		(User *user, std::vector<std::string> args);//DEBUG
+			int		closeServer		(User *user, std::vector<std::string> args); //		DEBUG
 };
 
 #endif // SERVER_HPP
