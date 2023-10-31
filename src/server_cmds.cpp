@@ -112,7 +112,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
-//	else if (!(it->second->hasChanOp(user))) //											NOTE (LL): this one supercedes the next one... wtf
+//	else if (!(it->second->hasChanOp(user))) //														NOTE (LL): this one supercedes the next one... wtf
 //		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
 	else if (it->second->getInviteFlag() == 1 && !(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel"));
@@ -140,7 +140,7 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	else if (!(it->second->hasMember(member)))
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));//
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));//
+		sendToUser(user, makeUserMsg(user, "482", "Operator permissions needed"));//prob
 	else
 	{
 		removeFromChan(member, user, it->second); //																LL1

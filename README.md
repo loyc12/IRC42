@@ -48,8 +48,8 @@ server : localhost
 Port: 6666
 
 Nickname : al
-Login: al
-Real name : al
+Login: al or whatever you want
+Real name : al or whatever you want
 
 Dans le terminal (apres le make) : ./ircserv 6667 1234
 
