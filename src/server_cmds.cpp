@@ -112,7 +112,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user))) //																	NOTE (LL): wtf pt.1
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //need to send msg to user who tries to invite
 	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user)))) //							NOTE (LL): wtf pt.2
 		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
