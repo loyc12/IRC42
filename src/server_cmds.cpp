@@ -112,7 +112,7 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
 	else if (!(it->second->hasChanOp(user))) //																	NOTE (LL): wtf pt.1
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //need to send msg to user who tries to invite
+		sendToUser(user, makeUserMsg(user, "482", "Operator permissions needed")); //PROB need to send msg to user who tries to invite
 	else if (it->second->getInviteFlag() == 1 && (!(it->second->hasChanOp(user)))) //							NOTE (LL): wtf pt.2
 		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel"));
 	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
@@ -139,7 +139,7 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	else if (!(it->second->hasMember(member)))
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));//
 	else if (!(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));//
+		sendToUser(user, makeUserMsg(user, "482", "Operator permissions needed"));//prob
 	else
 	{
 		it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
