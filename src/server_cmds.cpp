@@ -115,8 +115,8 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 //	else if (!(it->second->hasChanOp(user))) //														NOTE (LL): this one supercedes the next one... wtf
 //		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
 	else if (it->second->getInviteFlag() == 1 && !(it->second->hasChanOp(user)))
-		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel"));
-	else if (it->second->hasChanOp(user) && checkMaxMbr(user, it->second))
+		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel : operator permissions needed"));
+	else if (/*it->second->hasChanOp(user) &&*/ checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
 		dragToChannel(invitee, it->second);

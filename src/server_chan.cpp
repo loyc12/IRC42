@@ -79,11 +79,11 @@ void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
 	if (chan == NULL)
-		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "channel does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	else
 	{
 		if (!chan->hasMember(sender))
-			sendToUser(sender, makeUserMsg(sender, ERR_CANNOTSENDTOCHAN, "you are not in this channel"));
+			sendToUser(sender, makeUserMsg(sender, ERR_CANNOTSENDTOCHAN, "You are not in this channel"));
 		else
 			chan->sendToChan(sender, makeChanMsg(sender, sender->getLastMsg()), false);
 	}
@@ -94,7 +94,7 @@ void	Server::processPrivMsg(User *sender, std::vector<std::string> args)
 	User *receiver = findUser(args[1]);
 
 	if (receiver == NULL)
-		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "nickname does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "Nickname does not exist"));
 	else
 		sendToUser(receiver, makePrivMsg(sender, sender->getLastMsg()));
 }
