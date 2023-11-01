@@ -98,7 +98,10 @@ void	Channel::addMember(User *user)
 void	Channel::addChanOp(User *user)
 {
 	if (hasMember(user) && !hasChanOp(user))
+	{
 		this->_chanOps.push_back(user);
+		sendToUser(user, makeUserMsg(user, "MODE", "+o " + user->getNick()));
+	}
 }
 
 void	Channel::removeMember(User *user)
@@ -126,6 +129,7 @@ void	Channel::removeChanOp(User *user)
 		if (isSameUser(user, *it))
 		{
 			this->_chanOps.erase(it);
+			sendToUser(user, makeUserMsg(user, "MODE", "-o " + user->getNick()));
 			if (getOpCnt() < 1)
 				resetOpp();
 			return ;
@@ -135,7 +139,8 @@ void	Channel::removeChanOp(User *user)
 
 void	Channel::resetOpp(void)
 {
-	addChanOp(*(this->_chanMembers.begin()));
+	if (this->getMemberCnt() > 0)
+		addChanOp(*(this->_chanMembers.begin()));
 }
 
 User 	*Channel::getMember(int id)
@@ -154,12 +159,13 @@ User 	*Channel::getMember(int id)
 
 
 //		UPDATES THE MEMBER LIST AND SENDS IT TO ALL CHANNEL MEMBERS
-void	Channel::updateMemberList(User *user)
+void	Channel::updateMemberList(User *user, bool ignoreSender)
 {
 	std::string memberList;
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
-		memberList += (*it)->getNick() + " ";
+		if (!ignoreSender || !isSameUser(user, *it))
+			memberList += (*it)->getNick() + " ";
 	}
 	std::ostringstream message;
 
@@ -178,7 +184,7 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
 	{
 		std::ostringstream debug; //													DEBUG
-		debug << "OUTGOING CHAN_MSG TO (" << (*it)->getNick() << ") :\n" << message; //	DEBUG
+		debug << "OUTGOING CHAN_MSG TO : " << (*it)->getNick() << " :\n" << message; //	DEBUG
 		debugPrint(MAGENTA, debug.str()); //											DEBUG
 
 		//	Checks if we need to skip the sender or not

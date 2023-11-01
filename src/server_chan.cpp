@@ -10,11 +10,12 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan))
 		{
 //			the client can enter the channel
-			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
+			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								DEBUG
 
-			chan->addMember(user); //															1st : add user to channel
-			chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
-			chan->updateMemberList(user); //													3rd : update member list for all members
+			addToChan(user, chan); //															LL1
+		//	chan->addMember(user); //															1st : add user to channel
+		//	chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
+		//	chan->updateMemberList(user); //													3rd : update member list for all members
 		}
 	}
 	else if (chan->getKeyFlag() == 0)
@@ -22,11 +23,12 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 		if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) && checkMaxMbr(user, chan))
 		{
 //			the client can enter the channel
-			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								 DEBUG
+			debugPrint(MAGENTA, "\n > joinning a channel\n"); //								DEBUG
 
-			chan->addMember(user); //															1st : add user to channel
-			chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
-			chan->updateMemberList(user); //													3rd : update member list for all members
+			addToChan(user, chan); //															LL1
+		//	chan->addMember(user); //															1st : add user to channel
+		//	chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
+		//	chan->updateMemberList(user); //													3rd : update member list for all members
 		}
 	}
 }
@@ -42,16 +44,17 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 
 		Channel *newChannel = new Channel(args[1]);
 		this->_chanContainer.insert(std::pair<std::string, Channel*>(args[1], newChannel));
-
 		newChannel->setChanName(args[1]);
-		newChannel->addMember(user);
-		newChannel->sendToChan(user, makeChanMsg(user, "JOIN", newChannel->getChanName()), true);
+
+		addToChan(user, newChannel); //																LL1
+	//	newChannel->addMember(user);
+	//	newChannel->sendToChan(user, makeChanMsg(user, "JOIN", newChannel->getChanName()), true);
 
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
 
-		std::string chanOp = "+o " + user->getNick();
-		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
+		//std::string chanOp = "+o " + user->getNick();
+		//sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
 
@@ -63,9 +66,10 @@ void	Server::dragToChannel(User *invitee, Channel *chan)
 //		the client can enter the channel
 		debugPrint(MAGENTA, "\n > inviting (dragging) " + invitee->getNick() + " to chan " + chan->getChanName() + "\n"); // DEBUG
 
-		chan->addMember(invitee); //															1st : add user to channel
-		chan->sendToChan(invitee, makeChanMsg(invitee, "JOIN", chan->getChanName()), true); //	2nd : tell channel they joined
-		chan->updateMemberList(invitee); //														3rd : update member list for all members
+		addToChan(invitee, chan); //															L1
+	//	chan->addMember(invitee); //															1st : add user to channel
+	//	chan->sendToChan(invitee, makeChanMsg(invitee, "JOIN", chan->getChanName()), true); //	2nd : tell channel they joined
+	//	chan->updateMemberList(invitee); //														3rd : update member list for all members
 	}
 }
 
@@ -75,11 +79,11 @@ void	Server::processChanMsg(User *sender, std::vector<std::string> args)
 
 //	Sends a message to every channel member if it has at least 3 args (PRIVMSG + chan + message[0])
 	if (chan == NULL)
-		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "channel does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	else
 	{
 		if (!chan->hasMember(sender))
-			sendToUser(sender, makeUserMsg(sender, ERR_CANNOTSENDTOCHAN, "you are not in this channel"));
+			sendToUser(sender, makeUserMsg(sender, ERR_CANNOTSENDTOCHAN, "You are not in this channel"));
 		else
 			chan->sendToChan(sender, makeChanMsg(sender, sender->getLastMsg()), false);
 	}
@@ -90,7 +94,30 @@ void	Server::processPrivMsg(User *sender, std::vector<std::string> args)
 	User *receiver = findUser(args[1]);
 
 	if (receiver == NULL)
-		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "nickname does not exist"));
+		sendToUser(sender, makeUserMsg(sender, ERR_ERRONEUSNICKNAME, "Nickname does not exist"));
 	else
 		sendToUser(receiver, makePrivMsg(sender, sender->getLastMsg()));
+}
+
+//		THESE 3 COULD BE IN CHANNEL.CPP
+
+void	Server::addToChan(User *user, Channel *chan)
+{
+	chan->addMember(user); //															1st : add user to channel
+	chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
+	chan->updateMemberList(user, false); //												3rd : update member list for all members
+}
+
+void	Server::removeFromChan(User *member, Channel *chan) { this->removeFromChan(member, NULL, chan); }
+void	Server::removeFromChan(User *member, User *kicker, Channel *chan)
+{
+	chan->updateMemberList(member, true); //											2nd : update member list for all members
+
+	if (kicker)	//																		1st : tell channel they left
+		chan->sendToChan(member, makeChanMsg(kicker, "KICK", chan->getChanName() + " " + member->getNick() + " :" + kicker->getNick()), true);
+	else
+		chan->sendToChan(member, makeChanMsg(member, "PART", chan->getChanName()), true);
+
+	chan->removeMember(member); //														3rd : remove user from channel
+
 }

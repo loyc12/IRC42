@@ -28,14 +28,12 @@ void	Server::readFromClient(User *user, int fd)
 	else if (byteReceived > 0)
 	{
 		std::ostringstream debug; //													DEBUG
-		debug << "INCOMING USER_MSG FROM (" << user->getNick() << ") :\n" << buff; //	DEBUG
+		debug << "INCOMING USER_MSG FROM : " << user->getNick() << " :\n" << buff; //	DEBUG
 		debugPrint(BLUE, debug.str()); //												DEBUG
 
 		std::string str;
 		str.assign(buff, 0, byteReceived);
     	user->setLastMsg(user->getLastMsg().append(str));
-
-		debugPrint(YELLOW, user->getLastMsg());
 
 		//	NOTE : when using valgrind, delays allows multiple messages to be treated at once, fucking things up
 		if (isMsgEnd(user->getLastMsg()))

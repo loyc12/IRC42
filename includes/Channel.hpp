@@ -17,7 +17,7 @@ class Channel
 
 		bool		_isInviteOnly;
 		bool		_canTopic;
-		bool		_keyFlag;
+		bool		_keyFlag; //	aka channel password
 		std::string _password;
 		int			_maxMemberCount;
 
@@ -61,7 +61,7 @@ class Channel
 		void	resetOpp						(void);
 
 		User 	*getMember						(int i);
-		void	updateMemberList				(User *user);
+		void	updateMemberList				(User *user, bool ignoreSender);
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

@@ -7,23 +7,46 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 {
 	std::vector<std::string> args;
 
+
 	char	*ptr = strtok((char *)str.c_str(), dlmtrs);
 
 //	NOTE : strtok works iteratively, so it needs to be called once per token
-	while (ptr != NULL)
+	while (ptr != nullptr && std::string(ptr).compare("") != 0)
 	{
 		args.push_back(std::string(ptr));
+		std::cout << ptr << std::endl; //					DEBUG
 		ptr = strtok(NULL, dlmtrs);
 	}
 
 	return args;
 }
 
-//							PUBLIC OVERLOADS OF splitStringPrivate() THAT TAKES COMBINATIONS OF C_STRs AND STD::STRINGs
-std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(std::string(str), chrs); }
-std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(std::string(str), chrs.c_str()); }
+// std::vector<std::string>	splitStringPrivate(std::string str, std::string dlmtrs)
+// {
+// 	std::vector<std::string> args;
+
+// 	// char	*ptr = strtok((char *)str.c_str(), dlmtrs);
+// 	size_t	start = str.find_first_not_of(dlmtrs), end=start;
+
+// 	while (start != std::string::npos)
+// 	{
+// 		end = str.find(dlmtrs, start);
+// 		args.push_back(str.substr(start, end-start));
+// 		start = str.find_first_not_of(dlmtrs, end);
+// 	}
+// 	for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
+// 		std::cout << *it << std::endl;
+
+// 	return args;
+// }
+
+
+//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
+// std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(std::string(str), chrs); }
+// std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(std::string(str), chrs.c_str()); }
 std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str, chrs); }
-std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs.c_str()); }
+//std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs.c_str()); }
+//std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs); }
 
 std::string	makeChanMsg(User *user, std::string input)
 {
@@ -63,7 +86,7 @@ std::string	makePrivMsg(User *sender, std::string input)
 void	sendToUser(User *targetUser, std::string message)
 {
 	std::ostringstream debug; //															DEBUG
-	debug << "OUTGOING USER_MSG TO : " << targetUser->getNick() << "\t| " << message; //	DEBUG
+	debug << "OUTGOING USER_MSG TO : " << targetUser->getNick() << " :\n" << message; //	DEBUG
 	debugPrint(GREEN, debug.str()); //														DEBUG
 
 	if (send(targetUser->getFD(), message.c_str(), message.size(), 0) < 0)
