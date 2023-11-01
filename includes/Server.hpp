@@ -80,6 +80,7 @@ class Server
 //		COMM
 			void	welcomeUser		(User *user);
 			void	readFromClient	(User *user, int fd);
+			void	sendToServ		(User *user, std::string message);
 //		FIND
 			bool	isUserInChan	(User *user, Channel *chan);
 			bool	checkInvitePerm	(User *user, Channel *chan);

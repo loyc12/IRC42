@@ -53,3 +53,19 @@ void	Server::readFromClient(User *user, int fd)
 	}
 	bzero(buff, BUFFSIZE);
 }
+
+void	Server::sendToServ(User *user, std::string message)
+{
+	std::ostringstream debug; //															DEBUG
+	debug << "OUTGOING USER_MSG TO : " << user->getNick() << " :\n" << message; //	DEBUG
+	debugPrint(GREEN, debug.str()); //														DEBUG
+	//message need to be: olname NICK newname
+
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (send((*it).second->getFD(), message.c_str(), message.size(), 0) < 0)
+			throw std::invalid_argument(" > Error at sendToUser() ");
+
+	}
+
+}
