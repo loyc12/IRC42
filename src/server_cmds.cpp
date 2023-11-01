@@ -25,6 +25,12 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 		user->setNick(args[1]);
 		//								TODO : inform everyone this happened
 		user->addLoginStep(1);
+
+		if (user->wasWelcomed())
+		{
+			// send to EVERYONE on the serv that user changed name
+			(void)":oldname NICK newname"; // use a new "sendToServ()" function that sends this to everyone
+		}
 	}
 	//	deletes client if they fail to set their nickname properly on login
 	else if (!user->wasWelcomed())
@@ -172,7 +178,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 			sendToUser(user, makeUserMsg(user, RPL_TOPIC, input)); //			TODO : see if input needs to be something else
 	}
 	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS	
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS
 	else if (it->second->getTopicFlag() == 0 || it->second->isChanOp(user))
 	{
 		it->second->setTopic(args[2]);

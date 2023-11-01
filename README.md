@@ -61,8 +61,8 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 	look for invalid reads when calling NICK
 
 	rework replies :
-		RPL_TOPIC																		implemented
-		RPL_NOTOPIC																		implemented
+		RPL_TOPIC																		implemented but wonkey : remove : before chan name
+		RPL_NOTOPIC																		implemented but wonkey : remove : before chan name
 		RPL_INVITING ???
 
 	inform everyone on nickname change (to fix ghost names)
