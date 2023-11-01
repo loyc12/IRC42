@@ -2,8 +2,7 @@
 
 void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
 
-
-//		SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
+//							SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
 std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 {
 	std::vector<std::string> args;
@@ -20,8 +19,7 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 	return args;
 }
 
-
-//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
+//							PUBLIC OVERLOADS OF splitStringPrivate() THAT TAKES COMBINATIONS OF C_STRs AND STD::STRINGs
 std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(std::string(str), chrs); }
 std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(std::string(str), chrs.c_str()); }
 std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str, chrs); }
