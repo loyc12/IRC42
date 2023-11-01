@@ -55,17 +55,17 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## TODO (LL)
-	joining and leaving are iffy (ghost users)
+	joining and leaving are iffy (ghost users) 											should be fixed
 		concerned user is not properly notified in sddToChan() and removeFromChan()
 
 	look for invalid reads when calling NICK
 
 	rework replies :
-		RPL_TOPIC
-		RPL_NOTOPIC ???
+		RPL_TOPIC																		implemented
+		RPL_NOTOPIC																		implemented
 		RPL_INVITING ???
 
 	inform everyone on nickname change (to fix ghost names)
 
-	amange ctrl + D (???)
+	manage ctrl + D (???)
 	only execute the first line in the user buffer (???)

@@ -61,7 +61,7 @@ class Channel
 		void	resetOpp						(void);
 
 		User 	*getMember						(int i);
-		void	updateMemberList				(User *user);
+		void	updateMemberList				(User *user, bool ignoreSender);
 
 // 		OVERLOAD
 		void	sendToChan						(User *sender, std::string message, bool sendToSender);

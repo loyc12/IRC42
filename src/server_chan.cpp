@@ -53,8 +53,8 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
 
-		std::string chanOp = "+o " + user->getNick(); //							TODO : move to Channel:: ???
-		sendToUser(user, makeUserMsg(user, "MODE", chanOp));
+		//std::string chanOp = "+o " + user->getNick();
+		//sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
 
@@ -101,22 +101,23 @@ void	Server::processPrivMsg(User *sender, std::vector<std::string> args)
 
 //		THESE 3 COULD BE IN CHANNEL.CPP
 
-void	Server::addToChan(User *user, Channel *chan) //									TODO : rework me so I work well! (no more ghost users)
+void	Server::addToChan(User *user, Channel *chan)
 {
 	chan->addMember(user); //															1st : add user to channel
 	chan->sendToChan(user, makeChanMsg(user, "JOIN", chan->getChanName()), true);	//	2nd : tell channel they joined
-	chan->updateMemberList(user); //													3rd : update member list for all members
+	chan->updateMemberList(user, false); //												3rd : update member list for all members
 }
 
 void	Server::removeFromChan(User *member, Channel *chan) { this->removeFromChan(member, NULL, chan); }
-void	Server::removeFromChan(User *member, User *kicker, Channel *chan) //			TODO : rework me so I work well! (no more ghost users)
+void	Server::removeFromChan(User *member, User *kicker, Channel *chan)
 {
+	chan->updateMemberList(member, true); //											2nd : update member list for all members
+
 	if (kicker)	//																		1st : tell channel they left
 		chan->sendToChan(member, makeChanMsg(kicker, "KICK", chan->getChanName() + " " + member->getNick() + " :" + kicker->getNick()), true);
 	else
 		chan->sendToChan(member, makeChanMsg(member, "PART", chan->getChanName()), true);
 
-	chan->removeMember(member); //														2nd : add user to channel
-	chan->updateMemberList(member); //													3rd : update member list for all members
+	chan->removeMember(member); //														3rd : remove user from channel
 
 }

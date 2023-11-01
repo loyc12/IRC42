@@ -23,7 +23,7 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 	{
 		std::string tmp = user->getNick();
 		user->setNick(args[1]);
-		//									TODO : inform everyone this happened
+		//								TODO : inform everyone this happened
 		user->addLoginStep(1);
 	}
 	//	deletes client if they fail to set their nickname properly on login
@@ -157,25 +157,27 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 int	Server::setChanTopic(User *user, std::vector<std::string> args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
+	std::string input;
 
 	if (args.size() < 2 || args[1].compare("#") == 0 || args[1].compare(":") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
-	else if (!(it->second->isChanOp(user)) && args.size() == 3 && it->second->getTopicFlag() == 1)
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
-		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
-		sendToUser(user, makeUserMsg(user, "TOPIC", input)); //								TODO : see if input needs to be something else
-
-		// reply like this ? -> ": " << RPL_TOPIC << " " << user->getUsername() << " " << chan->getChanName() << " :" << chan->getTopic() << "\r\n";
+		input = it->second->getChanName() + " :" + it->second->getTopic();
+		if (it->second->getTopic().compare("No topic is set") == 0)
+			sendToUser(user, makeUserMsg(user, RPL_NOTOPIC, input)); //			TODO : see if input needs to be something else
+		else
+			sendToUser(user, makeUserMsg(user, RPL_TOPIC, input)); //			TODO : see if input needs to be something else
 	}
-	else if ((it->second->getTopicFlag() == 1 && it->second->isChanOp(user)) || (it->second->getTopicFlag() == 0))
+	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS	
+	else if (it->second->getTopicFlag() == 0 || it->second->isChanOp(user))
 	{
 		it->second->setTopic(args[2]);
-		std::string input = it->second->getChanName() + " :" + it->second->getTopic();
-		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true); //			TODO : see if input needs to be something else
+		input = it->second->getChanName() + " :" + it->second->getTopic();
+		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true);
 	}
 	return (0);
 }
@@ -235,14 +237,14 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				if (args[2][0] == '+')
 				{
 					it->second->addChanOp(invitee);
-					std::string chanOp = "+o " + invitee->getNick();
-					sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
+					//std::string chanOp = "+o " + invitee->getNick();
+					//sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
 				}
 				else if (args[2][0] == '-')
 				{
 					it->second->removeChanOp(invitee);
-					std::string chanOp = "-o " + invitee->getNick();
-					sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
+					//std::string chanOp = "-o " + invitee->getNick();
+					//sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
 				}
 			}
 			else
