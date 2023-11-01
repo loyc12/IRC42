@@ -100,7 +100,7 @@ void	Channel::addChanOp(User *user)
 	if (hasMember(user) && !hasChanOp(user))
 	{
 		this->_chanOps.push_back(user);
-		sendToUser(user, makeUserMsg(user, "MODE", "+o " + user->getNick()));
+		tellChanMode(user, this, "+o");
 	}
 }
 
@@ -129,7 +129,7 @@ void	Channel::removeChanOp(User *user)
 		if (isSameUser(user, *it))
 		{
 			this->_chanOps.erase(it);
-			sendToUser(user, makeUserMsg(user, "MODE", "-o " + user->getNick()));
+			tellChanMode(user, this, "-o");
 			if (getOpCnt() < 1)
 				resetOpp();
 			return ;

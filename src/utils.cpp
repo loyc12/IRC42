@@ -93,6 +93,11 @@ void	sendToUser(User *targetUser, std::string message)
 		throw std::invalid_argument(" > Error at sendToUser() ");
 }
 
+void	tellChanMode(User *user, Channel *chan, std::string mode)
+{
+	sendToUser(user, makeChanMsg(user, "MODE " + chan->getChanName(), mode));
+}
+
 //		DEBUG
 void	printChars(std::string str)
 {
