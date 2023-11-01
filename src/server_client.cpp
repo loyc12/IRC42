@@ -7,7 +7,7 @@ void	Server::newClient(struct sockaddr_in *client_addr, socklen_t *client_len)
 	this->_newSocket = accept(this->_baseSocket, (struct sockaddr *)&*client_addr, &*client_len);
 
 	if (this->_newSocket <= 0)
-		throw std::invalid_argument(" > Error at accept(): ");
+		throw std::invalid_argument(" > error at accept(): ");
 //	Creates a new user for this new Socket & stores User container inside the Server
 	else
 	{
@@ -42,9 +42,10 @@ void Server::deleteClient(int fd)
 	{
 		if (ite->second->hasMember(it->second))
 		{
-			ite->second->sendToChan(it->second, makeChanMsg(it->second, "PART", (ite->second)->getChanName()), true);
-			ite->second->removeMember(it->second);
-			ite->second->updateMemberList(it->second);
+			removeFromChan(it->second, NULL, ite->second); //											LL1
+		//	ite->second->sendToChan(it->second, makeChanMsg(it->second, "PART", (ite->second)->getChanName()), true);
+		//	ite->second->removeMember(it->second);
+		//	ite->second->updateMemberList(it->second);
 		}
 	}
 

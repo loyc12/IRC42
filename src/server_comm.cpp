@@ -33,7 +33,7 @@ void	Server::readFromClient(User *user, int fd)
 
 		std::string str;
 		str.assign(buff, 0, byteReceived);
-    	user->setLastMsg(str.append(user->getLastMsg()));
+    	user->setLastMsg(user->getLastMsg().append(str));
 
 		debugPrint(YELLOW, user->getLastMsg());
 
@@ -44,10 +44,10 @@ void	Server::readFromClient(User *user, int fd)
 
 			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 			if (execCommand(user, args))
-				sendToUser(user, makeUserMsg(user, "ERR_UNKNOWNCOMMAND", "invalid command"));
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
 
 			user->setLastMsg("");
-			if (user->wasWelcomed() == false && user->getLoginStep() == 0b111) // aka user finished login in
+			if (user->wasWelcomed() == false && user->isLoggedIn()) // aka user finished login in
 				welcomeUser(user);
 		}
 		else

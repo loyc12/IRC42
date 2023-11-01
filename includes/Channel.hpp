@@ -17,7 +17,7 @@ class Channel
 
 		bool		_isInviteOnly;
 		bool		_canTopic;
-		bool		_keyFlag;
+		bool		_keyFlag; //	aka channel password
 		std::string _password;
 		int			_maxMemberCount;
 

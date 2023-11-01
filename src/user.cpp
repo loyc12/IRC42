@@ -29,7 +29,7 @@ void 		User::setHostname(std::string hostName) 	{ this->_hostName = hostName; }
 
 void		User::addLoginStep(int step)
 {
-	this->_loginStep += (1 << step); // sets the bit at position step to 1 (aka true)
+	this->_loginStep = (this->_loginStep | (1 << step)); // sets the bit at position step to 1 (aka true)
 }
 
 // 0================ OTHER FUNCTIONS ================0
@@ -39,4 +39,11 @@ void	User::setUserInfo(std::vector<std::string> args)
 	this->setUsername(args[1]);
 	this->setHostname(inet_ntoa(this->_clientAddr.sin_addr));
 	this->setName(args[4]);
+}
+
+bool	User::isLoggedIn(void)
+{
+	if (this->_loginStep == 0b111) //				NOTE : hardcoded value; means 3 steps are done
+		return (true);
+	return (false);
 }

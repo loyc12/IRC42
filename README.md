@@ -48,7 +48,24 @@ server : localhost
 Port: 6666
 
 Nickname : al
-Login: al
-Real name : al
+Login: al or whatever you want
+Real name : al or whatever you want
 
 Dans le terminal (apres le make) : ./ircserv 6667 1234
+
+
+## TODO (LL)
+	joining and leaving are iffy (ghost users)
+		concerned user is not properly notified in sddToChan() and removeFromChan()
+
+	look for invalid reads when calling NICK
+
+	rework replies :
+		RPL_TOPIC
+		RPL_NOTOPIC ???
+		RPL_INVITING ???
+
+	inform everyone on nickname change (to fix ghost names)
+
+	amange ctrl + D (???)
+	only execute the first line in the user buffer (???)
