@@ -17,7 +17,6 @@ std::string					makeUserMsg(User *user, std::string code, std::string input);
 std::string					makePrivMsg(User *sender, std::string input);
 
 void						sendToUser(User *targetUser, std::string message);
-void						tellChanMode(User *user, Channel *chan, std::string mode);
 
 void						printChars(std::string str);
 

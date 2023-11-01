@@ -173,9 +173,9 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	{
 		input = it->second->getChanName() + " :" + it->second->getTopic();
 		if (it->second->getTopic().compare("No topic is set") == 0)
-			sendToUser(user, makeUserMsg(user, RPL_NOTOPIC, input)); //			TODO : see if input needs to be something else
+			sendToUser(user, makeUserMsg(user, RPL_NOTOPIC, input)); //			TODO : fix ":" issue
 		else
-			sendToUser(user, makeUserMsg(user, RPL_TOPIC, input)); //			TODO : see if input needs to be something else
+			sendToUser(user, makeUserMsg(user, RPL_TOPIC, input)); //			TODO : fix ":" issue
 	}
 	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS
@@ -188,7 +188,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-int	Server::setChanMode(User *user, std::vector<std::string> args)
+int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : used tellChanMode() for other mods than o
 {
 //	Finding channel
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
@@ -240,18 +240,8 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 			User *invitee = findUser(args[3]);
 			if (it->second->hasMember(invitee))
 			{
-				if (args[2][0] == '+')
-				{
-					it->second->addChanOp(invitee);
-					//std::string chanOp = "+o " + invitee->getNick();
-					//sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
-				}
-				else if (args[2][0] == '-')
-				{
-					it->second->removeChanOp(invitee);
-					//std::string chanOp = "-o " + invitee->getNick();
-					//sendToUser(invitee, makeUserMsg(invitee, "MODE", chanOp));
-				}
+				if (args[2][0] == '+')		it->second->addChanOp(invitee);
+				else if (args[2][0] == '-')	it->second->removeChanOp(invitee);
 			}
 			else
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Member not in channel"));

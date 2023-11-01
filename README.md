@@ -55,15 +55,17 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## TODO (LL)
-	joining and leaving are iffy (ghost users) 											should be fixed
+	joining and leaving are iffy (ghost users) 							should be fixed
 
-	inform everyone on nickname change (to fix ghost names) (sendToServ() - > :old NICK new)
+	inform everyone on nickname change (to fix ghost names)
+		sendToServ() - > :old NICK new
+		fix server leaving issues when name changed
 
 	look for invalid reads when calling NICK
 
 	rework replies :
-		RPL_TOPIC																		implemented but wonkey : remove ":" before chan name
-		RPL_NOTOPIC																		implemented but wonkey : remove ":" before chan name
+		RPL_TOPIC														implemented but wonkey : remove ":" before chan name
+		RPL_NOTOPIC														implemented but wonkey : remove ":" before chan name
 		RPL_INVITING ???
 
 

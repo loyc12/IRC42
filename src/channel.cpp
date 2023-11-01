@@ -100,7 +100,7 @@ void	Channel::addChanOp(User *user)
 	if (hasMember(user) && !hasChanOp(user))
 	{
 		this->_chanOps.push_back(user);
-		tellChanMode(user, this, "+o");
+		tellChanMode(user, this, "+o ");
 	}
 }
 
@@ -194,4 +194,9 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 				throw std::invalid_argument(" > Error at sendToChan() ");
 		}
 	}
+}
+
+void	Channel::tellChanMode(User *user, Channel *chan, std::string mode)
+{
+	sendToChan(user, makeChanMsg(user, "MODE " + chan->getChanName(), mode), true);
 }
