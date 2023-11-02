@@ -214,12 +214,14 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 		{
 			if (args[2][0] == '+')			it->second->setInviteFlag(1);
 			else if (args[2][0] == '-')		it->second->setInviteFlag(0);
+			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 		}
 //		mode t (topic can only be change by chanop or not)
 		else if (args[2][1] == 't')
 		{
 			if (args[2][0] == '+')			it->second->setTopicFlag(1);
 			else if (args[2][0] == '-')		it->second->setTopicFlag(0);
+			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 		}
 //		mode k (password is set by chanop on channel or not having password)
 		else if (args[2][1] == 'k')
@@ -239,6 +241,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 				it->second->setKeyFlag(0);
 				it->second->setPass("");
 			}
+			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 		}
 //		mode o (add or remove chanOp privileges)
 		else if (args[2][1] == 'o')
@@ -261,36 +264,36 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 //		mode l (set member limit or remove member limit by chanop on channel)
 		else if (args[2][1] == 'l')
 		{
-			if (args[2][0] == '+')
+			if (args[2][0] == '-')
 			{
-				if (args.size() <= 4)
-				{
-					sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
-					return (0);
-				}
-				if (args[3].find_first_not_of("0123456789") != std::string::npos)
-				{
-					sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Needs to be a number"));
-					return (0);
-				}
-				int count = stoi(args[3]);
-				it->second->setMaxMemberCount(count);
-			}
-			else if (args[2][0] == '-')
 				it->second->setMaxMemberCount(0);
+				it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
+				return (0);
+			}
+			if (args.size() <= 4)
+			{
+				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+				return (0);
+			}
+			if (args[3].find_first_not_of("0123456789") != std::string::npos)
+			{
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Needs to be a number"));
+				return (0);
+			}
+			int count = stoi(args[3]);
+			it->second->setMaxMemberCount(count);
+
+			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2] + " " + args[3]), true);
+
 		}
 		else
 		{
 			sendToUser(user, makeUserMsg(user, ERR_UNKNOWNMODE, "Invalid mode character"));
 			return (0);
 		}
-//		Informs the user that the mode change was successful
-		//std::string command = args[1] + " " + args[2] + " " + user->getNick();
-		//sendToUser(user, makeUserMsg(user, "MODE", command));
-
-//		Informs the channel that the mode change was successful
-		if (args[2][1] != 'o') //	avoids sending the message twice, since add/removeChanOp() does it itself
-			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
+//		Informs the channel that the mode change happened
+//		if (args[2][1] != 'o') //	avoids sending the message twice, since add/removeChanOp() does it itself
+//			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 	}
 	return (0);
 }
@@ -319,7 +322,6 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 int	Server::ping(User *user, std::vector<std::string> args)
 {
 	(void)args;
-	sendToUser(user, "PING");
 	return (0);
 }
 

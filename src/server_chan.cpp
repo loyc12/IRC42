@@ -47,14 +47,9 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		newChannel->setChanName(args[1]);
 
 		addToChan(user, newChannel); //																LL1
-	//	newChannel->addMember(user);
-	//	newChannel->sendToChan(user, makeChanMsg(user, "JOIN", newChannel->getChanName()), true);
 
 		newChannel->setAdminName(user->getNick());
 		newChannel->addChanOp(user);
-
-		//std::string chanOp = "+o " + user->getNick();
-		//sendToUser(user, makeUserMsg(user, "MODE", chanOp));
 	}
 }
 
