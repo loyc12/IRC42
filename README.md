@@ -55,20 +55,9 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 
 ## NOTES (LL)
-	joining and leaving are iffy (ghost users) 						should be fixed
-
-	inform everyone on nickname change (to fix ghost names)
-		sendToServ() - > :old NICK new
-		fix server leaving issues when name changed
-
-	make sure all sendTo....() are sending msgs with "\r\n" at the end
-	check for invalid reads when login off (check if user == NULL)
-
-	rework replies :
-		RPL_INVITING ???
-
-	manage ctrl + D (???)
 	only execute the first line in the user buffer (???)
+	manage ctrl + D (???)
+	use RPL_INVITING ???
 
 ## ALEX 2 nov
 * Open server, close server ctrl+c OK
