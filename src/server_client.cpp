@@ -27,7 +27,8 @@ void	Server::knownClient(int fd)
 	if (it != this->_clients.end())
 	{
 		User *user = it->second;
-		readFromClient(user, fd);
+		if (user != NULL)
+			readFromClient(user, fd);
 	}
 }
 
