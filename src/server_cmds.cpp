@@ -168,7 +168,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
-	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
+	else if (args.size() == 2 && it != this->_chanContainer.end())
 	{
 		input = it->second->getChanName() + " :" + it->second->getTopic();
 
@@ -178,7 +178,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 			sendToUser(user, makeChanMsg(user, RPL_TOPIC, input)); //			TODO : fix ":" issue
 	}
 	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
-		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
 	else if (it->second->getTopicFlag() == 0 || it->second->isChanOp(user))
 	{
 		it->second->setTopic(args[2]);
@@ -198,7 +198,9 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
-	else if (it->second->isChanOp(user))
+	else if (!it->second->isChanOp(user))
+		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
+	else
 	{
 		if (args.size() == 2)
 			return (0);
