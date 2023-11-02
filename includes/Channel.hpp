@@ -53,10 +53,10 @@ class Channel
 		bool	hasChanOp						(User *user);
 
 		void	addMember						(User *user);
-		void	addChanOp						(User *user);
+		void	addChanOp						(User *user, User *adder);
 
 		void	removeMember					(User *user);
-		void	removeChanOp					(User *user);
+		void	removeChanOp					(User *user, User *remover);
 
 		void	resetOpp						(void);
 

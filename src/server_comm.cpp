@@ -9,9 +9,6 @@ void	Server::welcomeUser(User *user)
 
 void	Server::readFromClient(User *user, int fd)
 {
-	if (this->isShutOff())
-		return;
-
 	char	buff[BUFFSIZE];
 	bzero (buff, BUFFSIZE);
 	int byteReceived = recv(fd, buff, BUFFSIZE - 1, 0);
@@ -21,6 +18,9 @@ void	Server::readFromClient(User *user, int fd)
 		deleteClient(fd);
 	else if (byteReceived > 0)
 	{
+		if (user == NULL || this->isShutOff())
+			return;
+
 		std::ostringstream debug; //													DEBUG
 		debug << "INCOMING USER_MSG FROM : " << user->getNick() << " :\n" << buff; //	DEBUG
 		debugPrint(BLUE, debug.str()); //												DEBUG
@@ -28,9 +28,8 @@ void	Server::readFromClient(User *user, int fd)
 		std::string str;
 		str.assign(buff, 0, byteReceived);
     	user->setLastMsg(user->getLastMsg().append(str));
-
 		//	NOTE : when using valgrind, delays allows multiple messages to be treated at once, fucking things up
-		if (user != NULL && !this->isShutOff() && isMsgEnd(user->getLastMsg()))
+		if (isMsgEnd(user->getLastMsg()))
 		{
 		//	printChars(user->getLastMsg()); //											DEBUG
 
@@ -39,12 +38,12 @@ void	Server::readFromClient(User *user, int fd)
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
 
-			if (user != NULL && !this->isShutOff())
-			{
-				user->setLastMsg("");
-				if (!user->wasWelcomed() && user->isLoggedIn()) // aka if user finished login in
-					welcomeUser(user);
-			}
+			if (user == NULL || this->isShutOff())
+				return;
+
+			user->setLastMsg("");
+			if (!user->wasWelcomed() && user->isLoggedIn()) // aka if user finished login in
+				welcomeUser(user);
 		}
 		else
 			debugPrint(YELLOW, "received a partial message..."); //						DEBUG

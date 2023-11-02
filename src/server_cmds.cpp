@@ -199,6 +199,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 		{
 			if (args[2][0] == '+')			it->second->setInviteFlag(1);
 			else if (args[2][0] == '-')		it->second->setInviteFlag(0);
+
 			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 		}
 //		mode t (topic can only be change by chanop or not)
@@ -206,6 +207,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 		{
 			if (args[2][0] == '+')			it->second->setTopicFlag(1);
 			else if (args[2][0] == '-')		it->second->setTopicFlag(0);
+
 			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 		}
 //		mode k (password is set by chanop on channel or not having password)
@@ -243,8 +245,8 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Member not in channel"));
 				return (0);
 			}
-			else if (args[2][0] == '+')	it->second->addChanOp(invitee);
-			else if (args[2][0] == '-')	it->second->removeChanOp(invitee);
+			else if (args[2][0] == '+')	it->second->addChanOp(invitee, user); //			these send their own channel messages
+			else if (args[2][0] == '-')	it->second->removeChanOp(invitee, user); //		these send their own channel messages
 		}
 //		mode l (set member limit or remove member limit by chanop on channel)
 		else if (args[2][1] == 'l')
@@ -276,9 +278,6 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 			sendToUser(user, makeUserMsg(user, ERR_UNKNOWNMODE, "Invalid mode character"));
 			return (0);
 		}
-//		Informs the channel that the mode change happened
-//		if (args[2][1] != 'o') //	avoids sending the message twice, since add/removeChanOp() does it itself
-//			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 	}
 	return (0);
 }
@@ -286,12 +285,9 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 //	PRIVMSG #channel/user <message>
 int	Server::sendMessage(User *user, std::vector<std::string> args)
 {
-	if (args.size() < 3)
-		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
-	else if (args[1][0] == '#')
-		processChanMsg(user, args);
-	else
-		processPrivMsg(user, args);
+	if (args.size() < 3)		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+	else if (args[1][0] == '#')	processChanMsg(user, args);
+	else						processPrivMsg(user, args);
 	return (0);
 }
 

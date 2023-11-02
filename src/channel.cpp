@@ -101,12 +101,12 @@ void	Channel::addMember(User *user)
 		resetOpp();
 }
 
-void	Channel::addChanOp(User *user)
+void	Channel::addChanOp(User *user, User *adder)
 {
 	if (hasMember(user) && !hasChanOp(user))
 	{
 		this->_chanOps.push_back(user);
-		tellChanMode(user, "+o ");
+		tellChanMode(adder, "+o " + user->getNick());
 	}
 }
 
@@ -121,21 +121,21 @@ void	Channel::removeMember(User *user)
 				User *tmp = *it;
 				this->_chanMembers.erase(it);
 				if (hasChanOp(tmp))
-					removeChanOp(tmp);
+					removeChanOp(tmp, tmp);
 				return ;
 			}
 		}
 	}
 }
 
-void	Channel::removeChanOp(User *user)
+void	Channel::removeChanOp(User *user, User *remover)
 {
 	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
 	{
 		if (isSameUser(user, *it))
 		{
 			this->_chanOps.erase(it);
-			tellChanMode(user, "-o");
+			tellChanMode(remover, "-o " + user->getNick());
 			if (getOpCnt() < 1)
 				resetOpp();
 			return ;
@@ -145,8 +145,9 @@ void	Channel::removeChanOp(User *user)
 
 void	Channel::resetOpp(void)
 {
+	User *newOp = *(this->_chanMembers.begin());
 	if (this->getMemberCnt() > 0)
-		addChanOp(*(this->_chanMembers.begin()));
+		addChanOp(newOp, newOp);
 }
 
 User 	*Channel::getMember(int id)

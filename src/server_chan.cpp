@@ -31,7 +31,7 @@ void	Server::newChannel(User *user, std::vector<std::string> args)
 		addToChan(user, newChannel);
 
 		newChannel->setAdminName(user->getNick());
-		newChannel->addChanOp(user);
+		newChannel->addChanOp(user, user);
 	}
 }
 
