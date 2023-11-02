@@ -82,13 +82,8 @@ int	Server::leaveChan(User *user, std::vector<std::string> args)
 		std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 	//	if the channel exists, try to join it. else create it
-		if (it != this->_chanContainer.end()) //							NOTE : we need to send the updated user list to everyone, including the user that just left
-		{
-			removeFromChan(user, NULL, it->second); //															LL1
-		//	(it->second)->sendToChan(user, makeChanMsg(user, "PART", (it->second)->getChanName()), true);	//	1st : tell channel they left
-		//	(it->second)->removeMember(user); //																2nd : remove user from channel
-		//	(it->second)->updateMemberList(user); //															3rd : update member list for all members
-		}
+		if (it != this->_chanContainer.end())
+			removeFromChan(user, NULL, it->second);
 		else
 			sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
 	}
@@ -148,12 +143,7 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 	else if (!(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));//prob
 	else
-	{
-		removeFromChan(member, user, it->second); //																LL1
-	//	it->second->sendToChan(member, makeChanMsg(user, "KICK", args[1] + " " + args[2] + " :" + user->getNick()), true);
-	//	it->second->removeMember(member);
-	//	it->second->updateMemberList(member);
-	}
+		removeFromChan(member, user, it->second);
 	return (0);
 }
 
@@ -322,6 +312,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 int	Server::ping(User *user, std::vector<std::string> args)
 {
 	(void)args;
+	(void)user;
 	return (0);
 }
 

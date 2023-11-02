@@ -14,7 +14,7 @@ static void	stop(int signal)
 {
 	(void)signal;
 	getServer()->shutOff();
-	debugPrint(MAGENTA, "\n\n > Closing...\n"); //					DEBUG
+	debugPrint(MAGENTA, "\n\n > Closing...\n"); //		DEBUG
 }
 
 //	PROGRAM ENTRY POINT
@@ -23,7 +23,7 @@ int main(int ac, char **av)
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, stop);
 
-	std::cout << DEFCOL;	//										DEBUG
+	std::cout << DEFCOL; //								DEBUG
 
 	int  port;
 	int  pass;
