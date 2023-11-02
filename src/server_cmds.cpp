@@ -211,7 +211,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 //		mode k (password is set by chanop on channel or not having password)
 		else if (args[2][1] == 'k')
 		{
-			if (args.size() <= 4)
+			if (args.size() < 4)
 			{
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 				return (0);
@@ -231,7 +231,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 //		mode o (add or remove chanOp privileges)
 		else if (args[2][1] == 'o')
 		{
-			if (args.size() <= 4)
+			if (args.size() < 4)
 			{
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 				return (0);
@@ -255,7 +255,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 				it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 				return (0);
 			}
-			if (args.size() <= 4)
+			if (args.size() < 4)
 			{
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 				return (0);
