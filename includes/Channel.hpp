@@ -65,7 +65,6 @@ class Channel
 		void	tellChanMode					(User *user, std::string mode);
 		void	tellChanTopic					(User *user);
 
-// 		OVERLOAD
 };
 
 #endif

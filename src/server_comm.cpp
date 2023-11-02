@@ -28,7 +28,7 @@ void	Server::readFromClient(User *user, int fd)
 		std::string str;
 		str.assign(buff, 0, byteReceived);
     	user->setLastMsg(user->getLastMsg().append(str));
-		//	NOTE : when using valgrind, delays allows multiple messages to be treated at once, fucking things up
+		//	NOTE : when using valgrind, delays allows multiple messages to be treated at once
 		if (isMsgEnd(user->getLastMsg()))
 		{
 		//	printChars(user->getLastMsg()); //											DEBUG
@@ -42,7 +42,7 @@ void	Server::readFromClient(User *user, int fd)
 				return;
 
 			user->setLastMsg("");
-			if (!user->wasWelcomed() && user->isLoggedIn()) // aka if user finished login in
+			if (!user->wasWelcomed() && user->isLoggedIn())
 				welcomeUser(user);
 		}
 		else

@@ -169,7 +169,7 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : used tellChanMode() for other mods than o
+int	Server::setChanMode(User *user, std::vector<std::string> args)
 {
 //	Finding channel
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
