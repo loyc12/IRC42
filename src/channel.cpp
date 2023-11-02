@@ -27,7 +27,13 @@ int 				Channel::getOpCnt(void) const				{ return (this->_chanOps.size()); }
 
 void	Channel::setChanName(std::string const &chan)			{ this->_chanName = chan; }
 void	Channel::setAdminName(std::string const &admin) 		{ this->_adminName = admin; }
-void	Channel::setPass(std::string const &password)			{ this->_password = password; }
+void	Channel::setPass(std::string const &password)
+{
+	if (password == "" && !this->_password.empty())
+		this->_password.clear();
+	else
+		this->_password = password;
+}
 void	Channel::setTopic(std::string const &topic)				{ this->_topic = topic; }
 void	Channel::setInviteFlag(bool const &boolean)				{ this->_isInviteOnly = boolean; }
 void	Channel::setTopicFlag(bool const &boolean)				{ this->_canTopic = boolean; }

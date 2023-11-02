@@ -13,7 +13,9 @@ class User
 	private:
 // 		Data
 		int			_fd;
-		int			_loginStep;
+		bool		_loginPass;
+		bool		_loginNick;
+		bool		_loginUser;
 		bool 		_wasWelcomed;
 		std::string	_lastMsg;
 		std::string	_name;
@@ -29,7 +31,7 @@ class User
 
 // 		Getters - Setters
 		int			getFD			(void) const;
-		int			getLoginStep	(void) const;
+		//int			getLoginStep	(void) const;
 		bool		wasWelcomed		(void) const;
 		std::string getLastMsg		(void) const;
 		std::string	getName			(void) const;
@@ -48,7 +50,7 @@ class User
 		void		setHostname		(std::string hostName);
 		void		setUserInfo		(std::vector<std::string> args);
 
-		void		addLoginStep	(int step);
+		void		addLoginStep	(std::string step);
 		bool		isLoggedIn		(void);
 };
 

@@ -43,7 +43,6 @@ void	Server::readFromClient(User *user, int fd)
 			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
-
 			user->setLastMsg("");
 			if (user->wasWelcomed() == false && user->isLoggedIn()) // aka user finished login in
 				welcomeUser(user);
@@ -52,4 +51,20 @@ void	Server::readFromClient(User *user, int fd)
 			debugPrint(YELLOW, "received a partial message"); //						DEBUG
 	}
 	bzero(buff, BUFFSIZE);
+}
+
+void	Server::sendToServ(User *user, std::string message)
+{
+	std::ostringstream debug; //															DEBUG
+	debug << "OUTGOING USER_MSG TO : " << user->getNick() << " :\n" << message; //	DEBUG
+	debugPrint(GREEN, debug.str()); //														DEBUG
+	//message need to be: olname NICK newname
+
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (send((*it).second->getFD(), message.c_str(), message.size(), 0) < 0)
+			throw std::invalid_argument(" > Error at sendToUser() ");
+
+	}
+
 }

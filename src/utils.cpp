@@ -11,7 +11,7 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 	char	*ptr = strtok((char *)str.c_str(), dlmtrs);
 
 //	NOTE : strtok works iteratively, so it needs to be called once per token
-	while (ptr != nullptr && std::string(ptr).compare("") != 0)
+	while (ptr != nullptr && !std::string(ptr).empty())
 	{
 		args.push_back(std::string(ptr));
 		std::cout << ptr << std::endl; //					DEBUG

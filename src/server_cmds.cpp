@@ -13,7 +13,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 		deleteClient(user->getFD());
 	}
 	else
-		user->addLoginStep(0);
+		user->addLoginStep("PASS");
 	return (0);
 }
 
@@ -21,15 +21,16 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	if (isNickValid(user, args[1])) //	NOTE : this send its own error messages
 	{
-		std::string tmp = user->getNick();
+		std::string oldname = user->getNick();
 		user->setNick(args[1]);
-		//								TODO : inform everyone this happened
-		user->addLoginStep(1);
+		user->addLoginStep("NICK");
 
 		if (user->wasWelcomed())
 		{
 			// send to EVERYONE on the serv that user changed name
-			(void)":oldname NICK newname"; // use a new "sendToServ()" function that sends this to everyone
+			(void)":oldname NICK newname"; // TODO use a new "sendToServ()" function that sends this to everyone
+			std::string msg = oldname + " : " + args[1];
+			sendToServ(user, makeUserMsg(user, "NICK", msg));
 		}
 	}
 	//	deletes client if they fail to set their nickname properly on login
@@ -47,7 +48,7 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 	else if (isInfoValid(user, args))
 	{
 		user->setUserInfo(args);
-		user->addLoginStep(2);
+		user->addLoginStep("USER");
 	}
 	return (0);
 }
