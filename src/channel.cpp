@@ -106,7 +106,7 @@ void	Channel::addChanOp(User *user)
 	if (hasMember(user) && !hasChanOp(user))
 	{
 		this->_chanOps.push_back(user);
-		tellChanMode(user, this, "+o ");
+		tellChanMode(user, "+o ");
 	}
 }
 
@@ -135,7 +135,7 @@ void	Channel::removeChanOp(User *user)
 		if (isSameUser(user, *it))
 		{
 			this->_chanOps.erase(it);
-			tellChanMode(user, this, "-o");
+			tellChanMode(user, "-o");
 			if (getOpCnt() < 1)
 				resetOpp();
 			return ;
@@ -202,7 +202,13 @@ void	Channel::sendToChan(User *sender, std::string message, bool sendToSender)
 	}
 }
 
-void	Channel::tellChanMode(User *user, Channel *chan, std::string mode)
+void	Channel::tellChanMode(User *user, std::string mode)
 {
-	sendToChan(user, makeChanMsg(user, "MODE " + chan->getChanName(), mode), true);
+	sendToChan(user, makeChanMsg(user, "MODE " + this->getChanName(), mode), true);
 }
+
+void	Channel::tellChanTopic(User *user)
+{
+	sendToChan(user, makeChanMsg(user, RPL_TOPIC, user->getUsername() + " " + this->getChanName() + " :" + this->getTopic()), true);
+}
+

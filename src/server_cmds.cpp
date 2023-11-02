@@ -162,28 +162,24 @@ int	Server::kickUser(User *user, std::vector<std::string> args)
 int	Server::setChanTopic(User *user, std::vector<std::string> args)
 {
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
-	std::string input;
 
 	if (args.size() < 2 || args[1].compare("#") == 0 || args[1].compare(":") == 0)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "No such channel"));
+	//		Tells people what the topic is
 	else if (args.size() == 2 && it != this->_chanContainer.end())
 	{
-		input = it->second->getChanName() + " :" + it->second->getTopic();
-
-		if (it->second->getTopic().compare("No topic is set") == 0)
-			sendToUser(user, makeChanMsg(user, RPL_NOTOPIC, input)); //			TODO : fix ":" issue
-		else
-			sendToUser(user, makeChanMsg(user, RPL_TOPIC, input)); //			TODO : fix ":" issue
+		std::string input = user->getUsername() + " " + it->second->getChanName() + " :" + it->second->getTopic();
+		sendToUser(user, makeChanMsg(user, RPL_TOPIC, input));
 	}
 	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
+	//		Sets the topic
 	else if (it->second->getTopicFlag() == 0 || it->second->isChanOp(user))
 	{
 		it->second->setTopic(args[2]);
-		input = it->second->getChanName() + " :" + it->second->getTopic();
-		it->second->sendToChan(user, makeChanMsg(user, "TOPIC", input), true);
+		it->second->tellChanTopic(user);
 	}
 	return (0);
 }
@@ -198,8 +194,11 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
 		sendToUser(user, makeUserMsg(user, ERR_NOSUCHCHANNEL, "Channel does not exist"));
+	else if (!(it->second->hasMember(user)))
+		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel"));
 	else if (!it->second->isChanOp(user))
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
+	//		Checks and executes the mode cmd
 	else
 	{
 		if (args.size() == 2)
@@ -341,9 +340,9 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setChanMode,
 		&Server::sendMessage,
 		&Server::closeServer,
-		&Server::ping, //						NOTE : to prevent limechat from filling up the logs >:(
-		&Server::notACommand, //				NOTE : default case for getCmdID() (returns -1)
-		&Server::notLoggedIn //					NOTE : command N : for loggin perms
+		&Server::ping, //				NOTE : to prevent limechat from filling up the logs >:(
+		&Server::notACommand, //		NOTE : default case for getCmdID() (returns -1)
+		&Server::notLoggedIn //			NOTE : command N : for loggin perms
 	};
 	return (this->*commands[getCmdID(user, args[0])])(user, args);
 }

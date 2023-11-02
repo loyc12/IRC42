@@ -62,10 +62,12 @@ class Channel
 
 		User 	*getMember						(int i);
 		void	updateMemberList				(User *user, bool ignoreSender);
-		void	tellChanMode					(User *user, Channel *chan, std::string mode);
+
+		void	sendToChan						(User *sender, std::string message, bool sendToSender);
+		void	tellChanMode					(User *user, std::string mode);
+		void	tellChanTopic					(User *user);
 
 // 		OVERLOAD
-		void	sendToChan						(User *sender, std::string message, bool sendToSender);
 };
 
 #endif
