@@ -119,11 +119,9 @@ int	Server::inviteUser(User *user, std::vector<std::string> args)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "User is not in channel (cannot invite others)"));
 	else if (it->second->hasMember(invitee))
 		sendToUser(user, makeUserMsg(user, ERR_ALREADYREGISTERED, "Invitee is already in channel"));
-//	else if (!(it->second->hasChanOp(user))) //														NOTE (LL): this one supercedes the next one... wtf
-//		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed"));
 	else if (it->second->getInviteFlag() == 1 && !(it->second->hasChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_NOPRIVILEGES, "Invite only channel : operator permissions needed"));
-	else if (/*it->second->hasChanOp(user) &&*/ checkMaxMbr(user, it->second))
+	else if (checkMaxMbr(user, it->second))
 	{
 		sendToUser(invitee, makeUserMsg(user, "INVITE", args[2]));
 		dragToChannel(invitee, it->second);
@@ -172,10 +170,11 @@ int	Server::setChanTopic(User *user, std::vector<std::string> args)
 	else if (args.size() == 2 && it != this->_chanContainer.end()) //	NOTE: for anyone who wants to know the topic of chan CMD sent: TOPIC #chanName
 	{
 		input = it->second->getChanName() + " :" + it->second->getTopic();
+
 		if (it->second->getTopic().compare("No topic is set") == 0)
-			sendToUser(user, makeUserMsg(user, RPL_NOTOPIC, input)); //			TODO : fix ":" issue
+			sendToUser(user, makeChanMsg(user, RPL_NOTOPIC, input)); //			TODO : fix ":" issue
 		else
-			sendToUser(user, makeUserMsg(user, RPL_TOPIC, input)); //			TODO : fix ":" issue
+			sendToUser(user, makeChanMsg(user, RPL_TOPIC, input)); //			TODO : fix ":" issue
 	}
 	else if (it->second->getTopicFlag() == 1 && !(it->second->isChanOp(user)))
 		sendToUser(user, makeUserMsg(user, ERR_CHANOPRIVSNEEDED, "Operator permissions needed")); //	NOTE : WORKS
