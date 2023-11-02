@@ -2,8 +2,8 @@
 
 void	debugPrint(std::string color, std::string message)	{std::cout << color << message << DEFCOL << std::endl;}
 
-//							SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
-std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
+//			SPLITS A STRING INTO A VECTOR OF STRING TOKENS, USING CHARS AS DELIMIERS
+std::vector<std::string>	splitString(std::string str, const char *dlmtrs)
 {
 	std::vector<std::string> args;
 
@@ -14,39 +14,12 @@ std::vector<std::string>	splitStringPrivate(std::string str, const char *dlmtrs)
 	while (ptr != nullptr && !std::string(ptr).empty())
 	{
 		args.push_back(std::string(ptr));
-		std::cout << ptr << std::endl; //					DEBUG
+		//std::cout << ptr << std::endl; //					DEBUG
 		ptr = strtok(NULL, dlmtrs);
 	}
 
 	return args;
 }
-
-// std::vector<std::string>	splitStringPrivate(std::string str, std::string dlmtrs)
-// {
-// 	std::vector<std::string> args;
-
-// 	// char	*ptr = strtok((char *)str.c_str(), dlmtrs);
-// 	size_t	start = str.find_first_not_of(dlmtrs), end=start;
-
-// 	while (start != std::string::npos)
-// 	{
-// 		end = str.find(dlmtrs, start);
-// 		args.push_back(str.substr(start, end-start));
-// 		start = str.find_first_not_of(dlmtrs, end);
-// 	}
-// 	for (std::vector<std::string>::iterator it = args.begin(); it != args.end(); it++)
-// 		std::cout << *it << std::endl;
-
-// 	return args;
-// }
-
-
-//							PUBLIC OVERLOADS OF splitStringPrivate THAT TAKES COMBINATIONS OF C_STRs and STD::STRINGs
-// std::vector<std::string>	splitString(const char *str, const char *chrs)				{ return splitStringPrivate(std::string(str), chrs); }
-// std::vector<std::string>	splitString(const char *str, const std::string chrs)		{ return splitStringPrivate(std::string(str), chrs.c_str()); }
-std::vector<std::string>	splitString(const std::string str, const char *chrs)		{ return splitStringPrivate(str, chrs); }
-//std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs.c_str()); }
-//std::vector<std::string>	splitString(const std::string str, std::string const chrs)	{ return splitStringPrivate(str, chrs); }
 
 std::string	makeChanMsg(User *user, std::string input)
 {
