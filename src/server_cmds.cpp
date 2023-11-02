@@ -309,7 +309,7 @@ int	Server::closeServer(User *user, std::vector<std::string> args)
 	return (0);
 }
 
-int	Server::ping(User *user, std::vector<std::string> args)
+int	Server::pong(User *user, std::vector<std::string> args)
 {
 	(void)args;
 	(void)user;
@@ -350,7 +350,7 @@ int	Server::execCommand(User *user, std::vector<std::string> args)
 		&Server::setChanMode,
 		&Server::sendMessage,
 		&Server::closeServer,
-		&Server::ping, //				NOTE : to prevent limechat from filling up the logs >:(
+		&Server::pong, //				NOTE : to prevent limechat from filling up the logs >:(
 		&Server::notACommand, //		NOTE : default case for getCmdID() (returns -1)
 		&Server::notLoggedIn //			NOTE : command N : for loggin perms
 	};

@@ -41,12 +41,7 @@ void Server::deleteClient(int fd)
 	for (std::map<std::string, Channel*>::iterator ite = this->_chanContainer.begin(); ite != this->_chanContainer.end(); ite++)
 	{
 		if (ite->second->hasMember(it->second))
-		{
-			removeFromChan(it->second, NULL, ite->second); //											LL1
-		//	ite->second->sendToChan(it->second, makeChanMsg(it->second, "PART", (ite->second)->getChanName()), true);
-		//	ite->second->removeMember(it->second);
-		//	ite->second->updateMemberList(it->second);
-		}
+			removeFromChan(it->second, NULL, ite->second);
 	}
 
 //	Deletes the associated user instance

@@ -67,7 +67,6 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 	rework replies :
 		RPL_INVITING ???
 
-
 	manage ctrl + D (???)
 	only execute the first line in the user buffer (???)
 

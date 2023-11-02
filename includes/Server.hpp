@@ -72,7 +72,7 @@ class Server
 			int		setChanTopic	(User *user, std::vector<std::string> args);
 			int		setChanMode		(User *user, std::vector<std::string> args);
 			int		sendMessage		(User *user, std::vector<std::string> args);
-			int		ping			(User *user, std::vector<std::string> args);
+			int		pong			(User *user, std::vector<std::string> args);
 			int		getCmdID		(User *user, std::string cmd);
 			int		execCommand		(User *user, std::vector<std::string> args);
 			int		notACommand		(User *user, std::vector<std::string> args);
