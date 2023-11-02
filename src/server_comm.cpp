@@ -43,7 +43,6 @@ void	Server::readFromClient(User *user, int fd)
 			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 			if (execCommand(user, args))
 				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
-
 			user->setLastMsg("");
 			if (user->wasWelcomed() == false && user->isLoggedIn()) // aka user finished login in
 				welcomeUser(user);

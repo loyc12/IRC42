@@ -71,3 +71,9 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 
 	manage ctrl + D (???)
 	only execute the first line in the user buffer (???)
+
+## ALEX 2 nov
+* Open server, close server ctrl+c OK
+* Open server, create client nc, ctrl c dans netcat (client disco OK)
+* Open server, create client nc, CLOSESERV dans netcat (VALGRIND OK)
+

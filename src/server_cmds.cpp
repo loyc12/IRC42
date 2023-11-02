@@ -13,7 +13,7 @@ int	Server::checkPassword(User *user, std::vector<std::string> args)
 		deleteClient(user->getFD());
 	}
 	else
-		user->addLoginStep(0);
+		user->addLoginStep("PASS");
 	return (0);
 }
 
@@ -23,7 +23,7 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 	{
 		std::string oldname = user->getNick();
 		user->setNick(args[1]);
-		user->addLoginStep(1);
+		user->addLoginStep("NICK");
 
 		if (user->wasWelcomed())
 		{
@@ -48,7 +48,7 @@ int	Server::storeUserInfo(User *user, std::vector<std::string> args)
 	else if (isInfoValid(user, args))
 	{
 		user->setUserInfo(args);
-		user->addLoginStep(2);
+		user->addLoginStep("USER");
 	}
 	return (0);
 }
