@@ -87,7 +87,6 @@ bool	Server::isInfoValid(User *user, std::vector<std::string> args)
 	{
 		for (int i = 0; i < (int)args[j].length(); i++)
 		{
-			//	NOTE : ':' is allowed in the realname, which might get fucky wucky
 			if (std::isalnum(args[j][i]) == 0 && args[j][i] != '_' && args[j][i] != '*' && args[j][i] != ':')
 			{
 				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Invalid user info : " + args[j] + " has non alphanumeric characters"));

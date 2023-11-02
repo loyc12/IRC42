@@ -43,8 +43,6 @@ void	Server::init()
 	debugPrint(GREEN, LAUNCH); //										DEBUG
 }
 
-
-
 //	LAUNCHES THE SERVER AND ITS PROCESSES
 void	Server::run(void)
 {

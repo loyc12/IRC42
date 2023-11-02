@@ -175,7 +175,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 //	If it found channel and user is chanop
-	if (args.size() == 2) //	to avoid limechat fuckery
+	if (args.size() == 2) //	to avoid limechat bug
 		return (0);
 	if (args.size() <= 1)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
@@ -245,7 +245,7 @@ int	Server::setChanMode(User *user, std::vector<std::string> args)
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Member not in channel"));
 				return (0);
 			}
-			else if (args[2][0] == '+')	it->second->addChanOp(invitee, user); //			these send their own channel messages
+			else if (args[2][0] == '+')	it->second->addChanOp(invitee, user); //		these send their own channel messages
 			else if (args[2][0] == '-')	it->second->removeChanOp(invitee, user); //		these send their own channel messages
 		}
 //		mode l (set member limit or remove member limit by chanop on channel)

@@ -31,8 +31,6 @@ void	Server::readFromClient(User *user, int fd)
 		//	NOTE : when using valgrind, delays allows multiple messages to be treated at once
 		if (isMsgEnd(user->getLastMsg()))
 		{
-		//	printChars(user->getLastMsg()); //											DEBUG
-
 			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 
 			if (execCommand(user, args))

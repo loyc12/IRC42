@@ -14,7 +14,6 @@ std::vector<std::string>	splitString(std::string str, const char *dlmtrs)
 	while (ptr != nullptr && !std::string(ptr).empty())
 	{
 		args.push_back(std::string(ptr));
-		//std::cout << ptr << std::endl; //					DEBUG
 		ptr = strtok(NULL, dlmtrs);
 	}
 
