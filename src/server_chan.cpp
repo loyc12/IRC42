@@ -6,7 +6,9 @@ void	Server::knownChannel(User *user, Channel *chan, std::vector<std::string> ar
 //	Check all conditions in mode if we can add the member to this channel
 	if (chan->getKeyFlag() == 1)
 	{
-		if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
+		if (args.size() < 3)
+			sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "No password provided"));
+		else if (!isUserInChan(user, chan) && checkInvitePerm(user, chan) \
 		&& checkPass(user, chan, args[2]) && checkMaxMbr(user, chan))
 			addToChan(user, chan);
 	}

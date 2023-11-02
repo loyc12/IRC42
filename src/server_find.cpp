@@ -42,6 +42,7 @@ bool	Server::checkPass(User *user, Channel *chan, std::string pass)
 			return (false);
 		}
 	}
+
 	return (true);
 }
 
