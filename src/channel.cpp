@@ -42,32 +42,12 @@ void	Channel::setMaxMemberCount(int const &count)			{ this->_maxMemberCount = co
 
 //	0================ OTHER FUNCTIONS ================0
 
-bool Channel::isSameUser(User* user1, User* user2)
-{
-	if ((void *)user1 == (void *)user2)
-		return (true);
-	return (false);
-}
-
 bool	Channel::isChanOp(User *user)
 {
 	for (std::vector<User*>::iterator it = this->_chanOps.begin(); it != this->_chanOps.end(); it++)
 	{
 		if (*it == user)
 			return (true);
-	}
-	return (false);
-}
-
-bool	Channel::hasSameNick(User *user)
-{
-	for (std::vector<User*>::iterator it = this->_chanMembers.begin(); it != this->_chanMembers.end(); it++)
-	{
-		if ((*it)->getNick().compare(user->getNick()) == 0)
-		{
-			sendToUser(user, makeUserMsg(user, ERR_NICKNAMEINUSE, "Nickname already used"));
-			return (true);
-		}
 	}
 	return (false);
 }

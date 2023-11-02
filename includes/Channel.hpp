@@ -45,9 +45,7 @@ class Channel
 		void	setKeyFlag						(bool const &boolean);
 		void	setMaxMemberCount				(int const &count);
 
-		bool	isSameUser						(User *user1, User *user2);
 		bool	isChanOp						(User *user);
-		bool	hasSameNick						(User *user);
 
 		bool	hasMember						(User *user);
 		bool	hasChanOp						(User *user);

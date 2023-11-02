@@ -18,7 +18,7 @@ void	Server::readFromClient(User *user, int fd)
 		deleteClient(fd);
 	else if (byteReceived > 0)
 	{
-		if (user == NULL || this->isShutOff())
+		if (!hasClient(user) || this->isShutOff())
 			return;
 
 		std::ostringstream debug; //													DEBUG
@@ -36,9 +36,9 @@ void	Server::readFromClient(User *user, int fd)
 			std::vector<std::string> args = splitString(user->getLastMsg(), " \r\n");
 
 			if (execCommand(user, args))
-				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "invalid command"));
+				sendToUser(user, makeUserMsg(user, ERR_UNKNOWNCOMMAND, "Invalid command"));
 
-			if (user == NULL || this->isShutOff())
+			if (!hasClient(user) || this->isShutOff())
 				return;
 
 			user->setLastMsg("");

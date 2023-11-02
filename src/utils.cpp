@@ -81,6 +81,12 @@ std::string	makePrivMsg(User *sender, std::string input)
 	return (message.str());
 }
 
+bool isSameUser(User* user1, User* user2)
+{
+	if ((void *)user1 == (void *)user2)
+		return (true);
+	return (false);
+}
 
 //	SENDS A SINGLE MESSAGE TO A SINGLE CLIENT
 void	sendToUser(User *targetUser, std::string message)

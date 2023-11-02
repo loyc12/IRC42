@@ -60,6 +60,7 @@ class Server
 			void	newClient		(struct sockaddr_in *client_addr, socklen_t *client_len);
 			void	knownClient		(int fd);
 			void	deleteClient	(int fd);
+			bool	hasClient		(User *user);
 //		CMDS
 			int		checkPassword	(User *user, std::vector<std::string> args);
 			int		storeNickname	(User *user, std::vector<std::string> args);

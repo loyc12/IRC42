@@ -27,13 +27,13 @@ void	Server::knownClient(int fd)
 	if (it != this->_clients.end())
 	{
 		User *user = it->second;
-		if (user != NULL && !this->isShutOff())
+		if (hasClient(user) && !this->isShutOff())
 			readFromClient(user, fd);
 	}
 }
 
 //	DELETES A GIVEN CLIENT
-void Server::deleteClient(int fd)
+void	Server::deleteClient(int fd)
 {
 //	Sets iterator to the client's Fd
 	std::map<int, User*>::iterator it = this->_clients.find(fd);
@@ -60,4 +60,14 @@ void Server::deleteClient(int fd)
 	}
 	else
 		std::cerr << "invalid fd : cannot delete this client" << std::endl;
+}
+
+bool	Server::hasClient(User *user)
+{
+	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (isSameUser(user, it->second))
+			return (true);
+	}
+	return (false);
 }

@@ -53,15 +53,10 @@ void	User::setUserInfo(std::vector<std::string> args)
 
 void	User::addLoginStep(std::string step)
 {
-//	if (step != NULL)
-//	{
-		if 		(step.compare("PASS") == 0) this->_loginPass = true;
-		else if	(step.compare("NICK") == 0) this->_loginNick = true;
-		else if	(step.compare("USER") == 0) this->_loginUser = true;
-		else	throw std::invalid_argument(" > Error at User::addLoginStep() : invalid step");
-//	}
-//	else
-//		throw std::invalid_argument(" > Error at User::addLoginStep() : NULL step");
+	if 		(step.compare("PASS") == 0) this->_loginPass = true;
+	else if	(step.compare("NICK") == 0) this->_loginNick = true;
+	else if	(step.compare("USER") == 0) this->_loginUser = true;
+	else	throw std::invalid_argument(" > Error at User::addLoginStep() : invalid step");
 }
 
 bool	User::isLoggedIn(void)

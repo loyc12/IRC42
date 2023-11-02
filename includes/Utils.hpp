@@ -16,8 +16,10 @@ std::string					makeUserMsg(User *user, std::string input);
 std::string					makeUserMsg(User *user, std::string code, std::string input);
 std::string					makePrivMsg(User *sender, std::string input);
 
+bool						isSameUser(User *user1, User *user2);
+
 void						sendToUser(User *targetUser, std::string message);
 
-void						printChars(std::string str);
+void						printChars(std::string str); //		DEBUG
 
 #endif // UTILS_HPP
