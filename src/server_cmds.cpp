@@ -21,17 +21,12 @@ int	Server::storeNickname(User *user, std::vector<std::string> args)
 {
 	if (isNickValid(user, args[1])) //	NOTE : this send its own error messages
 	{
-		std::string oldname = user->getNick();
+		if (user->wasWelcomed()) // send to EVERYONE on the serv that user changed name
+			sendToServ(makeChanMsg(user, "NICK", args[1]));
+
 		user->setNick(args[1]);
 		user->addLoginStep("NICK");
 
-		if (user->wasWelcomed())
-		{
-			// send to EVERYONE on the serv that user changed name
-			(void)":oldname NICK newname"; // TODO use a new "sendToServ()" function that sends this to everyone
-			std::string msg = oldname + " : " + args[1];
-			sendToServ(user, makeUserMsg(user, "NICK", msg));
-		}
 	}
 	//	deletes client if they fail to set their nickname properly on login
 	else if (!user->wasWelcomed())

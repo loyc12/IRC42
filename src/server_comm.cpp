@@ -52,8 +52,8 @@ void	Server::readFromClient(User *user, int fd)
 	bzero(buff, BUFFSIZE);
 }
 
-void	Server::sendToServ(User *user, std::string message)
+void	Server::sendToServ(std::string message)
 {
 	for (std::map<int, User*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
-		sendToUser(it->second, makeUserMsg(user, message));
+		sendToUser(it->second, message);
 }
