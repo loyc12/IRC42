@@ -190,6 +190,8 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 	std::map<std::string, Channel*>::iterator it = this->_chanContainer.find(args[1]);
 
 //	If it found channel and user is chanop
+	if (args.size() == 2) //	to avoid limechat fuckery
+		return (0);
 	if (args.size() <= 1)
 		sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 	else if (it == this->_chanContainer.end())
@@ -201,10 +203,8 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 	//		Checks and executes the mode cmd
 	else
 	{
-		if (args.size() == 2)
-			return (0);
 //		if modestring is NOT size 2 OR not + OR - => invalid mode
-		else if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
+		if (args[2].size() != 2 || (args[2][0] != '+' && args[2][0] != '-'))
 		{
 			sendToUser(user, makeUserMsg(user, ERR_UMODEUNKNOWNFLAG, "Invalid mode flag"));
 			return (0);
@@ -222,8 +222,13 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 			else if (args[2][0] == '-')		it->second->setTopicFlag(0);
 		}
 //		mode k (password is set by chanop on channel or not having password)
-		else if (args[2][1] == 'k' && (args.size() == 4))
+		else if (args[2][1] == 'k')
 		{
+			if (args.size() <= 4)
+			{
+				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+				return (0);
+			}
 			if (args[2][0] == '+')
 			{
 				it->second->setKeyFlag(1);
@@ -236,32 +241,40 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 			}
 		}
 //		mode o (add or remove chanOp privileges)
-		else if (args[2][1] == 'o' && (args.size() == 4))
+		else if (args[2][1] == 'o')
 		{
-			User *invitee = findUser(args[3]);
-			if (it->second->hasMember(invitee))
+			if (args.size() <= 4)
 			{
-				if (args[2][0] == '+')		it->second->addChanOp(invitee);
-				else if (args[2][0] == '-')	it->second->removeChanOp(invitee);
+				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
+				return (0);
 			}
-			else
+			User *invitee = findUser(args[3]);
+
+			if (!it->second->hasMember(invitee))
+			{
 				sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Member not in channel"));
+				return (0);
+			}
+			else if (args[2][0] == '+')	it->second->addChanOp(invitee);
+			else if (args[2][0] == '-')	it->second->removeChanOp(invitee);
 		}
 //		mode l (set member limit or remove member limit by chanop on channel)
 		else if (args[2][1] == 'l')
 		{
 			if (args[2][0] == '+')
 			{
-				if (args.size() > 3 && (args[3].find_first_not_of("0123456789") == std::string::npos))
-				{
-					int count = stoi(args[3]);
-					it->second->setMaxMemberCount(count);
-				}
-				else
+				if (args.size() <= 4)
 				{
 					sendToUser(user, makeUserMsg(user, ERR_NEEDMOREPARAMS, "Need more parameters"));
 					return (0);
 				}
+				if (args[3].find_first_not_of("0123456789") != std::string::npos)
+				{
+					sendToUser(user, makeUserMsg(user, ERR_UNKNOWNERROR, "Needs to be a number"));
+					return (0);
+				}
+				int count = stoi(args[3]);
+				it->second->setMaxMemberCount(count);
 			}
 			else if (args[2][0] == '-')
 				it->second->setMaxMemberCount(0);
@@ -272,8 +285,12 @@ int	Server::setChanMode(User *user, std::vector<std::string> args) //	TODO : use
 			return (0);
 		}
 //		Informs the user that the mode change was successful
-		std::string command = args[1] + " " + args[2] + " " + user->getNick();
-		sendToUser(user, makeUserMsg(user, "MODE", command));
+		//std::string command = args[1] + " " + args[2] + " " + user->getNick();
+		//sendToUser(user, makeUserMsg(user, "MODE", command));
+
+//		Informs the channel that the mode change was successful
+		if (args[2][1] != 'o') //	avoids sending the message twice, since add/removeChanOp() does it itself
+			it->second->sendToChan(user, makeChanMsg(user, "MODE " + it->second->getChanName(), args[2]), true);
 	}
 	return (0);
 }

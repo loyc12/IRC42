@@ -61,6 +61,9 @@ Dans le terminal (apres le make) : ./ircserv 6667 1234
 		sendToServ() - > :old NICK new
 		fix server leaving issues when name changed
 
+	make sure all sendTo....() are sending msgs with "\r\n" at the end
+	check for invalid reads when login off (check if user == NULL)
+
 	rework replies :
 		RPL_INVITING ???
 
